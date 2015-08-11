@@ -1,17 +1,16 @@
 (ns fractalify.core
-  (:require [om.core :as om :include-macros true]
-            [om.dom :as dom :include-macros true]))
+    (:require [reagent.core :as reagent]
+              [re-frame.core :as re-frame]
+              [fractalify.handlers]
+              [fractalify.subs]
+              [fractalify.routes :as routes]
+              [fractalify.views :as views]))
 
-(enable-console-print!)
+(defn mount-root []
+  (reagent/render [views/main-panel]
+                  (.getElementById js/document "app")))
 
-(defonce app-state (atom {:text "Hello Chestnut!"}))
-
-(defn main []
-  (om/root
-    (fn [app owner]
-      (reify
-        om/IRender
-        (render [_]
-          (dom/h1 nil (:text app)))))
-    app-state
-    {:target (. js/document (getElementById "app"))}))
+(defn ^:export init [] 
+  (routes/app-routes)
+  (re-frame/dispatch-sync [:initialize-db])
+  (mount-root))
