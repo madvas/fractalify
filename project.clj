@@ -20,7 +20,7 @@
                  [secretary "1.2.3"]
                  [com.cemerick/drawbridge "0.0.6"]
                  [ring-basic-authentication "1.0.5"]
-                 [reagent "0.5.0"]
+                 [reagent "0.5.0" :exclusions [cljsjs/react]]
                  [re-frame "0.4.1"]
                  [cljs-ajax "0.3.14"]
                  [day8/re-frame-tracer "0.1.0-SNAPSHOT"]
@@ -37,6 +37,7 @@
 
   :cljsbuild {:builds {:app {:source-paths ["src/cljs"]
                              :compiler     {:main          fractalify.core
+                                            :preamble      ["resources/public/vendor/material-ui/material.js"]
                                             :output-to     "resources/public/js/app.js"
                                             :output-dir    "resources/public/js/out"
                                             :source-map    "resources/public/js/out.js.map"

@@ -1,12 +1,15 @@
 (ns fractalify.views
-    (:require [re-frame.core :as re-frame]))
+  (:require [re-frame.core :as re-frame]
+            [material-ui.core :as ui :include-macros true]))
 
 ;; --------------------
 (defn home-panel []
   (let [name (re-frame/subscribe [:name])]
     (fn []
       [:div (str "Hello from " @name ". This is the Home Page.")
-       [:div [:a {:href "#/about"} "go to About Page"]]])))
+       [:div [:a {:href "#/about"} "go to About Page"]]
+       [ui/TextField {:hintText          "Please enter your first name"
+                      :floatingLabelText "First Name"}]])))
 
 (defn about-panel []
   (fn []

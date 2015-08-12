@@ -13,8 +13,8 @@
       <sourceFolder url="file://$MODULE_DIR$/src/cljs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test/cljs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test/clj" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/env/prod/cljs" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/resources/public/js" />
+      <excludeFolder url="file://$MODULE_DIR$/resources/public/vendor" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
@@ -130,7 +130,6 @@
     <orderEntry type="library" scope="PROVIDED" name="Leiningen: junit:4.10" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Leiningen: org.hamcrest/hamcrest-core:1.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Leiningen: org.clojure/google-closure-library-third-party:0.0-20140718-946a7d39" level="project" />
-    <orderEntry type="library" name="Leiningen: cljsjs/react:0.12.2-5" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/data.codec:0.1.0" level="project" />
     <orderEntry type="library" name="Leiningen: javax.servlet/servlet-api:2.5" level="project" />
     <orderEntry type="library" name="Leiningen: ring/ring-anti-forgery:1.0.0" level="project" />
