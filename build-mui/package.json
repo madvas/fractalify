@@ -1,0 +1,24 @@
+{
+  "name": "build-mui",
+  "version": "0.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "js:dev": "browserify main.js > ../resources/public/vendor/material-ui/material.js",
+    "js:min": "NODE_ENV=production browserify main.js | uglifyjs -cm -o ../resources/public/vendor/material-ui/material.min.js",
+    "css": "lessc main.less | cleancss -o ../resources/public/material.css",
+    "start": "npm run js:dev && npm run js:min"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "browserify": "^9.0.3",
+    "clean-css": "^3.1.4",
+    "less": "^2.4.0",
+    "material-ui": "=0.10.4",
+    "react": "^0.13.3",
+    "react-tap-event-plugin": "^0.1.7",
+    "reactify": "^1.0.0",
+    "uglify-js": "^2.4.16"
+  }
+}

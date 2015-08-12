@@ -4,6 +4,7 @@
   '[AppBar
     AppCanvas
     Circle
+    CircularProgress
     Checkbox
     DatePicker
     DialogWindow
@@ -20,6 +21,7 @@
     InkBar
     Input
     LeftNav
+    LinearProgress
     MenuItem
     Menu
     Overlay

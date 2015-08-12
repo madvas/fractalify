@@ -6,6 +6,8 @@
               [fractalify.routes :as routes]
               [fractalify.views :as views]))
 
+(enable-console-print!)
+
 (defn mount-root []
   (reagent/render [views/main-panel]
                   (.getElementById js/document "app")))
