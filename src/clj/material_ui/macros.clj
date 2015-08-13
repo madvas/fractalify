@@ -1,56 +1,53 @@
-(ns material-ui.macros)
+(ns material-ui.macros
+  (:require [clojure.string :as str]))
 
 (def material-tags
   '[AppBar
-    AppCanvas
-    Circle
-    CircularProgress
-    Checkbox
-    DatePicker
-    DialogWindow
-    Dialog
-    DropDownIcon
-    DropDownMenu
-    EnhancedButton
+    Avatar
     FlatButton
+    RaisedButton
     FloatingActionButton
-    FocusRipple
+    Card
+    CardHeader
+    DatePicker
+    Dialog
+    DropDownMenu
     FontIcon
     IconButton
-    Icon
-    InkBar
-    Input
-    LeftNav
-    LinearProgress
+    IconMenu
     MenuItem
+    LeftNav
+    List
+    ListItem
+    ListDivider
     Menu
-    Overlay
+    MenuItem
     Paper
-    RadioButton
-    RadioButtonGroup
-    RaisedButton
+    LinearProgress
+    CircularProgress
+    RefreshIndicator
     Slider
-    SlideIn
+    Checkbox
     Snackbar
-    SvgIcon
-    Tab
-    TabTemplate
+    Table
     Tabs
-    TableHeader
-    TableRowsItem
-    TableRows
+    Tab
     TextField
-    Toggle
-    ToolbarGroup
+    SelectField
+    TimePicker
     Toolbar
-    Tooltip
-    TouchRipple])
+    ToolbarGroup
+    ToolbarSeparator])
 
+(defn kebab-case
+  "Converts CamelCase / camelCase to kebab-case"
+  [s]
+  (str/join "-" (map str/lower-case (re-seq #"\w[a-z]+" s))))
 
 (defn material-ui-react-import [tname]
-  `(def ~tname (reagent.core/adapt-react-class (aget js/MaterialUI ~(name tname)))))
+  `(def ~(symbol (kebab-case (str tname))) (reagent.core/adapt-react-class (aget js/MaterialUI ~(name tname)))))
 
 (defmacro export-material-ui-react-classes []
   `(do ~@(map material-ui-react-import material-tags)))
 
-
+(macroexpand '(export-material-ui-react-classes))

@@ -1,2 +1,2 @@
-(ns cljsjs.react)
+(ns cljsjs.reactt)
 

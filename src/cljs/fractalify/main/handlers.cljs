@@ -1,4 +1,4 @@
-(ns fractalify.handlers
+(ns fractalify.main.handlers
     (:require [re-frame.core :as re-frame]
               [fractalify.db :as db]))
 

@@ -4,14 +4,6 @@
     injectTapEventPlugin = require("react-tap-event-plugin"),
     materialUI = require('material-ui');
 
-  var ThemeManager = require('material-ui/lib/styles/theme-manager')();
-
-  window.ThemeManager = ThemeManager;
-
-  console.log(ThemeManager.getCurrentTheme());
-
-  ThemeManager.setTheme(ThemeManager.types.LIGHT);
-
   //Needed for React Developer Tools
   window.React = React;
  

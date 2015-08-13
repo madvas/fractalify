@@ -1,4 +1,4 @@
-(ns fractalify.routes
+(ns fractalify.main.routes
     (:require-macros [secretary.core :refer [defroute]])
     (:import goog.History)
     (:require [secretary.core :as secretary]

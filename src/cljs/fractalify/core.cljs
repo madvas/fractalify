@@ -1,12 +1,12 @@
 (ns fractalify.core
     (:require [reagent.core :as reagent]
               [re-frame.core :as re-frame]
-              [fractalify.handlers]
-              [fractalify.subs]
-              [fractalify.routes :as routes]
-              [fractalify.views :as views]))
+              [fractalify.main.handlers]
+              [fractalify.main.subs]
+              [fractalify.main.routes :as routes]
+              [fractalify.main.views :as views]))
 
-(enable-console-print!)
+;(enable-console-print!)
 
 (defn mount-root []
   (reagent/render [views/main-panel]
