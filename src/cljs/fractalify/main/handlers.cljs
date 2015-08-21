@@ -2,7 +2,8 @@
   (:require [re-frame.core :as r]
             [fractalify.db :as db]
             [fractalify.middleware :as m]
-            [fractalify.utils :as u]))
+            [fractalify.utils :as u]
+            [fractalify.components.snackbar :as snackbar]))
 
 (defn get-form-data [db form]
   (-> db
@@ -37,3 +38,11 @@
       (if value
         (assoc-in db path value)
         (u/dissoc-in db path)))))
+
+(r/register-handler
+  :show-snackbar
+  m/standard-middlewares
+  (fn [db [snackbar-props]]
+    (let [db (assoc db :snackbar-props snackbar-props)]
+      (snackbar/show-snackbar!)
+      db)))

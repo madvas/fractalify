@@ -13,6 +13,16 @@
    (reaction (:active-panel @db))))
 
 (r/register-sub
+  :get-form-item
+  (fn [db [_ form item]]
+    (reaction (get-in @db [:forms form item]))))
+
+(r/register-sub
   :form-errors
-  (fn [db vec]
-    (reaction (get-in @db [:forms (second vec) :errors]))))
+  (fn [db [_ form]]
+    (reaction (get-in @db [:forms form :errors]))))
+
+(r/register-sub
+  :snackbar-props
+  (fn [db [_]]
+    (reaction (:snackbar-props @db))))

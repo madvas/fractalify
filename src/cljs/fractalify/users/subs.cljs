@@ -1,4 +1,4 @@
-(ns fractalify.auth.subs
+(ns fractalify.users.subs
   (:require-macros [reagent.ratom :refer [reaction]])
   (:require [re-frame.core :as r]))
 

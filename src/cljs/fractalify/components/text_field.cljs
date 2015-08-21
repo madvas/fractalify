@@ -10,24 +10,25 @@
 
 (def style {:padding-bottom 13})
 (def underline-style {:bottom 22})
+(def error-style {:text-align "left"})
 
 (s/defn text-field
-  [subscription :- s/Keyword
-   dispatch :- [s/Keyword]
+  [[form item] :- [s/Keyword]
    props :- {s/Keyword s/Any}]
-  (let [value (f/subscribe [subscription])
+  (let [value (f/subscribe [:get-form-item form item])
         validators (into [] (concat
                               (when (:required props)
                                 [v/required])
                               (:validators props)))]
     (fn []
       (let [error-text (u/do-until @value validators)]
-        (f/dispatch (into [] (concat [:set-form-error] dispatch [error-text])))
+        (f/dispatch [:set-form-error form item error-text])
         [ui/text-field (merge
                          {:value          @value
                           :errorText      error-text
                           :style          style
                           :underlineStyle underline-style
+                          :errorStyle     error-style
                           :onChange       #(f/dispatch
-                                            (into [] (concat [:set-form-item] dispatch [(u/e-val %)])))}
+                                            [:set-form-item form item (u/e-val %)])}
                          props)]))))

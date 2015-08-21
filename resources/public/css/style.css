@@ -143,6 +143,10 @@ a:hover {
 html {
   font-family: 'Roboto', sans-serif;
 }
+h1 {
+  font-size: 1.5em;
+  font-weight: 300;
+}
 .no-dec,
 .no-dec:hover {
   color: inherit !important;

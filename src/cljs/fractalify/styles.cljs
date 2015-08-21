@@ -4,6 +4,19 @@
 (def w-100 {:width "100%"})
 (def block {:display "block"})
 (def text-center {:text-align "center"})
+(def page-title
+  {:white-space      "nowrap"
+   :overflow         "hidden"
+   :text-overflow    "ellipsis"
+   :margin           0
+   :padding-top      0
+   :letter-spacing   0
+   :font-size        "24px"
+   :font-weight      400
+   :color            "rgba(255, 255, 255, 0.87)"
+   :line-height      "64px"
+   :-webkit-box-flex 1
+   :flex             1})
 
 (def pad-0 {:padding 0})
 (def pad-5 {:padding 5})

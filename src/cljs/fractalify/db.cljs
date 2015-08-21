@@ -5,17 +5,24 @@
 (def o s/optional-key)
 
 (def db-schema
-  {(o :active-panel) s/Keyword
-   (o :user)         {:username s/Str
-                      :email    s/Str}
-   :forms            {(o :login) {(o :user)     s/Str
-                                  (o :password) s/Str
-                                  }
+  {(o :active-panel)   s/Keyword
+   (o :user)           {:username s/Str
+                        :email    s/Str}
+   :forms              {(o :login)           {(o :user)     s/Str
+                                              (o :password) s/Str
+                                              }
 
-                      (o :join)  {(o :username)     s/Str
-                                  (o :email)        s/Str
-                                  (o :password)     s/Str
-                                  (o :confirm-pass) s/Str}}})
+                        (o :join)            {(o :username)     s/Str
+                                              (o :email)        s/Str
+                                              (o :password)     s/Str
+                                              (o :confirm-pass) s/Str}
+
+                        (o :forgot-password) {(o :email) s/Str}}
+
+   (o :snackbar-props) {:message              s/Str
+                        (o :action)           s/Str
+                        (o :autoHideDuration) s/Int
+                        (o :onActionTouchTap) s/Any}})
 
 (defn assoc-form-validaton-properties [db-schema]
   (reduce (fn [forms form]
@@ -33,4 +40,8 @@
 
 
 (def default-db
-  {:forms {:login {:user "Hello" :password "abc"}}})
+  {
+   ;:user  {:username "madvas" :email "some@email.com"}
+
+   :forms {:login {:user "HEHE" :password "abc"}
+           :forgot-password {:email "some@email"}}})

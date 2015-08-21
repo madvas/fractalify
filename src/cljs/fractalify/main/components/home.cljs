@@ -1,17 +1,6 @@
-(ns fractalify.main.views
-  (:require [re-frame.core :as f]
-            [reagent.core :as r]
-            [material-ui.core :as ui]
-            [fractalify.utils :as u]
-            [fractalify.components.header :as header]
-            [fractalify.components.sidenav :as sidenav]))
+(ns fractalify.main.components.home)
 
-;; --------------------
-
-(defn open-dialog [this]
-  (.show (.. this -refs -CustomDialog)))
-
-(defn home-panel []
+(defn home []
   [:p "This is home"])
 
 
@@ -44,38 +33,3 @@
    [ui/text-field {:hintText          "Hint text"
                    :errorText         "Bad bad"
                    :floatingLabelText "I go up"}]]
-
-(defn about-panel []
-  (fn []
-    [:div "This is thee About Page."
-     [:div [:a {:href "#/"} "go to Home Page"]]]))
-
-
-;; --------------------
-(defmulti panels identity)
-(defmethod panels :home [] [home-panel])
-(defmethod panels :about [] [about-panel])
-(defmethod panels :default [] [:p "Page not found"])
-
-(def ^:dynamic *mui-theme*
-  (.getCurrentTheme (js/MaterialUI.Styles.ThemeManager.)))
-
-(defn main-panel []
-  (let [active-panel (f/subscribe [:active-panel])]
-    (r/create-class
-      {:display-name "Main Panel"
-
-       :child-context-types
-                     #js {:muiTheme js/React.PropTypes.object}
-
-       :get-child-context
-                     (fn [_]
-                       #js {:muiTheme *mui-theme*})
-       :reagent-render
-                     (fn []
-                       [:div
-                        [header/header]
-                        [sidenav/sidenav]
-                        (panels @active-panel)])})))
-
-

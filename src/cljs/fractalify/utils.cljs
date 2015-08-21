@@ -16,7 +16,7 @@
 
 (s/defn do-until-fn
   [val :- s/Any
-   fns :- [s/Symbol]]
+   fns :- [s/Any]]
   (when-let [f (first fns)]
     (if-let [error-text (f val)]
       error-text
