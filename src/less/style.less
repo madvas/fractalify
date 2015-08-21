@@ -1,3 +1,370 @@
-h1 {
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+	-webkit-font-smoothing: antialiased;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+	background-color: #F2F2F2;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+button::-moz-focus-inner, input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+a {
+  color: #ff4081; //pinkA200
+  text-decoration: none;
+}
+
+a:hover {
   text-decoration: underline;
+}
+
+html {
+  font-family: 'Roboto', sans-serif;
+}
+
+.no-dec {
+   &, &:hover {
+      color: inherit !important;
+      text-decoration: none;
+   }
+}
+
+[class^="col-"] > *, [class*=" col-"] > * {
+    width: 100% !important;
+}
+
+.w-100 {
+   width: 100% !important;
+}
+
+
+.pad-top-20 {
+  padding-top: 20px;
+}
+
+.pad-lef-20 {
+  padding-left: 20px;
+}
+
+.pad-rig-20 {
+  padding-right: 20px;
+}
+
+.pad-bot-20 {
+  padding-bottom: 20px;
+}
+
+.pad-top-15 {
+  padding-top: 15px;
+}
+
+.pad-lef-15 {
+  padding-left: 15px;
+}
+
+.pad-rig-15 {
+  padding-right: 15px;
+}
+
+.pad-bot-15 {
+  padding-bottom: 15px;
+}
+
+.pad-top-10 {
+  padding-top: 10px;
+}
+
+.pad-lef-10 {
+  padding-left: 10px;
+}
+
+.pad-rig-10 {
+  padding-right: 10px;
+}
+
+.pad-bot-10 {
+  padding-bottom: 10px;
+}
+
+.pad-top-5 {
+  padding-top: 5px;
+}
+
+.pad-lef-5 {
+  padding-left: 5px;
+}
+
+.pad-rig-5 {
+  padding-right: 5px;
+}
+
+.pad-bot-5 {
+  padding-bottom: 5px;
+}
+
+.pad-top-0 {
+  padding-top: 0;
+}
+
+.pad-lef-0 {
+  padding-left: 0;
+}
+
+.pad-rig-0 {
+  padding-right: 0;
+}
+
+.pad-bot-0 {
+  padding-bottom: 0;
+}
+
+.pad-ver-0 {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.pad-ver-5 {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.pad-ver-10 {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.pad-ver-15 {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.pad-ver-20 {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.pad-hor-0 {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.pad-hor-5 {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.pad-hor-10 {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.pad-hor-15 {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.pad-hor-20 {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.mar-top-20 {
+  margin-top: 20px;
+}
+
+.mar-lef-20 {
+  margin-left: 20px;
+}
+
+.mar-rig-20 {
+  margin-right: 20px;
+}
+
+.mar-bot-20 {
+  margin-bottom: 20px;
+}
+
+.mar-top-15 {
+  margin-top: 15px;
+}
+
+.mar-lef-15 {
+  margin-left: 15px;
+}
+
+.mar-rig-15 {
+  margin-right: 15px;
+}
+
+.mar-bot-15 {
+  margin-bottom: 15px;
+}
+
+.mar-top-10 {
+  margin-top: 10px;
+}
+
+.mar-lef-10 {
+  margin-left: 10px;
+}
+
+.mar-rig-10 {
+  margin-right: 10px;
+}
+
+.mar-bot-10 {
+  margin-bottom: 10px;
+}
+
+.mar-top-5 {
+  margin-top: 5px;
+}
+
+.mar-lef-5 {
+  margin-left: 5px;
+}
+
+.mar-rig-5 {
+  margin-right: 5px;
+}
+
+.mar-bot-5 {
+  margin-bottom: 5px;
+}
+
+.mar-top-0 {
+  margin-top: 0;
+}
+
+.mar-lef-0 {
+  margin-left: 0;
+}
+
+.mar-rig-0 {
+  margin-right: 0;
+}
+
+.mar-bot-0 {
+  margin-bottom: 0;
+}
+
+.mar-ver-0 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.mar-ver-5 {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.mar-ver-10 {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.mar-ver-15 {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.mar-ver-20 {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.mar-hor-0 {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.mar-hor-5 {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.mar-hor-10 {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.mar-hor-15 {
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+.mar-hor-20 {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+
+.default-color {
+  color: inherit;
+}
+
+.pos-rel {
+  position: relative;
+}
+
+.mar-hor-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.nowrap {
+  white-space: nowrap !important;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.no-dec {
+    text-decoration: none !important;
 }

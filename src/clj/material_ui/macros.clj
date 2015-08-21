@@ -12,6 +12,7 @@
     DatePicker
     Dialog
     DropDownMenu
+    DropDownIcon
     FontIcon
     IconButton
     IconMenu

@@ -1,13 +1,18 @@
 (ns fractalify.main.subs
     (:require-macros [reagent.ratom :refer [reaction]])
-    (:require [re-frame.core :as re-frame]))
+    (:require [re-frame.core :as r]))
 
-(re-frame/register-sub
+(r/register-sub
  :name
  (fn [db]
    (reaction (:name @db))))
 
-(re-frame/register-sub
+(r/register-sub
  :active-panel
  (fn [db _]
    (reaction (:active-panel @db))))
+
+(r/register-sub
+  :form-errors
+  (fn [db vec]
+    (reaction (get-in @db [:forms (second vec) :errors]))))

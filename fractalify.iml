@@ -37,6 +37,7 @@
     <orderEntry type="library" name="Leiningen: org.clojure/clojure:1.6.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Leiningen: org.clojure/clojurescript:0.0-3211" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.nrepl:0.2.6" level="project" />
+    <orderEntry type="library" name="Leiningen: prismatic/schema:0.4.3" level="project" />
     <orderEntry type="library" name="Leiningen: re-frame:0.4.1" level="project" />
     <orderEntry type="library" name="Leiningen: reagent:0.5.0" level="project" />
     <orderEntry type="library" name="Leiningen: ring-basic-authentication:1.0.5" level="project" />
@@ -130,7 +131,6 @@
     <orderEntry type="library" scope="PROVIDED" name="Leiningen: junit:4.10" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Leiningen: org.hamcrest/hamcrest-core:1.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Leiningen: org.clojure/google-closure-library-third-party:0.0-20140718-946a7d39" level="project" />
-    <orderEntry type="library" name="Leiningen: cljsjs/react:0.12.2-5" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/data.codec:0.1.0" level="project" />
     <orderEntry type="library" name="Leiningen: javax.servlet/servlet-api:2.5" level="project" />
     <orderEntry type="library" name="Leiningen: ring/ring-anti-forgery:1.0.0" level="project" />
