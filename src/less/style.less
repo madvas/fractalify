@@ -29,10 +29,7 @@ article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
 	display: block;
 }
-body {
-	line-height: 1;
-	background-color: #F2F2F2;
-}
+
 ol, ul {
 	list-style: none;
 }
@@ -65,10 +62,43 @@ a:hover {
 
 html {
   font-family: 'Roboto', sans-serif;
+  height: 100%;
+}
+
+body {
+	line-height: 1;
+	background-color: #F2F2F2;
+	font-size: 13px;
+    line-height: 20px;
+    min-height:100%;
+}
+
+#app {
+    height: 100%;
+    display: block;
+}
+
+.main-body {
+   padding-bottom: 300px;
+   height: 100%;
+   display: block;
+}
+
+footer {
+    padding: 72px 24px;
+    box-sizing: border-box;
+    text-align: center;
+    background-color: rgb(33, 33, 33);
+    color: rgba(255, 255, 255, 0.54);
+    a {
+       color: "#FFF";
+       text-decoration: underline;
+    }
+    height: 150px;
 }
 
 h1 {
-    font-size: 1.5em;
+    font-size: 1.8em;
     font-weight: 300;
 }
 

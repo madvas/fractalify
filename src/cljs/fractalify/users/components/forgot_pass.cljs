@@ -1,7 +1,7 @@
 (ns fractalify.users.components.forgot-pass
   (:require [fractalify.components.paper-panel :as paper-panel]
             [fractalify.validators :as v]
-            [fractalify.components.text-field :as text-field]
+            [fractalify.components.form-text :as form-text]
             [re-frame.core :as f]
             [material-ui.core :as ui]))
 
@@ -13,7 +13,7 @@
        [:div.col-xs-12
         [:h1 "Restore Password"]]
        [:div.col-xs-12
-        [text-field/text-field [:forgot-password :email]
+        [form-text/form-text [:forgot-password :email]
          {:floatingLabelText "Your email"
           :required          true
           :validators        [v/email]}]

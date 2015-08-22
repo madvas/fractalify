@@ -16,3 +16,5 @@
 
 (def standard-middlewares [(when ^boolean goog.DEBUG debug)
                            trim-validate])
+
+(def standard-without-debug (rest standard-middlewares))

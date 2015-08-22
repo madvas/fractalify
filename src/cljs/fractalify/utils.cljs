@@ -15,14 +15,15 @@
 
 
 (s/defn do-until-fn
-  [val :- s/Any
-   fns :- [s/Any]]
-  (when-let [f (first fns)]
-    (if-let [error-text (f val)]
-      error-text
-      #(do-until-fn val (rest fns)))))
+  ([fns] (do-until-fn nil fns))
+  ([val :- s/Any
+    fns :- [s/Any]]
+    (when-let [f (first fns)]
+      (if-let [error-text (f val)]
+        error-text
+        #(do-until-fn val (rest fns))))))
 
-(def do-until
+(def do-until-value
   "This is trampoline function, which stops executing until one of fns returns truthy value
   when val is passed to that function. It is used primary for getting error messages for inputs.
   Example:

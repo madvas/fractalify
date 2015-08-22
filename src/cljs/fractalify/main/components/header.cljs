@@ -23,4 +23,4 @@
                                                               [:a {:href "#/" :class "no-dec"} "Fractalify"]])
                      :iconElementRight         (r/as-element right-btn)
                      :showMenuIconButton       (not (empty? @user))
-                     :onLeftIconButtonTouchTap #(sidenav/toggle-sidenav!)}]))))
+                     :onLeftIconButtonTouchTap #(f/dispatch [:sidenav-action :toggle])}]))))

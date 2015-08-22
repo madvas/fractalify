@@ -3,9 +3,9 @@
   (:require [goog.events :as events]
             [goog.history.EventType :as EventType]
             [re-frame.core :as r]
-            [fractalify.main.components.sidenav :as sidenav]
             [secretary.core :as secretary]
-            [fractalify.utils :as u]))
+            [fractalify.utils :as u]
+            [re-frame.core :as f]))
 
 (def ^:dynamic *history* nil)
 
@@ -14,7 +14,7 @@
                     (events/listen
                       EventType/NAVIGATE
                       (fn [event]
-                        (sidenav/close-sidenav!)
+                        (f/dispatch [:sidenav-action :close])
                         (secretary/dispatch! (.-token event))))
                     (.setEnabled true))))
 

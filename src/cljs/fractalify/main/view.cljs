@@ -4,7 +4,8 @@
             [fractalify.router :as t]
             [fractalify.main.components.header :as header]
             [fractalify.main.components.sidenav :as sidenav]
-            [fractalify.components.snackbar :as snackbar]))
+            [fractalify.components.snackbar :as snackbar]
+            [fractalify.main.components.footer :as footer]))
 
 (def ^:dynamic *mui-theme*
   (.getCurrentTheme (js/MaterialUI.Styles.ThemeManager.)))
@@ -20,12 +21,17 @@
        :get-child-context
                      (fn [_]
                        #js {:muiTheme *mui-theme*})
+       :component-will-mount (fn []
+                               (println "will mount")
+                               true)
        :reagent-render
                      (fn []
                        [:div
                         [header/header]
                         [sidenav/sidenav]
                         [snackbar/snackbar]
-                        (t/panels @active-panel)])})))
+                        [:div.main-body
+                         (t/panels @active-panel)]
+                        [footer/footer]])})))
 
 

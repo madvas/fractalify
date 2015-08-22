@@ -3,7 +3,9 @@
             [fractalify.db :as db]
             [fractalify.middleware :as m]
             [fractalify.utils :as u]
-            [fractalify.components.snackbar :as snackbar]))
+            [fractalify.components.snackbar :as snackbar]
+            [fractalify.router :as t]
+            [fractalify.main.components.sidenav :as sidenav]))
 
 (defn get-form-data [db form]
   (-> db
@@ -12,13 +14,13 @@
 
 (r/register-handler
   :initialize-db
-  m/standard-middlewares
+  m/standard-without-debug
   (fn [_]
     db/default-db))
 
 (r/register-handler
   :set-active-panel
-  m/standard-middlewares
+  m/standard-without-debug
   (fn [db [active-panel]]
     (assoc db :active-panel active-panel)))
 
@@ -30,9 +32,7 @@
 
 (r/register-handler
   :set-form-error
-  m/trim-validate
-  ;m/standard-middlewares
-  ;[m/trim-validate m/print-db]
+  m/standard-without-debug
   (fn [db [form field value]]
     (let [path [:forms form :errors field]]
       (if value
@@ -41,8 +41,17 @@
 
 (r/register-handler
   :show-snackbar
-  m/standard-middlewares
+  m/standard-without-debug
   (fn [db [snackbar-props]]
     (let [db (assoc db :snackbar-props snackbar-props)]
       (snackbar/show-snackbar!)
       db)))
+
+(r/register-handler
+  :sidenav-action
+  m/standard-without-debug
+  (fn [db [action]]
+    (cond
+      (= action :toggle) (sidenav/toggle-sidenav!)
+      (= action :close) (sidenav/close-sidenav!))
+    db))

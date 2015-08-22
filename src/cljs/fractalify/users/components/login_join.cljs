@@ -3,27 +3,26 @@
             [material-ui.core :as ui]
             [fractalify.styles :as y]
             [fractalify.router :as t]
-            [fractalify.components.text-field :as text-field]
+            [fractalify.components.form-text :as form-text]
             [schema.core :as s :include-macros true]
             [fractalify.components.tab-anchor :as tab-anchor]
             [fractalify.validators :as v]
             [fractalify.components.responsive-panel :as responsive-panel]
-            [fractalify.components.paper-content :as paper-content]))
+            [fractalify.components.paper-content :as paper-content]
+            [fractalify.components.password :as password]
+            [fractalify.components.email :as email]))
 
 (defn login-tab []
   (let [form-errors (f/subscribe [:form-errors :login])]
     (fn []
       [paper-content/paper-content
        [:div.col-xs-12
-        [text-field/text-field [:login :user]
+        [form-text/form-text [:login :user]
          {:floatingLabelText "Username or email"
           :required          true}]]
 
        [:div.col-xs-12
-        [text-field/text-field [:login :password]
-         {:floatingLabelText "Password"
-          :type              "password"
-          :required          true}]]
+        [password/password "Password" :login :password]]
 
        [:div.row.col-xs-12.mar-top-20
         [:div.col-xs-6
@@ -44,31 +43,20 @@
     (fn []
       [paper-content/paper-content
        [:div.col-xs-12
-        [text-field/text-field [:join :username]
+        [form-text/form-text [:join :username]
          {:floatingLabelText "Username"
           :required          true
           :validators        [(partial v/length 3)]}]]
 
        [:div.col-xs-12
-        [text-field/text-field [:join :email]
-         {:floatingLabelText "Email"
-          :required          true
-          :validators        [v/email]}]]
+        [email/email :join :email]]
 
        [:div.col-xs-12
-        [text-field/text-field [:join :password]
-         {:floatingLabelText "Password"
-          :type              "password"
-          :required          true
-          :validators        [(partial v/length 6)]}]]
-
+        [password/password "Password" :join :password]]
 
        [:div.col-xs-12
-        [text-field/text-field [:join :confirm-pass]
-         {:floatingLabelText "Confirm Password"
-          :type              "password"
-          :required          true
-          :validators        [#(v/passwords-match % @password)]}]]
+        [password/password "Confirm Password" :join :confirm-pass
+         {:validators [#(v/passwords-match % @password)]}]]
 
        [:div.row.col-xs-12.mar-top-20
         [:div.col-xs-12.col-sm-6.col-sm-offset-6

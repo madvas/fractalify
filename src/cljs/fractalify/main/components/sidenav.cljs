@@ -4,7 +4,8 @@
     [re-frame.core :as f]
     [reagent.core :as r]
     [material-ui.core :as ui]
-    [fractalify.utils :as u]))
+    [fractalify.utils :as u]
+    [fractalify.router :as t]))
 
 (def ^:dynamic *sidenav-parent* (atom))
 
@@ -27,6 +28,12 @@
                           (fn []
                             [ui/left-nav {:ref       "sidenav"
                                           :docked    false
-                                          :menuItems [{:text    "Logout"
-                                                       :payload "#/logout"
+                                          :menuItems [{:text    "Change Password"
+                                                       :payload (t/url :change-password)
+                                                       :type    ui/menu-item-link-type}
+                                                      {:text    "Edit profile"
+                                                       :payload (t/url :edit-profile)
+                                                       :type    ui/menu-item-link-type}
+                                                      {:text    "Logout"
+                                                       :payload (t/url :logout)
                                                        :type    ui/menu-item-link-type}]}])}))

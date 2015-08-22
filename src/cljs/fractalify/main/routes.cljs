@@ -19,7 +19,6 @@
                                  (r/dispatch [:set-active-panel :about])))
   (defmethod t/panels :about [] [about/about])
 
-  (defmethod t/panels :default [] [:p "Page not found"])
-  )
+  (defmethod t/panels :default [] [:p "Page not found"]))
 
 

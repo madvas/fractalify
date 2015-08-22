@@ -7,7 +7,8 @@
 (def db-schema
   {(o :active-panel)   s/Keyword
    (o :user)           {:username s/Str
-                        :email    s/Str}
+                        :email    s/Str
+                        :bio      s/Str}
    :forms              {(o :login)           {(o :user)     s/Str
                                               (o :password) s/Str
                                               }
@@ -17,7 +18,14 @@
                                               (o :password)     s/Str
                                               (o :confirm-pass) s/Str}
 
-                        (o :forgot-password) {(o :email) s/Str}}
+                        (o :forgot-password) {(o :email) s/Str}
+
+                        (o :change-password) {(o :current-pass)     s/Str
+                                              (o :new-pass)         s/Str
+                                              (o :confirm-new-pass) s/Str}
+
+                        (o :edit-profile)    {(o :email) s/Str
+                                              (o :bio)   s/Str}}
 
    (o :snackbar-props) {:message              s/Str
                         (o :action)           s/Str
@@ -41,7 +49,7 @@
 
 (def default-db
   {
-   ;:user  {:username "madvas" :email "some@email.com"}
+   ;:user  {:username "madvas" :email "some@email.com" :bio "I am good"}
 
-   :forms {:login {:user "HEHE" :password "abc"}
+   :forms {:login           {:user "HEHE" :password "abc"}
            :forgot-password {:email "some@email"}}})

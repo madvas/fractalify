@@ -8,11 +8,6 @@
     (reaction (:user @db))))
 
 (r/register-sub
-  :login-user
+  :username
   (fn [db _]
-    (reaction (get-in @db [:forms :login :user]))))
-
-(r/register-sub
-  :login-password
-  (fn [db _]
-    (reaction (get-in @db [:forms :login :password]))))
+    (reaction (get-in @db [:user :username]))))

@@ -2,7 +2,8 @@
   (:require [fractalify.middleware :as m]
             [re-frame.core :as r]
             [fractalify.main.handlers :as h]
-            [re-frame.core :as f]))
+            [re-frame.core :as f]
+            [fractalify.router :as t]))
 
 (r/register-handler
   :login
@@ -10,7 +11,8 @@
   (fn [db _]
     (let [creds (h/get-form-data db :login)]
       (assoc db :user {:username (:user creds)
-                       :email    "some@email.com"}))))
+                       :email    "some@email.com"
+                       :bio      "oh my bio"}))))
 
 (r/register-handler
   :join
@@ -31,4 +33,14 @@
   (fn [db _]
     (let [email (:email (h/get-form-data db :forgot-password))]
       (f/dispatch [:show-snackbar {:message "Password was reset. Please check your email."}])
+      (t/go! :home)
       (assoc-in db [:forms :forgot-password :email] ""))))
+
+(r/register-handler
+  :edit-profile
+  m/standard-middlewares
+  (fn [db _]
+    (let [profile (h/get-form-data db :edit-profile)]
+      (f/dispatch [:show-snackbar {:message "Your profile was successfully saved."}])
+      (t/go! :home)
+      (merge-with merge db {:user profile}))))
