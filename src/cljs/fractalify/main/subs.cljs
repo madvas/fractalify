@@ -3,14 +3,19 @@
     (:require [re-frame.core :as r]))
 
 (r/register-sub
- :name
+ :db
  (fn [db]
-   (reaction (:name @db))))
+   (reaction @db)))
 
 (r/register-sub
  :active-panel
  (fn [db _]
    (reaction (:active-panel @db))))
+
+(r/register-sub
+  :route-params
+  (fn [db _]
+    (reaction (:route-params @db))))
 
 (r/register-sub
   :get-form-item

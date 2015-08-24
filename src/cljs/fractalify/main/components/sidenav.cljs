@@ -28,7 +28,10 @@
                           (fn []
                             [ui/left-nav {:ref       "sidenav"
                                           :docked    false
-                                          :menuItems [{:text    "Change Password"
+                                          :menuItems [{:text    "Create Fractal"
+                                                       :payload (t/url :fractal-create)
+                                                       :type    ui/menu-item-link-type}
+                                                      {:text    "Change Password"
                                                        :payload (t/url :change-password)
                                                        :type    ui/menu-item-link-type}
                                                       {:text    "Edit profile"

@@ -16,11 +16,11 @@
   (let [user (f/subscribe [:user])]
     (fn []
       (let [right-btn (if @user
-                        (right-button (:username @user) (str "#/user/" (:username @user)))
+                        (right-button (:username @user) (t/url :user-view :username (:username @user)))
                         (right-button "Login / Join" (t/url :login)))]
         [ui/app-bar {
                      :title                    (r/as-element [:h1 {:style y/page-title}
-                                                              [:a {:href "#/" :class "no-dec"} "Fractalify"]])
+                                                              [:a {:href (t/url :home) :class "no-dec"} "Fractalify"]])
                      :iconElementRight         (r/as-element right-btn)
                      :showMenuIconButton       (not (empty? @user))
                      :onLeftIconButtonTouchTap #(f/dispatch [:sidenav-action :toggle])}]))))

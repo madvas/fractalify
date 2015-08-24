@@ -21,9 +21,6 @@
        :get-child-context
                      (fn [_]
                        #js {:muiTheme *mui-theme*})
-       :component-will-mount (fn []
-                               (println "will mount")
-                               true)
        :reagent-render
                      (fn []
                        [:div

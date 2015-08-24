@@ -5,12 +5,25 @@
             [fractalify.utils :as u]
             [fractalify.components.snackbar :as snackbar]
             [fractalify.router :as t]
-            [fractalify.main.components.sidenav :as sidenav]))
+            [fractalify.main.components.sidenav :as sidenav]
+            [fractalify.permissons :as p]))
 
 (defn get-form-data [db form]
   (-> db
       (get-in [:forms form])
       (dissoc :errors)))
+
+(r/register-handler
+  :assoc-db
+  m/standard-middlewares
+  (fn [db [key value]]
+    (assoc db key value)))
+
+(r/register-handler
+  :dissoc-db
+  m/standard-middlewares
+  (fn [db [key]]
+    (dissoc db key)))
 
 (r/register-handler
   :initialize-db
@@ -20,9 +33,13 @@
 
 (r/register-handler
   :set-active-panel
-  m/standard-without-debug
-  (fn [db [active-panel]]
-    (assoc db :active-panel active-panel)))
+  m/standard-middlewares
+  (fn [db [active-panel permissions]]
+    (if-let [error (p/validate-permissions db permissions)]
+      (do (r/dispatch [:show-snackbar (select-keys error [:message])])
+          (t/go! (:redirect error))
+          db)
+      (assoc db :active-panel active-panel))))
 
 (r/register-handler
   :set-form-item

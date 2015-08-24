@@ -30,7 +30,8 @@
    (o :snackbar-props) {:message              s/Str
                         (o :action)           s/Str
                         (o :autoHideDuration) s/Int
-                        (o :onActionTouchTap) s/Any}})
+                        (o :onActionTouchTap) s/Any}
+   (o :route-params)   (s/maybe {s/Keyword s/Any})})
 
 (defn assoc-form-validaton-properties [db-schema]
   (reduce (fn [forms form]
@@ -49,7 +50,7 @@
 
 (def default-db
   {
-   ;:user  {:username "madvas" :email "some@email.com" :bio "I am good"}
+   :user  {:username "madvas" :email "some@email.com" :bio "I am good"}
 
-   :forms {:login           {:user "HEHE" :password "abc"}
+   :forms {:login           {:user "HEHE" :password "abcdef"}
            :forgot-password {:email "some@email"}}})

@@ -14,7 +14,7 @@
 (def trim-validate [trim-v
                     (when ^boolean goog.DEBUG (after valid-schema?))])
 
-(def standard-middlewares [(when ^boolean goog.DEBUG debug)
+(def standard-middlewares [(when ^boolean (and goog.DEBUG false) debug)
                            trim-validate])
 
 (def standard-without-debug (rest standard-middlewares))

@@ -19,6 +19,7 @@
     </content>
     <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Leiningen: bidi:1.21.0" level="project" />
     <orderEntry type="library" name="Leiningen: binaryage/devtools:0.3.0" level="project" />
     <orderEntry type="library" name="Leiningen: cljs-ajax:0.3.14" level="project" />
     <orderEntry type="library" name="Leiningen: clojure-complete:0.2.3" level="project" />
@@ -33,6 +34,7 @@
     <orderEntry type="library" name="Leiningen: fogus/ring-edn:0.3.0" level="project" />
     <orderEntry type="library" name="Leiningen: http-kit:2.1.19" level="project" />
     <orderEntry type="library" name="Leiningen: io.aviso/pretty:0.1.18" level="project" />
+    <orderEntry type="library" name="Leiningen: kibu/pushy:0.3.2" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojars.stumitchell/clairvoyant:0.1.0-20150715.050527-4" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/clojure:1.6.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Leiningen: org.clojure/clojurescript:0.0-3211" level="project" />
@@ -43,8 +45,10 @@
     <orderEntry type="library" name="Leiningen: ring-basic-authentication:1.0.5" level="project" />
     <orderEntry type="library" name="Leiningen: ring/ring-defaults:0.1.5" level="project" />
     <orderEntry type="library" name="Leiningen: ring:1.4.0" level="project" />
-    <orderEntry type="library" name="Leiningen: secretary:1.2.3" level="project" />
     <orderEntry type="library" name="Leiningen: weasel:0.6.0" level="project" />
+    <orderEntry type="library" name="Leiningen: com.cemerick/url:0.1.1" level="project" />
+    <orderEntry type="library" name="Leiningen: pathetic:0.5.0" level="project" />
+    <orderEntry type="library" name="Leiningen: com.cemerick/clojurescript.test:0.0.4" level="project" />
     <orderEntry type="library" name="Leiningen: com.cognitect/transit-cljs:0.8.220" level="project" />
     <orderEntry type="library" name="Leiningen: net.colourcoding/poppea:0.2.0" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/core.async:0.1.346.0-17112a-alpha" level="project" />
@@ -146,6 +150,5 @@
     <orderEntry type="library" name="Leiningen: org.eclipse.jetty/jetty-http:9.2.10.v20150310" level="project" />
     <orderEntry type="library" name="Leiningen: org.eclipse.jetty/jetty-io:9.2.10.v20150310" level="project" />
     <orderEntry type="library" name="Leiningen: org.eclipse.jetty/jetty-util:9.2.10.v20150310" level="project" />
-    <orderEntry type="library" name="Leiningen: com.cemerick/clojurescript.test:0.2.3-20140317.141743-3" level="project" />
   </component>
 </module>

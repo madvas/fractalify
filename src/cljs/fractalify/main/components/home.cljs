@@ -1,7 +1,8 @@
-(ns fractalify.main.components.home)
+(ns fractalify.main.components.home
+  (:require [fractalify.router :as t]))
 
 (defn home []
-  [:p "This is home"])
+  [:p "This is home "])
 
 
 #_[:div (str "Hello fromaaa " @name ". This is the Home Page.")

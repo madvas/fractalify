@@ -1,5 +1,6 @@
 (ns fractalify.utils
-  (:require [schema.core :as s :include-macros true]))
+  (:require [schema.core :as s :include-macros true]
+            [cljs.core.async :refer [chan close!]]))
 
 (defn e-val [event]
   (-> event .-target .-value))
@@ -14,16 +15,24 @@
   (.apply (.-error js/console) js/console (clj->js messages)))
 
 
-(s/defn do-until-fn
-  ([fns] (do-until-fn nil fns))
+(s/defn validate-until-error-fn
+  ([fns] (validate-until-error-fn nil fns))
   ([val :- s/Any
     fns :- [s/Any]]
     (when-let [f (first fns)]
-      (if-let [error-text (f val)]
-        error-text
-        #(do-until-fn val (rest fns))))))
+      (if-let [error (f val)]
+        error
+        #(validate-until-error-fn val (rest fns))))))
 
-(def do-until-value
+(defn set-timeout [f ms]
+  (js/setTimeout f ms))
+
+(defn timeout [ms]
+  (let [c (chan)]
+    (js/setTimeout (fn [] (close! c)) ms)
+    c))
+
+(def validate-until-error
   "This is trampoline function, which stops executing until one of fns returns truthy value
   when val is passed to that function. It is used primary for getting error messages for inputs.
   Example:
@@ -31,7 +40,7 @@
   => This field is required
   (do-until \"_*_\" [reqired alphanumeric])
   => This field needs to be alphanumeric"
-  (partial trampoline do-until-fn))
+  (partial trampoline validate-until-error-fn))
 
 (defn dissoc-in
   "Dissociates an entry from a nested associative structure returning a new

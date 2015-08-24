@@ -11,8 +11,8 @@
   (fn [db _]
     (let [creds (h/get-form-data db :login)]
       (assoc db :user {:username (:user creds)
-                       :email    "some@email.com"
-                       :bio      "oh my bio"}))))
+                    :email    "some@email.com"
+                    :bio      "oh my bio"}))))
 
 (r/register-handler
   :join

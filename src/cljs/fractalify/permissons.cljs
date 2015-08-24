@@ -6,31 +6,15 @@
 
 (defmulti permission identity)
 
-(defmethod permission :login-required []
-  (let [user (f/subscribe [:user])]
-    (when-not @user
-      [:login "You must be logged in to see this page"])))
+(defmethod permission :login-required [_ db]
+  (when-not (:user db)
+    [:login "You must be logged in to see this page"]))
 
-(s/defn allowed-permissions
-  [perms :- [s/Keyword]]
-  (u/do-until-value (map #(partial permission %) perms)))
-
-(s/defn redirect-disallowed! :- s/Bool
-  [perms :- [s/Keyword]]
-  (when-let [[redirect message] (allowed-permissions perms)]
-    (println redirect message)
-    (f/dispatch [:show-snackbar {:message message}])
-    ;(t/go! redirect)
-    true))
-
-(defn login-required []
-  (let [user (f/subscribe [:user])]
-    (if-not user
-      (do
-        (f/dispatch [:show-snackbar {:message "You must be logged in to see this page"}])
-        false)
-      true)))
-
-
-(def permissions
-  {:login-required login-required})
+(s/defn validate-permissions :- (s/maybe {:redirect s/Keyword
+                                          :message  s/Str})
+  ([_] nil)
+  ([db
+    perms :- [s/Keyword]]
+    (when-not (nil? perms)
+      (when-let [error (u/validate-until-error db (map #(partial permission %) perms))]
+        (zipmap [:redirect :message] error)))))

@@ -27,10 +27,9 @@
                                   [v/required])
                                 (:validators props)))]
       (when-let [default-value (:default-value props)]
-        (println dispatch)
         (f/dispatch (conj dispatch default-value)))
       (fn []
-        (let [error-text (u/do-until-value @value validators)]
+        (let [error-text (u/validate-until-error @value validators)]
           (when error-dispatch
             (f/dispatch (conj error-dispatch error-text)))
           [ui/text-field (merge
