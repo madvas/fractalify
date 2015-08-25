@@ -18,6 +18,10 @@
    :-webkit-box-flex 1
    :flex             1})
 
+(def canvas
+ {:width "100%"
+  :height 300})
+
 (def pad-0 {:padding 0})
 (def pad-5 {:padding 5})
 (def pad-10 {:padding 10})

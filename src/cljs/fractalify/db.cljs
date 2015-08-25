@@ -25,7 +25,13 @@
                                               (o :confirm-new-pass) s/Str}
 
                         (o :edit-profile)    {(o :email) s/Str
-                                              (o :bio)   s/Str}}
+                                              (o :bio)   s/Str}
+
+                        (o :fractal)         {(o :rules)     (s/maybe [{s/Str s/Str}])
+                                              (o :start)     s/Str
+                                              (o :angle)     s/Num
+                                              (o :constants) #{s/Str}}
+                        }
 
    (o :snackbar-props) {:message              s/Str
                         (o :action)           s/Str
@@ -53,4 +59,8 @@
    :user  {:username "madvas" :email "some@email.com" :bio "I am good"}
 
    :forms {:login           {:user "HEHE" :password "abcdef"}
-           :forgot-password {:email "some@email"}}})
+           :forgot-password {:email "some@email"}
+           :fractal         {:rules [{"a" "b-a-b"
+                                      "b" "a+b+a"}]
+                             :angle (* 2 (.-PI js/Math) (/ 60 360))
+                             :start "a"}}})

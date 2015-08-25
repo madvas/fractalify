@@ -28,7 +28,7 @@
                  [binaryage/devtools "0.3.0"]
                  [prismatic/schema "0.4.3"]
                  [kibu/pushy "0.3.2"]
-                 ;[com.domkm/silk "0.1.1"]
+                 [rm-hull/monet "0.2.1"]
                  [bidi "1.21.0"]]
 
   :plugins [[lein-cljsbuild "1.0.5"]
@@ -93,6 +93,7 @@
                        :cljsbuild    {:builds {:app
                                                {:source-paths ["env/prod/cljs"]
                                                 :compiler
-                                                              {:main          fractalify.core
-                                                               :optimizations :advanced
-                                                               :pretty-print  false}}}}}})
+                                                              {:main            fractalify.core
+                                                               :optimizations   :advanced
+                                                               :closure-defines {:goog.DEBUG false}
+                                                               :pretty-print    false}}}}}})

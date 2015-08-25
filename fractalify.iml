@@ -45,6 +45,7 @@
     <orderEntry type="library" name="Leiningen: ring-basic-authentication:1.0.5" level="project" />
     <orderEntry type="library" name="Leiningen: ring/ring-defaults:0.1.5" level="project" />
     <orderEntry type="library" name="Leiningen: ring:1.4.0" level="project" />
+    <orderEntry type="library" name="Leiningen: rm-hull/monet:0.2.1" level="project" />
     <orderEntry type="library" name="Leiningen: weasel:0.6.0" level="project" />
     <orderEntry type="library" name="Leiningen: com.cemerick/url:0.1.1" level="project" />
     <orderEntry type="library" name="Leiningen: pathetic:0.5.0" level="project" />

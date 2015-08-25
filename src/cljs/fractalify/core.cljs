@@ -15,6 +15,9 @@
             [schema.core :as s]))
 
 (enable-console-print!)
+
+
+;(set! (.-DEBUG js/goog) false)
 (s/set-fn-validation! goog.DEBUG)
 
 (defn mount-root []
