@@ -1,5 +1,6 @@
 (ns fractalify.main.handlers
-  (:require-macros [fractalify.tracer-macros :refer [trace-handlers]])
+  (:require-macros [fractalify.tracer-macros :refer [trace-handlers]]
+                   [clairvoyant.core :refer [trace-forms]])
   (:require [re-frame.core :as r]
             [fractalify.db :as db]
             [fractalify.middleware :as m]
@@ -8,7 +9,6 @@
             [fractalify.router :as t]
             [fractalify.main.components.sidenav :as sidenav]
             [fractalify.permissons :as p]
-            [clairvoyant.core :refer-macros [trace-forms]]
             [fractalify.tracer :refer [tracer]]))
 
 (defn get-form-data [db form]
@@ -16,8 +16,9 @@
       (get-in [:forms form])
       (dissoc :errors)))
 
-(trace-handlers
 
+(trace-handlers
+  #_ {:tracer (fractalify.tracer/tracer :color "green")}
 
   (r/register-handler
     :assoc-db
@@ -50,14 +51,18 @@
   (r/register-handler
     :set-form-item
     m/standard-middlewares
-    (fn [db [form item value]]
-      (assoc-in db [:forms form item] value)))
+    (fn [db params]
+      (let [value (last params)
+            path (into [] (butlast params))]
+        (assoc-in db (into [:forms] path) value))))
 
   (r/register-handler
     :set-form-error
     m/standard-without-debug
-    (fn [db [form field value]]
-      (let [path [:forms form :errors field]]
+    (fn [db [form-name & params]]
+      (let [value (last params)
+            item-path (into [] (butlast params))
+            path (into [:forms form-name :errors] item-path)]
         (if value
           (assoc-in db path value)
           (u/dissoc-in db path)))))

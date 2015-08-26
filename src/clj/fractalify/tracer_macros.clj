@@ -22,15 +22,23 @@
                        (replace-in-sublist sublist (rest ns) x)))
     x))
 
+
 (defn- name-anonymous-fns [body fn-name]
   (let [c (atom 0)
         fn-name (name fn-name)]
-    (w/postwalk (fn [p]
-                  (if (and (symbol? p) (= (name p) "fn"))
-                    (do (reset! c (inc @c))
-                        (concat '(fn) (list (symbol (str fn-name (if (> @c 1) @c ""))))))
-                    p))
-                body)))
+    (->> body
+         (w/prewalk
+           (fn [x]
+             (if (and (list? x)
+                      (symbol? (first x))
+                      (= (name (first x)) "fn")
+                      (vector? (second x)))
+               (do
+                 (reset! c (inc @c))
+                 (insert-nth
+                   x 1
+                   (symbol (str fn-name (if (> @c 1) @c "")))))
+               x))))))
 
 (defn- wrap-into-fn [fn-name body]
   (concat '(fn) (list fn-name) '([]) (list body)))
@@ -59,14 +67,11 @@
   (let [keyword-name (second sub)]
     (-> sub
         (insert-wrap-fn-name keyword-name)
-        (transform-to-make-reaction keyword-name))
-    ))
+        (transform-to-make-reaction keyword-name))))
 
 (defn- rewrite-handler [handler]
-  (let [keyword-name (second handler)
-        fn-body (last handler)]
-    (replace-last-in-list handler
-                          (insert-nth fn-body 1 (make-symbol keyword-name "-hnd")))))
+  (let [keyword-name (second handler)]
+    (name-anonymous-fns handler (make-symbol keyword-name "-hnd"))))
 
 (defn- rewrite-view [view]
   (let [fn-name (make-symbol (second view) "")]
@@ -77,16 +82,16 @@
 (declare trace-views)
 
 #_(macroexpand-1
-  '(trace-views
-     (defn canvas []
-       (let [params (f/subscribe [:route-params])]
-         (r/create-class
-           {
-            :component-will-update (fn [next-props next-state]
-                                     (println ":component-will-update"))
-            :reagent-render
-                                   (fn []
-                                     [:canvas {:style y/canvas}])})))))
+    '(trace-views
+       (defn canvas []
+         (let [params (f/subscribe [:route-params])]
+           (r/create-class
+             {
+              :component-will-update (fn [next-props next-state]
+                                       (println ":component-will-update"))
+              :reagent-render
+                                     (fn []
+                                       [:canvas {:style y/canvas}])})))))
 
 #_(macroexpand-1
     '(trace-subs
@@ -99,20 +104,104 @@
                          form-item)))))
 
        ))
+(macroexpand-1
+  '(trace-handlers
+     (r/register-handler
+       :assoc-db
+       m/standard-middlewares
+       (fn [db [key value]]
+         (assoc db key value)))
+
+     (r/register-handler
+       :dissoc-db
+       m/standard-middlewares
+       (fn [db [key]]
+         (dissoc db key)))
+
+     (r/register-handler
+       :initialize-db
+       m/standard-without-debug
+       (fn [_]
+         db/default-db))
+
+     (r/register-handler
+       :set-active-panel
+       m/standard-middlewares
+       (fn [db [active-panel permissions]]
+         (if-let [error (p/validate-permissions db permissions)]
+           (do (r/dispatch [:show-snackbar (select-keys error [:message])])
+               (t/go! (:redirect error))
+               db)
+           (assoc db :active-panel active-panel))))
+
+     (r/register-handler
+       :set-form-item
+       m/standard-middlewares
+       (fn [db params]
+         (let [value (last params)
+               path (into [] (butlast params))]
+           (assoc-in db (into [:forms] path) value))))
+
+     (r/register-handler
+       :set-form-error
+       m/standard-without-debug
+       (fn [db [form-name & params]]
+         (let [value (last params)
+               item-path (into [] (butlast params))
+               path (into [:forms form-name :errors] item-path)]
+           (if value
+             (assoc-in db path value)
+             (u/dissoc-in db path)))))
+
+     (r/register-handler
+       :show-snackbar
+       m/standard-without-debug
+       (fn [db [snackbar-props]]
+         (let [db (assoc db :snackbar-props snackbar-props)]
+           (snackbar/show-snackbar!)
+           db)))
+
+     (r/register-handler
+       :sidenav-action
+       m/standard-without-debug
+       (fn [db [action]]
+         (cond
+           (= action :toggle) (sidenav/toggle-sidenav!)
+           (= action :close) (sidenav/close-sidenav!))
+         db))))
+
 #_(macroexpand-1
-    '(trace-handlers
-
-       (r/register-handler
-         :dissoc-db
-         m/standard-middlewares
-         (fn [db [key]]
-           (dissoc db key)))
-
-       (r/register-handler
-         :initialize-db
-         m/standard-without-debug
-         (fn [_]
-           db/default-db))))
+    '(trace-views
+       (s/defn text-field
+               ([subscribe props]
+                 (text-field subscribe nil nil props))
+               ([subscribe dispatch props]
+                 (text-field subscribe dispatch nil props))
+               ([subscribe :- [(s/either s/Keyword s/Int)]
+                 dispatch :- [(s/either s/Keyword s/Int)]
+                 error-dispatch :- [(s/either s/Keyword s/Int)]
+                 props :- {s/Keyword s/Any}]
+                 (let [value (f/subscribe subscribe)
+                       validators (into [] (concat
+                                             (when (:required props)
+                                               [v/required])
+                                             (:validators props)))]
+                   (when-let [default-value (:default-value props)]
+                     (f/dispatch (conj dispatch default-value)))
+                   (fn []
+                     (let [error-text (u/validate-until-error @value validators)]
+                       (when error-dispatch
+                         (f/dispatch (conj error-dispatch error-text)))
+                       [ui/text-field (merge
+                                        {:value          @value
+                                         :errorText      error-text
+                                         :style          style
+                                         :underlineStyle underline-style
+                                         :errorStyle     error-style
+                                         }
+                                        (when dispatch
+                                          {:onChange #(f/dispatch (conj dispatch (u/e-val %)))})
+                                        props)])))))))
 
 
 (defn trace-forms-args [color]

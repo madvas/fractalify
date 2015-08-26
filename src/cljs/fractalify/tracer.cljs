@@ -5,8 +5,8 @@
     [fractalify.utils :as u]))
 
 (def always-trace
-  true
-  ;false
+  ;true
+  false
   )
 
 (def trace? #(or (.-TRACE js/window) always-trace))

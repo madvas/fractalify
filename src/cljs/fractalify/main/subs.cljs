@@ -35,11 +35,8 @@
 
   (r/register-sub
     :get-form-item
-    (fn [db [_ form item index]]
-      (reaction (let [form-item (get-in @db [:forms form item])]
-                  (if (and (vector? form-item) index)
-                    (nth form-item index)
-                    form-item)))))
+    (fn [db [_ & path]]
+      (reaction (get-in @db (into [:forms] path)))))
 
   (r/register-sub
     :form-data

@@ -179,7 +179,7 @@ h1 {
 }
 [class^="col-"] > *,
 [class*=" col-"] > * {
-  width: 100% !important;
+  width: 100%;
 }
 .w-100 {
   width: 100% !important;
@@ -284,6 +284,9 @@ h1 {
   padding-left: 20px;
   padding-right: 20px;
 }
+.pad-20 {
+  padding: 20px;
+}
 .mar-top-20 {
   margin-top: 20px;
 }
@@ -383,6 +386,9 @@ h1 {
 .mar-hor-20 {
   margin-left: 20px;
   margin-right: 20px;
+}
+.mar-20 {
+  margin: 20px;
 }
 .default-color {
   color: inherit;

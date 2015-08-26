@@ -5,9 +5,8 @@
             [reagent.ratom :refer [make-reaction]]
             [fractalify.tracer :refer [tracer]]))
 
-#_(trace-subs
-
-  #_(r/register-sub
-   :new-fractal
+(trace-subs
+  (r/register-sub
+   :new-l-system
    (fn [db _]
-     (reaction (:new-fractal @db)))))
+     (reaction (get-in @db [:forms :l-system])))))

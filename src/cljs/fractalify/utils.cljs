@@ -24,13 +24,25 @@
         error
         #(validate-until-error-fn val (rest fns))))))
 
-(defn set-timeout [f ms]
+(s/defn set-timeout
+  [f
+   ms :- s/Int]
   (js/setTimeout f ms))
 
 (defn timeout [ms]
   (let [c (chan)]
     (js/setTimeout (fn [] (close! c)) ms)
     c))
+
+(defn round
+  "Round a double to the given precision (number of significant digits)"
+  [precision d]
+  (let [factor (Math/pow 10 precision)]
+    (/ (Math/round (* d factor)) factor)))
+
+(s/defn parse-float :- (s/maybe s/Num)
+  [num :- (s/either s/Num s/Str)]
+  (js/parseFloat num))
 
 (def validate-until-error
   "This is trampoline function, which stops executing until one of fns returns truthy value

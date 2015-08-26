@@ -27,10 +27,16 @@
                         (o :edit-profile)    {(o :email) s/Str
                                               (o :bio)   s/Str}
 
-                        (o :fractal)         {(o :rules)     (s/maybe [{s/Str s/Str}])
-                                              (o :start)     s/Str
-                                              (o :angle)     s/Num
-                                              (o :constants) #{s/Str}}
+                        (o :l-system)        {(o :rules)       (s/maybe [[(s/one s/Str "rule-source")
+                                                                          (s/one s/Str "rule-product")]])
+                                              (o :start)       s/Str
+                                              (o :angle)       s/Num
+                                              (o :constants)   #{s/Str}
+                                              (o :iterations)  (s/pred pos?)
+                                              (o :line-length) s/Num
+                                              (o :start-angle) s/Num
+                                              (o :origin)      {:x s/Num :y s/Num}
+                                              (o :result-cmds) s/Str}
                         }
 
    (o :snackbar-props) {:message              s/Str
@@ -41,7 +47,7 @@
 
 (defn assoc-form-validaton-properties [db-schema]
   (reduce (fn [forms form]
-            (assoc-in forms [:forms form (o :errors)] {s/Keyword s/Str}))
+            (assoc-in forms [:forms form (o :errors)] {s/Any s/Any}))
           db-schema
           (keys (:forms db-schema))))
 
@@ -60,7 +66,12 @@
 
    :forms {:login           {:user "HEHE" :password "abcdef"}
            :forgot-password {:email "some@email"}
-           :fractal         {:rules [{"a" "b-a-b"
-                                      "b" "a+b+a"}]
-                             :angle (* 2 (.-PI js/Math) (/ 60 360))
-                             :start "a"}}})
+           :l-system        {:rules       [["F" "F[+F]F[-F]F"]]
+                             #_[["a" "b-a-b"]
+                                ["b" "a+b+a"]]
+                             :angle       (u/round 2 25.7)
+                             :start       "F"
+                             :iterations  3
+                             :line-length 7
+                             :origin      {:x 250 :y 250}
+                             :start-angle 180}}})

@@ -3,6 +3,11 @@
             [re-frame.core :as r :refer [after trim-v debug]]
             [fractalify.utils :as u]))
 
+(def enabled?
+  ;true
+  false
+  )
+
 (defn valid-schema? [db]
   (db/valid? db))
 
@@ -14,7 +19,7 @@
 (def trim-validate [trim-v
                     (when ^boolean goog.DEBUG (after valid-schema?))])
 
-(def standard-middlewares [(when ^boolean (and goog.DEBUG false) debug)
+(def standard-middlewares [(when ^boolean (and goog.DEBUG enabled?) debug)
                            trim-validate])
 
 (def standard-without-debug (rest standard-middlewares))
