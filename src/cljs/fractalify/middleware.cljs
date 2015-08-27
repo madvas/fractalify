@@ -8,6 +8,7 @@
   false
   )
 
+
 (defn valid-schema? [db]
   (db/valid? db))
 

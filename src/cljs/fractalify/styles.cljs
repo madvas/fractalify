@@ -19,8 +19,8 @@
    :flex             1})
 
 (def canvas-size
- {:width  500
-  :height 500})
+ {:width  600
+  :height 600})
 
 (def pad-0 {:padding 0})
 (def pad-5 {:padding 5})

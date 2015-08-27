@@ -1,8 +1,10 @@
 (ns fractalify.db
   (:require [schema.core :as s :include-macros true]
-            [fractalify.utils :as u]))
+            [fractalify.utils :as u]
+            [fractalify.fractals.schemas :as fractals]))
 
 (def o s/optional-key)
+
 
 (def db-schema
   {(o :active-panel)   s/Keyword
@@ -27,17 +29,7 @@
                         (o :edit-profile)    {(o :email) s/Str
                                               (o :bio)   s/Str}
 
-                        (o :l-system)        {(o :rules)       (s/maybe [[(s/one s/Str "rule-source")
-                                                                          (s/one s/Str "rule-product")]])
-                                              (o :start)       s/Str
-                                              (o :angle)       s/Num
-                                              (o :constants)   #{s/Str}
-                                              (o :iterations)  (s/pred pos?)
-                                              (o :line-length) s/Num
-                                              (o :start-angle) s/Num
-                                              (o :origin)      {:x s/Num :y s/Num}
-                                              (o :result-cmds) s/Str}
-                        }
+                        (o :l-system)        fractals/LSystem}
 
    (o :snackbar-props) {:message              s/Str
                         (o :action)           s/Str
@@ -59,6 +51,49 @@
 (defn valid? [db]
   (s/validate (create-db-schema db-schema) db))
 
+(def plant1
+  {:rules       [["F" "F[+F]F[-F]F"]]
+   :angle       (u/round 25.7 2)
+   :start       "F"
+   :iterations  4
+   :line-length 7
+   :origin      {:x 300 :y 575}
+   :start-angle 179})
+
+(def koch-island
+  {:rules       [["F" "F+FF-FF-F-F+F+FF-F-F+F+FF+FF-F"]]
+   :angle       90
+   :start       "F-F-F-F"
+   :iterations  2
+   :line-length 5
+   :origin      {:x 300 :y 300}
+   :start-angle 180})
+
+(def koch-curve
+  {:rules       [["F" "F+F-F-F+F"]]
+   :angle       90
+   :start       "-F"
+   :iterations  4
+   :line-length 36
+   :origin      {:x 300 :y 300}
+   :start-angle 167})
+
+(def dragon-curve
+  {:rules       [["X" "X+YF"] ["Y" "FX-Y"]]
+   :angle       90
+   :start       "FX"
+   :iterations  12
+   :line-length 6
+   :origin      {:x 300 :y 300}
+   :start-angle 90})
+
+(def plant2 {:rules       [["F" "FF-[-F+F+F]+[+F-F-F]"]]
+             :angle       22.5
+             :start       "F"
+             :iterations  4
+             :line-length 10
+             :origin      {:x 300 :y 550}
+             :start-angle 180})
 
 (def default-db
   {
@@ -66,12 +101,8 @@
 
    :forms {:login           {:user "HEHE" :password "abcdef"}
            :forgot-password {:email "some@email"}
-           :l-system        {:rules       [["F" "F[+F]F[-F]F"]]
-                             #_[["a" "b-a-b"]
-                                ["b" "a+b+a"]]
-                             :angle       (u/round 2 25.7)
-                             :start       "F"
-                             :iterations  3
-                             :line-length 7
-                             :origin      {:x 250 :y 250}
-                             :start-angle 180}}})
+           ;:l-system        plant1
+           ;:l-system        plant2
+           ;:l-system        koch-curve
+           :l-system        dragon-curve
+           }})

@@ -9,4 +9,9 @@
   (r/register-sub
    :new-l-system
    (fn [db _]
-     (reaction (get-in @db [:forms :l-system])))))
+     (reaction (get-in @db [:forms :l-system]))))
+
+  (r/register-sub
+    :rules
+    (fn [db _]
+      (reaction (get-in @db [:forms :l-system :rules])))))

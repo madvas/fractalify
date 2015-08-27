@@ -8,7 +8,8 @@
     [schema.core :as s :include-macros true]
     [fractalify.utils :as u]
     [fractalify.validators :as v]
-    [fractalify.styles :as y]))
+    [fractalify.styles :as y]
+    [plumbing.core :as p]))
 
 
 (def style (merge y/w-100 {:padding-bottom 13 :text-align "left"}))
@@ -39,18 +40,18 @@
         (let [error-text (u/validate-until-error @value validators)]
           (when error-dispatch
             (f/dispatch (conj error-dispatch error-text)))
-          [ui/text-field (merge
-                           {:value          @value
-                            :errorText      error-text
-                            :style          style
-                            :underlineStyle underline-style
-                            :errorStyle     error-style
-                            }
-                           (when dispatch
-                             {:onChange
-                              #(f/dispatch
-                                (conj dispatch
-                                      (if (= (:type props) "number")
-                                        (u/parse-float (u/e-val %))
-                                        (u/e-val %))))})
-                           props)])))))
+          [ui/text-field
+           (merge
+             {:default-value  @value
+              :errorText      error-text
+              :style          style
+              :underlineStyle underline-style
+              :errorStyle     error-style
+              }
+             (when dispatch
+               {:on-change
+                #(f/dispatch
+                  (conj dispatch (-> (u/e-val %)
+                                     (p/?> (= (:type props) "number")
+                                           u/parse-float))))})
+             props)])))))

@@ -16,11 +16,11 @@
 
 (enable-console-print!)
 
-
 ;(set! (.-DEBUG js/goog) false)
-(s/set-fn-validation! goog.DEBUG)
+;(s/set-fn-validation! goog.DEBUG)
 
-(defn mount-root []
+
+(defn ^:export mount-root []
   (reagent/render [fractalify.main.view/main-view]
                   (.getElementById js/document "app")))
 

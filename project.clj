@@ -29,7 +29,9 @@
                  [prismatic/schema "0.4.3"]
                  [kibu/pushy "0.3.2"]
                  [rm-hull/monet "0.2.1"]
-                 [bidi "1.21.0"]]
+                 [bidi "1.21.0"]
+                 [prismatic/plumbing "0.4.4"]
+                 [servant "0.1.3"]]
 
   :plugins [[lein-cljsbuild "1.0.5"]
             [lein-environ "1.0.0"]
@@ -41,11 +43,13 @@
 
   :cljsbuild {:builds {:app {:source-paths ["src/cljs"]
                              :compiler     {:main          fractalify.core
-                                            :preamble      ["resources/public/vendor/material-ui/material.js"]
+                                            ;:preamble      ["resources/public/vendor/material-ui/material.js"]
                                             :output-to     "resources/public/js/app.js"
                                             :output-dir    "resources/public/js/out"
                                             :source-map    "resources/public/js/out.js.map"
                                             :optimizations :none
+                                            ;:optimizations :advanced
+                                            ;:externs       ["resources/public/js/externs.js"]
                                             :pretty-print  true}}}}
 
 
@@ -55,8 +59,8 @@
   :profiles {:dev     {:source-paths ["env/dev/clj"]
                        :test-paths   ["test/clj"]
 
-                       :dependencies [[figwheel "0.2.5"]
-                                      [figwheel-sidecar "0.2.5"]
+                       :dependencies [[figwheel "0.3.7"]
+                                      [figwheel-sidecar "0.3.7"]
                                       [com.cemerick/piggieback "0.1.5"]
                                       [weasel "0.6.0"]
                                       [io.aviso/pretty "0.1.18"]]
@@ -65,7 +69,7 @@
                                       :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl
                                                          io.aviso.nrepl/pretty-middleware]}
 
-                       :plugins      [[lein-figwheel "0.2.5"]]
+                       :plugins      [[lein-figwheel "0.3.7"]]
 
                        :figwheel     {:http-server-root "public"
                                       :server-port      3449

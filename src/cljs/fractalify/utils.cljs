@@ -5,6 +5,7 @@
 (defn e-val [event]
   (-> event .-target .-value))
 
+
 (defn mlog [& messages]
   (.apply (.-log js/console) js/console (clj->js messages)))
 
@@ -34,11 +35,14 @@
     (js/setTimeout (fn [] (close! c)) ms)
     c))
 
-(defn round
+(s/defn round
   "Round a double to the given precision (number of significant digits)"
-  [precision d]
+  [d :- s/Num
+   precision :- s/Int]
   (let [factor (Math/pow 10 precision)]
     (/ (Math/round (* d factor)) factor)))
+
+(def deg (/ (.-PI js/Math) 180))
 
 (s/defn parse-float :- (s/maybe s/Num)
   [num :- (s/either s/Num s/Str)]

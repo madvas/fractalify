@@ -1,14 +1,16 @@
 (ns fractalify.fractals.lib.turtle
-  (:require-macros [clairvoyant.core :refer [trace-forms]])
-  (:require [fractalify.fractals.lib.l-systems :as l]
-            [monet.canvas :as c]
-            [fractalify.tracer :refer [tracer]]
-            [fractalify.utils :as u]
-            [fractalify.styles :as y]
-            [schema.core :as s :include-macros true]))
+  (:require-macros [cljs.core.async.macros :as m :refer [go]]
+                   [servant.macros :refer [defservantfn]])
+  (:require [fractalify.utils :as u]
+            [schema.core :as s :include-macros true]
+            [fractalify.fractals.schemas :as ch]
+            [plumbing.core :as p]
+            [servant.core :as servant]
+            [servant.worker :as worker]))
 
+(def worker-count 2)
+(def worker-script "/js/app.js")                            ;; This is whatever the name of this script will be
 
-(def ^:dynamic *ctx* (atom nil))
 
 (def cmd-map {"F" :forward
               "+" :left
@@ -16,29 +18,85 @@
               "[" :push
               "]" :pop})
 
-(declare render!)
-(declare init!)
+(defmulti command identity)
 
-(trace-forms
-  {:tracer (tracer :color "orange")}
+(s/defn move-coord :- s/Num
+  [angle :- s/Num
+   length :- s/Num
+   type :- (s/enum :x :y)
+   coord :- s/Num]
+  (let [f (if (= type :x) Math/sin Math/cos)]
+    (-> (f (* angle u/deg))
+        (* length)
+        (+ coord)
+        (u/round 3))))
 
-  (s/defn render!
-    [canvas-dom :- (s/pred (partial instance? js/HTMLCanvasElement))
-     l-system :- {(s/required-key :result-cmds) s/Str s/Any s/Any}]
-    (when-not @*ctx*
-      (init! canvas-dom))
-    #_(c/clear-rect @*ctx* {:x 0 :y 0 :w 500 :h 500})
-    #_(c/fill-style @*ctx* "#FF0")
-    #_(c/fill-rect @*ctx* {:x 0 :y 0 :w 500 :h 100}))
+(s/defn turn
+  [turtle :- ch/Turtle
+   angle :- s/Num
+   direction :- (s/=> s/Num s/Num)]
+  (update-in turtle [:angle] #(direction % angle)))
 
-  (defn init! [canvas-dom]
-    (reset! *ctx* (c/get-context canvas-dom "2d")))
+(s/defn exec-cmd :- ch/Turtle
+  [l-system :- ch/LSystem
+   turtle :- ch/Turtle
+   cmd :- s/Str]
+  (command (cmd-map cmd) turtle l-system))
 
-  #_(defn gen-coords [grammar env]
-      (let [origin {:x     (first (:origin env))
-                    :y     (second (:origin env))
-                    :angle (:start-angle env)}
-            turtle {:current-pos origin :stack '() :lines []}
-            commands (gen-commands grammar (:n-productions env))]
-        (:lines
-          (reduce exec-cmd turtle commands)))))
+(s/defn gen-lines-coords :- ch/Lines
+  [l-system :- ch/LSystem
+   result-cmds :- s/Str]
+  (p/letk [[origin start-angle] l-system]
+    (let [turtle {:position origin
+                  :angle    start-angle
+                  :stack    '()
+                  :lines    []}
+          exec-fn (partial exec-cmd l-system)]
+      (:lines (reduce exec-fn turtle result-cmds)))))
+
+
+(s/defn update-turtle-lines :- ch/Turtle
+  [turtle :- ch/Turtle
+   old-pos :- (:position ch/Turtle)]
+  (update-in turtle [:lines]
+             #(conj % [old-pos (:position turtle)])))
+
+(s/defn move-forward :- ch/Turtle
+  [turtle :- ch/Turtle
+   l-system :- ch/LSystem]
+  (p/letk [[angle position] turtle
+           [line-length] l-system]
+    (let [move-fn (partial move-coord angle line-length)]
+      (-> turtle
+          (update-in [:position :x] (partial move-fn :x))
+          (update-in [:position :y] (partial move-fn :y))
+          (update-turtle-lines position)))))
+
+(s/defn move-left :- ch/Turtle
+  [turtle :- ch/Turtle
+   l-system :- ch/LSystem]
+  (turn turtle (:angle l-system) +))
+
+(s/defn move-right :- ch/Turtle
+  [turtle :- ch/Turtle
+   l-system :- ch/LSystem]
+  (turn turtle (:angle l-system) -))
+
+(s/defn push-position :- ch/Turtle
+  [turtle :- ch/Turtle _]
+  (update-in turtle [:stack] #(cons (select-keys turtle [:position :angle]) %)))
+
+(s/defn pop-position :- ch/Turtle
+  [turtle :- ch/Turtle _]
+  (-> turtle
+      (merge turtle (first (:stack turtle)))
+      (update-in [:stack] rest)))
+
+(defmethod command :forward [_ & args] (apply move-forward args))
+(defmethod command :left [_ & args] (apply move-left args))
+(defmethod command :right [_ & args] (apply move-right args))
+(defmethod command :push [_ & args] (apply push-position args))
+(defmethod command :pop [_ & args] (apply pop-position args))
+(defmethod command :default [_ & args] (apply identity args))
+(defservantfn gen-lines-coords-worker [& args]
+              (apply gen-lines-coords args))

@@ -2,8 +2,8 @@
   (:require [re-frame.core :as f]
             [material-ui.core :as ui]
             [fractalify.fractals.components.canvas :as canvas]
-            [fractalify.fractals.components.canvas-controls :as canvas-controls]
-            [fractalify.styles :as y]))
+            [fractalify.styles :as y]
+            [fractalify.fractals.components.canvas-controls :as canvas-controls]))
 
 (defn fractal-create []
   (let [params (f/subscribe [:route-params])]
