@@ -53,11 +53,18 @@
                                                 :pretty-print  true}}
                        :workers {:source-paths ["src/cljs"]
                                  :compiler     {:main          fractalify.fractals.lib.workers.turtle
-                                                :preamble      ["resources/public/vendor/material-ui/material.js"]
+                                                ;:preamble      ["material_ui/material.js"]
                                                 :output-to     "resources/public/js/workers.js"
                                                 :output-dir    "resources/public/js/workers"
                                                 :source-map    "resources/public/js/workers.js.map"
                                                 :optimizations :advanced
+                                                :externs       ["resources/public/js/externs.js"]
+                                                :pretty-print  true}}
+                       :simple  {:source-paths ["src/cljs/fractalify/fractals/lib/workers"]
+                                 :compiler     {:output-to     "resources/public/js/simple.js"
+                                                :output-dir    "resources/public/js/simple"
+                                                :source-map    "resources/public/js/simple.js.map"
+                                                :optimizations :simple
                                                 :externs       ["resources/public/js/externs.js"]
                                                 :pretty-print  true}}}}
 
