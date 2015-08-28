@@ -1,15 +1,11 @@
-(ns fractalify.fractals.lib.turtle
-  (:require-macros [cljs.core.async.macros :as m :refer [go]]
-                   [servant.macros :refer [defservantfn]])
+(ns fractalify.fractals.lib.workers.turtle
+  (:require-macros [servant.macros :refer [defservantfn]])
   (:require [fractalify.utils :as u]
             [schema.core :as s :include-macros true]
             [fractalify.fractals.schemas :as ch]
             [plumbing.core :as p]
             [servant.core :as servant]
             [servant.worker :as worker]))
-
-(def worker-count 2)
-(def worker-script "/js/app.js")                            ;; This is whatever the name of this script will be
 
 
 (def cmd-map {"F" :forward
@@ -35,7 +31,7 @@
   [turtle :- ch/Turtle
    angle :- s/Num
    direction :- (s/=> s/Num s/Num)]
-  (update-in turtle [:angle] #(direction % angle)))
+  (update turtle :angle #(direction % angle)))
 
 (s/defn exec-cmd :- ch/Turtle
   [l-system :- ch/LSystem
@@ -58,8 +54,8 @@
 (s/defn update-turtle-lines :- ch/Turtle
   [turtle :- ch/Turtle
    old-pos :- (:position ch/Turtle)]
-  (update-in turtle [:lines]
-             #(conj % [old-pos (:position turtle)])))
+  (update turtle :lines
+          #(conj % [old-pos (:position turtle)])))
 
 (s/defn move-forward :- ch/Turtle
   [turtle :- ch/Turtle
@@ -84,13 +80,13 @@
 
 (s/defn push-position :- ch/Turtle
   [turtle :- ch/Turtle _]
-  (update-in turtle [:stack] #(cons (select-keys turtle [:position :angle]) %)))
+  (update turtle :stack #(cons (select-keys turtle [:position :angle]) %)))
 
 (s/defn pop-position :- ch/Turtle
   [turtle :- ch/Turtle _]
   (-> turtle
       (merge turtle (first (:stack turtle)))
-      (update-in [:stack] rest)))
+      (update :stack rest)))
 
 (defmethod command :forward [_ & args] (apply move-forward args))
 (defmethod command :left [_ & args] (apply move-left args))
@@ -98,5 +94,6 @@
 (defmethod command :push [_ & args] (apply push-position args))
 (defmethod command :pop [_ & args] (apply pop-position args))
 (defmethod command :default [_ & args] (apply identity args))
+
 (defservantfn gen-lines-coords-worker [& args]
               (apply gen-lines-coords args))

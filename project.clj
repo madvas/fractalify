@@ -8,8 +8,8 @@
 
   :test-paths ["test/clj"]
 
-  :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-3211" :scope "provided"]
+  :dependencies [[org.clojure/clojure "1.7.0"]
+                 [org.clojure/clojurescript "1.7.48" :scope "provided"]
                  [ring "1.4.0"]
                  [ring/ring-defaults "0.1.5"]
                  [compojure "1.4.0"]
@@ -33,7 +33,7 @@
                  [prismatic/plumbing "0.4.4"]
                  [servant "0.1.3"]]
 
-  :plugins [[lein-cljsbuild "1.0.5"]
+  :plugins [[lein-cljsbuild "1.1.0"]
             [lein-environ "1.0.0"]
             [lein-less "1.7.3"]]
 
@@ -41,16 +41,25 @@
 
   :uberjar-name "fractalify.jar"
 
-  :cljsbuild {:builds {:app {:source-paths ["src/cljs"]
-                             :compiler     {:main          fractalify.core
-                                            ;:preamble      ["resources/public/vendor/material-ui/material.js"]
-                                            :output-to     "resources/public/js/app.js"
-                                            :output-dir    "resources/public/js/out"
-                                            :source-map    "resources/public/js/out.js.map"
-                                            :optimizations :none
-                                            ;:optimizations :advanced
-                                            ;:externs       ["resources/public/js/externs.js"]
-                                            :pretty-print  true}}}}
+  :cljsbuild {:builds {:app     {:source-paths ["src/cljs"]
+                                 :compiler     {:main          fractalify.core
+                                                ;:preamble      ["resources/public/vendor/material-ui/material.js"]
+                                                :output-to     "resources/public/js/app.js"
+                                                :output-dir    "resources/public/js/out"
+                                                :source-map    "resources/public/js/out.js.map"
+                                                :optimizations :none
+                                                ;:optimizations :advanced
+                                                :externs       ["resources/public/js/externs.js"]
+                                                :pretty-print  true}}
+                       :workers {:source-paths ["src/cljs"]
+                                 :compiler     {:main          fractalify.fractals.lib.workers.turtle
+                                                :preamble      ["resources/public/vendor/material-ui/material.js"]
+                                                :output-to     "resources/public/js/workers.js"
+                                                :output-dir    "resources/public/js/workers"
+                                                :source-map    "resources/public/js/workers.js.map"
+                                                :optimizations :advanced
+                                                :externs       ["resources/public/js/externs.js"]
+                                                :pretty-print  true}}}}
 
 
   :less {:source-paths ["src/less"]
@@ -80,13 +89,14 @@
                        :env          {:is-dev true}
 
                        :cljsbuild    {:test-commands {"test" ["phantomjs" "env/test/js/unit-test.js" "env/test/unit-test.html"]}
-                                      :builds        {:app  {:source-paths ["env/dev/cljs"]}
-                                                      :test {:source-paths ["src/cljs" "test/cljs"]
-                                                             :compiler     {:output-to     "resources/public/js/app_test.js"
-                                                                            :output-dir    "resources/public/js/test"
-                                                                            :source-map    "resources/public/js/test.js.map"
-                                                                            :optimizations :whitespace
-                                                                            :pretty-print  false}}}}}
+                                      :builds        {:app     {:source-paths ["env/dev/cljs"]}
+                                                      :workers {:source-paths ["env/dev/cljs"]}
+                                                      :test    {:source-paths ["src/cljs" "test/cljs"]
+                                                                :compiler     {:output-to     "resources/public/js/app_test.js"
+                                                                               :output-dir    "resources/public/js/test"
+                                                                               :source-map    "resources/public/js/test.js.map"
+                                                                               :optimizations :whitespace
+                                                                               :pretty-print  false}}}}}
 
              :uberjar {:source-paths ["env/prod/clj"]
                        :hooks        [leiningen.cljsbuild leiningen.less]

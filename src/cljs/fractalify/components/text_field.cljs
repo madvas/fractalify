@@ -1,5 +1,6 @@
 (ns fractalify.components.text-field
-  (:require-macros [fractalify.tracer-macros :refer [trace-views]])
+  (:require-macros [fractalify.tracer-macros :refer [trace-views]]
+                   [cljs.core.async.macros :refer [go go-loop]])
   (:require
     [reagent.core :as r]
     [fractalify.tracer]
@@ -9,7 +10,8 @@
     [fractalify.utils :as u]
     [fractalify.validators :as v]
     [fractalify.styles :as y]
-    [plumbing.core :as p]))
+    [plumbing.core :as p]
+    [cljs.core.async :refer [chan close! >! <! sliding-buffer]]))
 
 
 (def style (merge y/w-100 {:padding-bottom 13 :text-align "left"}))
@@ -19,6 +21,16 @@
 (def params-format [(s/either s/Keyword s/Int)])
 
 (declare text-field)
+
+(defn parse-val
+  [evt type]
+  (-> (u/e-val evt)
+      (p/?> (= type "number")
+            u/parse-float)))
+
+(defn get-debounced-ch [change-ch props]
+  (let [d (or (:debounce props) 0)]
+    (apply u/debounce change-ch (if (number? d) [d] d))))
 
 (s/defn text-field
   ([subscribe props]
@@ -33,9 +45,15 @@
           validators (into [] (concat
                                 (when (:required props)
                                   [v/required])
-                                (:validators props)))]
+                                (:validators props)))
+          change-ch (chan)
+          debounced-chan (get-debounced-ch change-ch props)]
       (when-let [default-value (:default-value props)]
         (f/dispatch (conj dispatch default-value)))
+      (go
+        (while true
+          (let [val (<! debounced-chan)]
+            (f/dispatch (conj dispatch val)))))
       (fn []
         (let [error-text (u/validate-until-error @value validators)]
           (when error-dispatch
@@ -49,9 +67,7 @@
               :errorStyle     error-style
               }
              (when dispatch
-               {:on-change
-                #(f/dispatch
-                  (conj dispatch (-> (u/e-val %)
-                                     (p/?> (= (:type props) "number")
-                                           u/parse-float))))})
+               {:on-change (fn [evt]
+                             (let [val (parse-val evt (:type props))]
+                               (go (>! change-ch val))))})
              props)])))))

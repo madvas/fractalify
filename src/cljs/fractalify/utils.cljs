@@ -1,6 +1,7 @@
 (ns fractalify.utils
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [schema.core :as s :include-macros true]
-            [cljs.core.async :refer [chan close!]]))
+            [cljs.core.async :refer [chan close! >! <!]]))
 
 (defn e-val [event]
   (-> event .-target .-value))
@@ -30,6 +31,8 @@
    ms :- s/Int]
   (js/setTimeout f ms))
 
+(def clear-timeout js/clearTimeout)
+
 (defn timeout [ms]
   (let [c (chan)]
     (js/setTimeout (fn [] (close! c)) ms)
@@ -43,6 +46,32 @@
     (/ (Math/round (* d factor)) factor)))
 
 (def deg (/ (.-PI js/Math) 180))
+
+(defn debounce
+  ([c ms] (debounce (chan) c ms false))
+  ([c ms instant] (debounce (chan) c ms instant))
+  ([c' c ms instant]
+   (go
+     (loop [start (js/Date.) timeout nil]
+       (let [loc (<! c)]
+         (when timeout
+           (js/clearTimeout timeout))
+         (let [diff (- (js/Date.) start)
+               delay (if (and instant
+                              (or (>= diff ms)
+                                  (not timeout)))
+                       0 ms)
+               t (js/setTimeout #(go (>! c' loc)) delay)]
+           (recur (js/Date.) t)))))
+   c'))
+
+(defn throttle [c ms]
+  (let [c' (chan)]
+    (go
+      (while true
+        (>! c' (<! c))
+        (<! (timeout ms))))
+    c'))
 
 (s/defn parse-float :- (s/maybe s/Num)
   [num :- (s/either s/Num s/Str)]
