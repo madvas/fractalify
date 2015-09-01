@@ -4,8 +4,9 @@
             [cljs.core.async :refer [chan close! >! <!]]))
 
 (defn e-val [event]
-  (-> event .-target .-value))
+  (aget event "target" "value"))
 
+(def dev? goog.DEBUG)
 
 (defn mlog [& messages]
   (.apply (.-log js/console) js/console (clj->js messages)))

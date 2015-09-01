@@ -1,12 +1,19 @@
-(ns fractalify.fractals.lib.workers.turtle
-  (:require-macros [servant.macros :refer [defservantfn]])
-  (:require [fractalify.utils :as u]
-            [schema.core :as s :include-macros true]
-            [fractalify.fractals.schemas :as ch]
-            [plumbing.core :as p]
-            [servant.core :as servant]
-            [servant.worker :as worker]))
+(ns workers.turtle.turtle
+  (:require [schema.core :as s :include-macros true]
+            [workers.core :as w]
+            [workers.turtle.schemas :as ch]
+            [plumbing.core :as p]))
 
+(enable-console-print!)
+(s/set-fn-validation! false)
+
+(s/defn round
+  [d :- s/Num
+   precision :- s/Int]
+  (let [factor (Math/pow 10 precision)]
+    (/ (Math/round (* d factor)) factor)))
+
+(def deg (/ (.-PI js/Math) 180))
 
 (def cmd-map {"F" :forward
               "+" :left
@@ -22,10 +29,10 @@
    type :- (s/enum :x :y)
    coord :- s/Num]
   (let [f (if (= type :x) Math/sin Math/cos)]
-    (-> (f (* angle u/deg))
+    (-> (f (* angle deg))
         (* length)
         (+ coord)
-        (u/round 3))))
+        (round 3))))
 
 (s/defn turn
   [turtle :- ch/Turtle
@@ -95,5 +102,5 @@
 (defmethod command :pop [_ & args] (apply pop-position args))
 (defmethod command :default [_ & args] (apply identity args))
 
-(defservantfn gen-lines-coords-worker [& args]
-              (apply gen-lines-coords args))
+(w/on-message (fn [[l-system result-cmds]]
+                (w/post-message (gen-lines-coords l-system result-cmds))))

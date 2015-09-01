@@ -14,4 +14,9 @@
   (r/register-sub
     :rules
     (fn [db _]
-      (reaction (get-in @db [:forms :l-system :rules])))))
+      (reaction (get-in @db [:forms :l-system :rules]))))
+
+  (r/register-sub
+    :l-system-generating
+    (fn [db _]
+      (reaction (get-in @db [:l-system-generating])))))

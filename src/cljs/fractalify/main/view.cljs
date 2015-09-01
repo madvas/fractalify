@@ -16,7 +16,7 @@
       {:display-name "Main Panel"
 
        :child-context-types
-                     #js {:muiTheme js/React.PropTypes.object}
+                     #js {:muiTheme (aget js/React "PropTypes" "object")}
 
        :get-child-context
                      (fn [_]

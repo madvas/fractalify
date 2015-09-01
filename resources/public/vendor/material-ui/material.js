@@ -4,10 +4,11 @@
     injectTapEventPlugin = require("react-tap-event-plugin"),
     materialUI = require('material-ui');
 
-  //Needed for React Developer Tools
-  window.React = React;
- 
-  window.MaterialUI = materialUI;
+  var self = this;
+  var w =  (self.document === undefined) ? self : window;
+    //Needed for React Developer Tools
+  w.React = React;
+  w.MaterialUI = materialUI;
 
   //Needed for onTouchTap
   //Can go away when react 1.0 release

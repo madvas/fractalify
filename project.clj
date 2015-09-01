@@ -41,32 +41,23 @@
 
   :uberjar-name "fractalify.jar"
 
-  :cljsbuild {:builds {:app     {:source-paths ["src/cljs"]
-                                 :compiler     {:main          fractalify.core
-                                                ;:preamble      ["resources/public/vendor/material-ui/material.js"]
-                                                :output-to     "resources/public/js/app.js"
-                                                :output-dir    "resources/public/js/out"
-                                                :source-map    "resources/public/js/out.js.map"
-                                                :optimizations :none
-                                                ;:optimizations :advanced
-                                                :externs       ["resources/public/js/externs.js"]
-                                                :pretty-print  true}}
-                       :workers {:source-paths ["src/cljs"]
-                                 :compiler     {:main          fractalify.fractals.lib.workers.turtle
-                                                ;:preamble      ["material_ui/material.js"]
-                                                :output-to     "resources/public/js/workers.js"
-                                                :output-dir    "resources/public/js/workers"
-                                                :source-map    "resources/public/js/workers.js.map"
-                                                :optimizations :advanced
-                                                :externs       ["resources/public/js/externs.js"]
-                                                :pretty-print  true}}
-                       :simple  {:source-paths ["src/cljs/fractalify/fractals/lib/workers"]
-                                 :compiler     {:output-to     "resources/public/js/simple.js"
-                                                :output-dir    "resources/public/js/simple"
-                                                :source-map    "resources/public/js/simple.js.map"
-                                                :optimizations :simple
-                                                :externs       ["resources/public/js/externs.js"]
-                                                :pretty-print  true}}}}
+  :cljsbuild {:builds {:app           {:source-paths ["src/cljs"]
+                                       :compiler     {:main          fractalify.core
+                                                      ;:preamble      ["resources/public/vendor/material-ui/material.js"]
+                                                      :output-to     "resources/public/js/app.js"
+                                                      :output-dir    "resources/public/js/out"
+                                                      :source-map    "resources/public/js/out.js.map"
+                                                      :optimizations :none
+                                                      ;:optimizations :advanced
+                                                      :externs       ["src/externs.js"]
+                                                      :pretty-print  true}}
+                       :turtle-worker {:source-paths ["src/cljs/workers"]
+                                       :compiler     {:main          workers.turtle.turtle
+                                                      :output-to     "resources/public/js/turtle-worker.js"
+                                                      :output-dir    "resources/public/js/turtle-worker"
+                                                      :optimizations :simple
+                                                      :pretty-print  true
+                                                      :externs       ["src/externs.js"]}}}}
 
 
   :less {:source-paths ["src/less"]
@@ -96,14 +87,13 @@
                        :env          {:is-dev true}
 
                        :cljsbuild    {:test-commands {"test" ["phantomjs" "env/test/js/unit-test.js" "env/test/unit-test.html"]}
-                                      :builds        {:app     {:source-paths ["env/dev/cljs"]}
-                                                      :workers {:source-paths ["env/dev/cljs"]}
-                                                      :test    {:source-paths ["src/cljs" "test/cljs"]
-                                                                :compiler     {:output-to     "resources/public/js/app_test.js"
-                                                                               :output-dir    "resources/public/js/test"
-                                                                               :source-map    "resources/public/js/test.js.map"
-                                                                               :optimizations :whitespace
-                                                                               :pretty-print  false}}}}}
+                                      :builds        {:app  {:source-paths ["env/dev/cljs"]}
+                                                      :test {:source-paths ["src/cljs" "test/cljs"]
+                                                             :compiler     {:output-to     "resources/public/js/app_test.js"
+                                                                            :output-dir    "resources/public/js/test"
+                                                                            :source-map    "resources/public/js/test.js.map"
+                                                                            :optimizations :whitespace
+                                                                            :pretty-print  false}}}}}
 
              :uberjar {:source-paths ["env/prod/clj"]
                        :hooks        [leiningen.cljsbuild leiningen.less]
@@ -117,4 +107,8 @@
                                                               {:main            fractalify.core
                                                                :optimizations   :advanced
                                                                :closure-defines {:goog.DEBUG false}
-                                                               :pretty-print    false}}}}}})
+                                                               :pretty-print    false}}
+                                               :turtle-worker
+                                               {:compiler {:optimizations   :advanced
+                                                           :closure-defines {:goog.DEBUG false}
+                                                           :pretty-print    false}}}}}})

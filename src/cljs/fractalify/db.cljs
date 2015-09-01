@@ -1,41 +1,42 @@
 (ns fractalify.db
   (:require [schema.core :as s :include-macros true]
             [fractalify.utils :as u]
-            [fractalify.fractals.schemas :as fractals]))
+            [workers.turtle.schemas :as turtle-schemas]))
 
 (def o s/optional-key)
 
 
 (def db-schema
-  {(o :active-panel)   s/Keyword
-   (o :user)           {:username s/Str
-                        :email    s/Str
-                        :bio      s/Str}
-   :forms              {(o :login)           {(o :user)     s/Str
-                                              (o :password) s/Str
-                                              }
+  {(o :active-panel)        s/Keyword
+   (o :user)                {:username s/Str
+                             :email    s/Str
+                             :bio      s/Str}
+   :forms                   {(o :login)           {(o :user)     s/Str
+                                                   (o :password) s/Str
+                                                   }
 
-                        (o :join)            {(o :username)     s/Str
-                                              (o :email)        s/Str
-                                              (o :password)     s/Str
-                                              (o :confirm-pass) s/Str}
+                             (o :join)            {(o :username)     s/Str
+                                                   (o :email)        s/Str
+                                                   (o :password)     s/Str
+                                                   (o :confirm-pass) s/Str}
 
-                        (o :forgot-password) {(o :email) s/Str}
+                             (o :forgot-password) {(o :email) s/Str}
 
-                        (o :change-password) {(o :current-pass)     s/Str
-                                              (o :new-pass)         s/Str
-                                              (o :confirm-new-pass) s/Str}
+                             (o :change-password) {(o :current-pass)     s/Str
+                                                   (o :new-pass)         s/Str
+                                                   (o :confirm-new-pass) s/Str}
 
-                        (o :edit-profile)    {(o :email) s/Str
-                                              (o :bio)   s/Str}
+                             (o :edit-profile)    {(o :email) s/Str
+                                                   (o :bio)   s/Str}
 
-                        (o :l-system)        fractals/LSystem}
+                             (o :l-system)        turtle-schemas/LSystem}
 
-   (o :snackbar-props) {:message              s/Str
-                        (o :action)           s/Str
-                        (o :autoHideDuration) s/Int
-                        (o :onActionTouchTap) s/Any}
-   (o :route-params)   (s/maybe {s/Keyword s/Any})})
+   (o :l-system-generating) s/Bool
+   (o :snackbar-props)      {:message              s/Str
+                             (o :action)           s/Str
+                             (o :autoHideDuration) s/Int
+                             (o :onActionTouchTap) s/Any}
+   (o :route-params)        (s/maybe {s/Keyword s/Any})})
 
 (defn assoc-form-validaton-properties [db-schema]
   (reduce (fn [forms form]

@@ -17,7 +17,7 @@
 (enable-console-print!)
 
 ;(set! (.-DEBUG js/goog) false)
-;(s/set-fn-validation! goog.DEBUG)
+(s/set-fn-validation! goog.DEBUG)
 
 
 (defn ^:export mount-root []

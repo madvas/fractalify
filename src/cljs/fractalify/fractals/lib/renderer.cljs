@@ -1,11 +1,11 @@
 (ns fractalify.fractals.lib.renderer
   (:require [schema.core :as s :include-macros true]
             [monet.canvas :as c]
-            [fractalify.fractals.schemas :as ch]
-            [fractalify.styles :as y]))
+            [fractalify.styles :as y]
+            [workers.turtle.schemas :as turtle-schemas]
+            [fractalify.fractals.schemas :as ch]))
 
 (def ^:dynamic *ctx* (atom nil))
-
 
 (defn init! [canvas-dom]
   (reset! *ctx* (c/get-context canvas-dom "2d")))
@@ -15,7 +15,7 @@
 
 (s/defn render-lines :- ch/CanvasContext
   [ctx :- ch/CanvasContext
-   lines :- ch/Lines]
+   lines :- turtle-schemas/Lines]
   (doseq [line lines]
     (let [[from to] line]
       (-> ctx
@@ -26,7 +26,7 @@
 
 (s/defn render!
   [canvas-dom :- ch/CanvasElement
-   lines :- ch/Lines]
+   lines :- turtle-schemas/Lines]
   (when-not @*ctx*
     (init! canvas-dom))
   (-> @*ctx*

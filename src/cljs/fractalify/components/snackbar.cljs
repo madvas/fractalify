@@ -8,7 +8,7 @@
 (def ^:dynamic *queued-snackbar* (atom))
 
 (defn- get-snackbar-ref []
-  (.. @*snackbar-parent* -refs -snackbar))
+  (aget @*snackbar-parent* "refs" "snackbar"))
 
 (defn show-snackbar! []
   (if @*snackbar-parent*

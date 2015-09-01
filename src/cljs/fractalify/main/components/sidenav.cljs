@@ -1,5 +1,4 @@
 (ns fractalify.main.components.sidenav
-  (:import goog.History)
   (:require
     [re-frame.core :as f]
     [reagent.core :as r]
@@ -10,7 +9,7 @@
 (def ^:dynamic *sidenav-parent* (atom))
 
 (defn- get-sidenav-ref []
-  (.. @*sidenav-parent* -refs -sidenav))
+  (aget @*sidenav-parent* "refs" "sidenav"))
 
 (defn toggle-sidenav! []
   (when @*sidenav-parent*

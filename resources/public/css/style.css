@@ -393,7 +393,7 @@ h1 {
 .default-color {
   color: inherit;
 }
-.pos-rel {
+.relative {
   position: relative;
 }
 .mar-hor-auto {

@@ -1,5 +1,6 @@
-(ns fractalify.styles)
-
+(ns fractalify.styles
+  (:require [clojure.string :as s]
+            [fractalify.utils :as u]))
 
 (def w-100 {:width "100%"})
 (def block {:display "block"})
@@ -19,8 +20,25 @@
    :flex             1})
 
 (def canvas-size
- {:width  600
-  :height 600})
+  {:width  600
+   :height 600})
+
+(defn transition
+  ([duration easing] (transition "all" duration easing))
+  ([property duration easing]
+   {:-webkit-transition (s/join " " [property duration easing])
+    :-moz-transition    (s/join " " [property duration easing])
+    :-ms-transition     (s/join " " [property duration easing])
+    :-o-transition      (s/join " " [property duration easing])
+    :transition         (s/join " " [property duration easing])}))
+
+(def canvas-indicator
+  (merge
+    {:left (-> (:width canvas-size)
+               (/ 2)
+               (- 20))
+     :top  20}
+    (transition "opacity" "0.5s" "ease-in-out")))
 
 (def pad-0 {:padding 0})
 (def pad-5 {:padding 5})
@@ -109,3 +127,4 @@
 (def mar-ver-20 (merge mar-bot-20 mar-top-20))
 
 (def tab-anchor (merge w-100 block pad-ver-15))
+
