@@ -8,7 +8,7 @@
    form-item :- s/Keyword
    & props :- [{s/Keyword s/Any}]]
   [form-text/form-text [form form-item]
-   (apply merge {:floatingLabelText "Email"
-                 :required          true
-                 :validators        [v/email]}
+   (apply merge {:floating-label-text "Email"
+                 :required            true
+                 :validators          [v/email]}
           props)])

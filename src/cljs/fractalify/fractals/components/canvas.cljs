@@ -2,7 +2,8 @@
   (:require [re-frame.core :as f]
             [reagent.core :as r]
             [fractalify.styles :as y]
-            [fractalify.utils :as u]))
+            [fractalify.utils :as u]
+            [clojure.set :as set]))
 
 (defn dispatch-render [this l-system]
   (f/dispatch [:l-system-change (r/dom-node this) l-system]))
@@ -19,4 +20,6 @@
        :reagent-render
        (fn []
          @l-system
-         [:canvas y/canvas-size])})))
+         [:canvas (merge
+                    y/canvas-size
+                    {:style y/canvas-style})])})))

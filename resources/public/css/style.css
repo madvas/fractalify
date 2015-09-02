@@ -146,6 +146,7 @@ body {
   font-size: 13px;
   line-height: 20px;
   min-height: 100%;
+  width: 100%;
 }
 #app {
   height: 100%;
@@ -155,6 +156,7 @@ body {
   padding-bottom: 300px;
   height: 100%;
   display: block;
+  position: relative;
 }
 footer {
   padding: 72px 24px;

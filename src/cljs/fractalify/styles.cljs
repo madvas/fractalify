@@ -23,6 +23,9 @@
   {:width  600
    :height 600})
 
+(def canvas-style
+  {:width "100%" :height "100%"})
+
 (defn transition
   ([duration easing] (transition "all" duration easing))
   ([property duration easing]

@@ -14,9 +14,9 @@
         [:h1 "Restore Password"]]
        [:div.col-xs-12
         [form-text/form-text [:forgot-password :email]
-         {:floatingLabelText "Your email"
-          :required          true
-          :validators        [v/email]}]
+         {:floating-label-text "Your email"
+          :required            true
+          :validators          [v/email]}]
         [:div.row.col-xs-12.mar-top-20
          [:div.col-xs-12.col-sm-6.col-sm-offset-6
           [ui/flat-button {:label      "Send"

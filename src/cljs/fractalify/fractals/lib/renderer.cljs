@@ -3,7 +3,8 @@
             [monet.canvas :as c]
             [fractalify.styles :as y]
             [workers.turtle.schemas :as turtle-schemas]
-            [fractalify.fractals.schemas :as ch]))
+            [fractalify.fractals.schemas :as ch]
+            [fractalify.utils :as u]))
 
 (def ^:dynamic *ctx* (atom nil))
 
@@ -27,7 +28,7 @@
 (s/defn render!
   [canvas-dom :- ch/CanvasElement
    lines :- turtle-schemas/Lines]
-  (when-not @*ctx*
+  (when (or (nil? @*ctx*) (not= canvas-dom (aget @*ctx* "canvas")))
     (init! canvas-dom))
   (-> @*ctx*
       clear-canvas

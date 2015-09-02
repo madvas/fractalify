@@ -18,7 +18,7 @@
       [paper-content/paper-content
        [:div.col-xs-12
         [form-text/form-text [:login :user]
-         {:floatingLabelText "Username or email"
+         {:floating-label-text "Username or email"
           :required          true}]]
 
        [:div.col-xs-12
@@ -44,7 +44,7 @@
       [paper-content/paper-content
        [:div.col-xs-12
         [form-text/form-text [:join :username]
-         {:floatingLabelText "Username"
+         {:floating-label-text "Username"
           :required          true
           :validators        [(partial v/length 3)]}]]
 

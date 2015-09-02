@@ -9,7 +9,8 @@
             [fractalify.router :as t]
             [fractalify.main.components.sidenav :as sidenav]
             [fractalify.permissons :as p]
-            [fractalify.tracer :refer [tracer]]))
+            [fractalify.tracer :refer [tracer]]
+            [clojure.set :as set]))
 
 (defn get-form-data [db form]
   (-> db
@@ -54,7 +55,9 @@
     (fn [db params]
       (let [value (last params)
             path (into [] (butlast params))]
-        (assoc-in db (into [:forms] path) value))))
+        (if-let [key (:key (last path))]
+          (u/println (update-in db (into [:forms] (butlast path)) set/rename-keys {key value}))
+          (assoc-in db (into [:forms] path) value)))))
 
   (r/register-handler
     :set-form-error

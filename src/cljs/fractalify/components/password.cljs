@@ -9,8 +9,8 @@
    form-item :- s/Keyword
    & props :- [{s/Keyword s/Any}]]
   [form-text/form-text [form form-item]
-   (apply merge {:floatingLabelText floating-label-text
-                 :type              "password"
-                 :required          true
-                 :validators        [v/password]}
+   (apply merge {:floating-label-text floating-label-text
+                 :type                "password"
+                 :required            true
+                 :validators          [v/password]}
           props)])

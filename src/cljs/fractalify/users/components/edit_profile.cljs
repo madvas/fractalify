@@ -16,14 +16,14 @@
         [:h1 "Edit your profile"]]
        [:div.col-xs-12
         [text-field/text-field [:username]
-         {:floatingLabelText "Username"
+         {:floating-label-text "Username"
           :disabled          true}]]
        [:div.col-xs-12
         [email/email :edit-profile :email
          {:default-value (:email @user)}]]
        [:div.col-xs-12
         [form-text/form-text [:edit-profile :bio]
-         {:floatingLabelText "Bio"
+         {:floating-label-text "Bio"
           :multiLine         true
           :default-value     (:bio @user)
           :validators        [v/user-bio]}]]

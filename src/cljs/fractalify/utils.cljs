@@ -1,7 +1,8 @@
 (ns fractalify.utils
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [schema.core :as s :include-macros true]
-            [cljs.core.async :refer [chan close! >! <!]]))
+            [cljs.core.async :refer [chan close! >! <!]]
+            [cljs.core]))
 
 (defn e-val [event]
   (aget event "target" "value"))
@@ -17,6 +18,11 @@
 (defn merror [& messages]
   (.apply (.-error js/console) js/console (clj->js messages)))
 
+(defn println [& args]
+  "Like println, but returns last arg"
+  println
+  (apply cljs.core/println args)
+  (last args))
 
 (s/defn validate-until-error-fn
   ([fns] (validate-until-error-fn nil fns))

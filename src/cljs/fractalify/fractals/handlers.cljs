@@ -10,7 +10,7 @@
             [fractalify.tracer]))
 
 
-(def worker (new js/Worker "/js/turtle-worker.js"))
+(def turtle-worker (new js/Worker "/js/turtle-worker.js"))
 
 (trace-handlers
   (f/register-handler
@@ -25,10 +25,9 @@
     :generate-cmds
     m/standard-middlewares
     (fn [db [canvas-dom l-system]]
-      (println ":generate-cmds")
       (let [result-cmds (l/l-system l-system)]
-        (w/on-message-once #(f/dispatch [:on-lines-generated canvas-dom %]) worker)
-        (w/post-message [l-system result-cmds] worker))
+        (w/on-message-once #(f/dispatch [:on-lines-generated canvas-dom %]) turtle-worker)
+        (w/post-message [l-system result-cmds] turtle-worker))
       db))
 
   (f/register-handler

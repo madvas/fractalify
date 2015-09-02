@@ -8,7 +8,7 @@
 #_[:div (str "Hello fromaaa " @name ". This is the Home Page.")
    [:div [:a {:href "#/about"} "goo to About Page"]]
    [ui/text-field {:hintText          "Please enter your first name"
-                   :floatingLabelText "First Name"}]
+                   :floating-label-text "First Name"}]
    [ui/flat-button {:label "Materr"}]
    [ui/avatar {:src "http://material-ui.com/images/uxceo-128.jpg"}]
    [ui/icon-button {:iconClassName   "mdi mdi-bell"
@@ -33,4 +33,4 @@
     [ui/tab {:label "Item Two"} [:div "here no ok"]]]
    [ui/text-field {:hintText          "Hint text"
                    :errorText         "Bad bad"
-                   :floatingLabelText "I go up"}]]
+                   :floating-label-text "I go up"}]]

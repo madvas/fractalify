@@ -36,7 +36,11 @@
   (r/register-sub
     :get-form-item
     (fn [db [_ & path]]
-      (reaction (get-in @db (into [:forms] path)))))
+      (let [new-path
+            (if-let [key (:key (last path))]
+              (concat (butlast path) [key])
+              path)]
+        (reaction (get-in @db (into [:forms] new-path))))))
 
   (r/register-sub
     :form-data

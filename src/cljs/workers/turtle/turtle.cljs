@@ -2,7 +2,8 @@
   (:require [schema.core :as s :include-macros true]
             [workers.core :as w]
             [workers.turtle.schemas :as ch]
-            [plumbing.core :as p]))
+            [plumbing.core :as p]
+            [schema.coerce :as coerce]))
 
 (enable-console-print!)
 (s/set-fn-validation! false)
@@ -44,7 +45,7 @@
   [l-system :- ch/LSystem
    turtle :- ch/Turtle
    cmd :- s/Str]
-  (command (cmd-map cmd) turtle l-system))
+  (command ((:cmd-map l-system) cmd) turtle l-system))
 
 (s/defn gen-lines-coords :- ch/Lines
   [l-system :- ch/LSystem
@@ -102,5 +103,8 @@
 (defmethod command :pop [_ & args] (apply pop-position args))
 (defmethod command :default [_ & args] (apply identity args))
 
-(w/on-message (fn [[l-system result-cmds]]
-                (w/post-message (gen-lines-coords l-system result-cmds))))
+(def l-system-coercer (coerce/coercer ch/LSystem ch/l-system-coercion-matcher))
+
+(w/on-message (fn [[l-system-data result-cmds]]
+                (let [l-system (l-system-coercer l-system-data)]
+                  (w/post-message (gen-lines-coords l-system result-cmds)))))

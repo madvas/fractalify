@@ -86,7 +86,12 @@
    :iterations  12
    :line-length 6
    :origin      {:x 300 :y 300}
-   :start-angle 90})
+   :start-angle 90
+   :cmd-map     {"F" :forward
+                 "+" :left
+                 "-" :right
+                 "[" :push
+                 "]" :pop}})
 
 (def plant2 {:rules       [["F" "FF-[-F+F+F]+[+F-F-F]"]]
              :angle       22.5
