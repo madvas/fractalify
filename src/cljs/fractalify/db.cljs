@@ -1,7 +1,8 @@
 (ns fractalify.db
   (:require [schema.core :as s :include-macros true]
             [fractalify.utils :as u]
-            [workers.turtle.schemas :as turtle-schemas]))
+            [workers.turtle.schemas :as turtle-schemas]
+            [instar.core :as i]))
 
 (def o s/optional-key)
 
@@ -31,6 +32,7 @@
 
                              (o :l-system)        turtle-schemas/LSystem}
 
+   :config                  {:fractals {:all-cmds {(s/cond-pre s/Keyword s/Str) s/Str}}}
    (o :l-system-generating) s/Bool
    (o :snackbar-props)      {:message              s/Str
                              (o :action)           s/Str
@@ -38,16 +40,12 @@
                              (o :onActionTouchTap) s/Any}
    (o :route-params)        (s/maybe {s/Keyword s/Any})})
 
-(defn assoc-form-validaton-properties [db-schema]
-  (reduce (fn [forms form]
-            (assoc-in forms [:forms form (o :errors)] {s/Any s/Any}))
-          db-schema
-          (keys (:forms db-schema))))
-
+(defn assoc-form-errors [db-schema]
+  (i/transform db-schema [:forms *] #(assoc % (o :errors) {s/Keyword s/Any})))
 
 (defn create-db-schema [db-schema]
   (-> db-schema
-      assoc-form-validaton-properties))
+      assoc-form-errors))
 
 (defn valid? [db]
   (s/validate (create-db-schema db-schema) db))
@@ -80,18 +78,19 @@
    :start-angle 167})
 
 (def dragon-curve
-  {:rules       [["X" "X+YF"] ["Y" "FX-Y"]]
+  {:rules       {"123" ["X" "X+YF"]
+                 "456" ["Y" "FX-Y"]}
    :angle       90
    :start       "FX"
    :iterations  12
    :line-length 6
    :origin      {:x 300 :y 300}
    :start-angle 90
-   :cmd-map     {"F" :forward
-                 "+" :left
-                 "-" :right
-                 "[" :push
-                 "]" :pop}})
+   :cmds        {"123" ["F" :forward]
+                 "456" ["+" :left]
+                 "789" ["-" :right]
+                 "101" ["[" :push]
+                 "112" ["]" :pop]}})
 
 (def plant2 {:rules       [["F" "FF-[-F+F+F]+[+F-F-F]"]]
              :angle       22.5
@@ -102,13 +101,19 @@
              :start-angle 180})
 
 (def default-db
-  {
-   :user  {:username "madvas" :email "some@email.com" :bio "I am good"}
+  {:user   {:username "madvas" :email "some@email.com" :bio "I am good"}
 
-   :forms {:login           {:user "HEHE" :password "abcdef"}
-           :forgot-password {:email "some@email"}
-           ;:l-system        plant1
-           ;:l-system        plant2
-           ;:l-system        koch-curve
-           :l-system        dragon-curve
-           }})
+   :config {:fractals {:all-cmds {:forward "Forward"
+                                  :left    "Rotate Left"
+                                  :right   "Rotate Right"
+                                  :push    "Push Position"
+                                  :pop     "Pop Position"
+                                  :default "No Action"}}}
+
+   :forms  {:login           {:user "HEHE" :password "abcdef"}
+            :forgot-password {:email "some@email"}
+            ;:l-system        plant1
+            ;:l-system        plant2
+            ;:l-system        koch-curve
+            :l-system        dragon-curve
+            }})

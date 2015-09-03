@@ -10,15 +10,16 @@
 (def Lines [(s/maybe Line)])
 
 (def LSystem
-  {:rules       (s/maybe [[(s/one s/Str "rule-source")
-                           (s/one s/Str "rule-product")]])
+  {(o :rules)   {s/Str [(s/one s/Str "rule-source")
+                        (s/one s/Str "rule-product")]}
    :start       s/Str
    :angle       s/Num
    :iterations  (s/pred pos?)
    :line-length s/Num
    :start-angle s/Num
    :origin      coords
-   :cmd-map     (s/maybe {s/Str s/Keyword})})
+   (o :cmds)    {s/Str [(s/one s/Str "cmd-variable")
+                        (s/one s/Keyword "cmd-action")]}})
 
 (def Turtle
   {:position coords

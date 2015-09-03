@@ -286,6 +286,18 @@ h1 {
   padding-left: 20px;
   padding-right: 20px;
 }
+.pad-0 {
+  padding: 0px;
+}
+.pad-5 {
+  padding: 5px;
+}
+.pad-10 {
+  padding: 10px;
+}
+.pad-15 {
+  padding: 15px;
+}
 .pad-20 {
   padding: 20px;
 }
@@ -388,6 +400,18 @@ h1 {
 .mar-hor-20 {
   margin-left: 20px;
   margin-right: 20px;
+}
+.mar-0 {
+  margin: 0px !important;
+}
+.mar-5 {
+  margin: 5px;
+}
+.mar-10 {
+  margin: 10px;
+}
+.mar-15 {
+  margin: 15px;
 }
 .mar-20 {
   margin: 20px;

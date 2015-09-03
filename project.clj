@@ -31,7 +31,8 @@
                  [rm-hull/monet "0.2.1"]
                  [bidi "1.21.0"]
                  [prismatic/plumbing "0.4.4"]
-                 [servant "0.1.3"]]
+                 [servant "0.1.3"]
+                 [instar "1.0.10"]]
 
   :plugins [[lein-cljsbuild "1.1.0"]
             [lein-environ "1.0.0"]

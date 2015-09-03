@@ -14,5 +14,5 @@
   (p/letk [[start rules iterations] l-system]
     (nth
       (iterate
-        (partial apply-rules (into {} rules)) start)
+        (partial apply-rules (into {} (vals rules))) start)
       iterations)))

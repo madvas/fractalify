@@ -7,14 +7,9 @@
 
 (trace-subs
   (r/register-sub
-   :new-l-system
-   (fn [db _]
-     (reaction (get-in @db [:forms :l-system]))))
-
-  (r/register-sub
-    :rules
+    :new-l-system
     (fn [db _]
-      (reaction (get-in @db [:forms :l-system :rules]))))
+      (reaction (get-in @db [:forms :l-system]))))
 
   (r/register-sub
     :l-system-generating

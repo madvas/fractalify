@@ -29,6 +29,11 @@
       (reaction (:snackbar-props @db))))
 
   (r/register-sub
+    :config
+    (fn [db [_ & path]]
+      (reaction (get-in @db (into [:config] path)))))
+
+  (r/register-sub
     :form-errors
     (fn [db [_ form]]
       (reaction (get-in @db [:forms form :errors]))))
@@ -36,11 +41,10 @@
   (r/register-sub
     :get-form-item
     (fn [db [_ & path]]
-      (let [new-path
-            (if-let [key (:key (last path))]
-              (concat (butlast path) [key])
-              path)]
-        (reaction (get-in @db (into [:forms] new-path))))))
+      (reaction
+        (if-let [key (:key (last path))]
+          key
+          (get-in @db (into [:forms] path))))))
 
   (r/register-sub
     :form-data

@@ -34,6 +34,7 @@
     <orderEntry type="library" name="Leiningen: figwheel:0.3.7" level="project" />
     <orderEntry type="library" name="Leiningen: fogus/ring-edn:0.3.0" level="project" />
     <orderEntry type="library" name="Leiningen: http-kit:2.1.19" level="project" />
+    <orderEntry type="library" name="Leiningen: instar:1.0.10" level="project" />
     <orderEntry type="library" name="Leiningen: io.aviso/pretty:0.1.18" level="project" />
     <orderEntry type="library" name="Leiningen: kibu/pushy:0.3.2" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojars.stumitchell/clairvoyant:0.1.0-20150715.050527-4" level="project" />
@@ -117,6 +118,11 @@
     <orderEntry type="library" name="Leiningen: org.sonatype.sisu/sisu-inject-bean:2.2.3" level="project" />
     <orderEntry type="library" name="Leiningen: org.sonatype.sisu/sisu-guice:3.0.3" level="project" />
     <orderEntry type="library" name="Leiningen: org.sonatype.aether/aether-spi:1.13.1" level="project" />
+    <orderEntry type="library" name="Leiningen: com.keminglabs/cljx:0.4.0" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojars.trptcolin/sjacket:0.1.0.6" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojure/core.match:0.2.0" level="project" />
+    <orderEntry type="library" name="Leiningen: net.cgrand/parsley:0.9.1" level="project" />
+    <orderEntry type="library" name="Leiningen: net.cgrand/regex:1.1.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Leiningen: com.google.javascript/closure-compiler:v20150729" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Leiningen: org.clojure/data.json:0.2.6" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Leiningen: org.clojure/google-closure-library:0.0-20150805-acd8b553" level="project" />

@@ -10,7 +10,8 @@
             [fractalify.main.components.sidenav :as sidenav]
             [fractalify.permissons :as p]
             [fractalify.tracer :refer [tracer]]
-            [clojure.set :as set]))
+            [clojure.set :as set]
+            [instar.core :as i]))
 
 (defn get-form-data [db form]
   (-> db
@@ -56,12 +57,19 @@
       (let [value (last params)
             path (into [] (butlast params))]
         (if-let [key (:key (last path))]
-          (u/println (update-in db (into [:forms] (butlast path)) set/rename-keys {key value}))
+          (update-in db (into [:forms] (butlast path)) set/rename-keys {key value})
           (assoc-in db (into [:forms] path) value)))))
+
+  (r/register-handler
+    :dissoc-form-item
+    m/standard-middlewares
+    (fn [db path]
+      (u/dissoc-in db (into [:forms] path))))
 
   (r/register-handler
     :set-form-error
     m/standard-without-debug
+    ;m/standard-middlewares
     (fn [db [form-name & params]]
       (let [value (last params)
             item-path (into [] (butlast params))

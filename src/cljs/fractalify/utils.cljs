@@ -2,12 +2,13 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [schema.core :as s :include-macros true]
             [cljs.core.async :refer [chan close! >! <!]]
-            [cljs.core]))
+            [cljs.core]
+            [instar.core :as i]))
 
-(defn e-val [event]
-  (aget event "target" "value"))
-
-(def dev? goog.DEBUG)
+(defn p [& args]
+  "Like println, but returns last arg. For debugging purposes"
+  (apply cljs.core/println args)
+  (last args))
 
 (defn mlog [& messages]
   (.apply (.-log js/console) js/console (clj->js messages)))
@@ -18,20 +19,15 @@
 (defn merror [& messages]
   (.apply (.-error js/console) js/console (clj->js messages)))
 
-(defn println [& args]
-  "Like println, but returns last arg"
-  println
-  (apply cljs.core/println args)
-  (last args))
+(defn e-val [event]
+  (aget event "target" "value"))
 
-(s/defn validate-until-error-fn
-  ([fns] (validate-until-error-fn nil fns))
-  ([val :- s/Any
-    fns :- [s/Any]]
-    (when-let [f (first fns)]
-      (if-let [error (f val)]
-        error
-        #(validate-until-error-fn val (rest fns))))))
+(defn range-count [coll]
+  (range 0 (count coll)))
+
+(def dev? goog.DEBUG)
+
+(def select-values (comp vals select-keys))
 
 (s/defn set-timeout
   [f
@@ -44,6 +40,11 @@
   (let [c (chan)]
     (js/setTimeout (fn [] (close! c)) ms)
     c))
+
+(defn concat-vec
+  [& args]
+  (p (apply concat args))
+  (vec (apply concat args)))
 
 (s/defn round
   "Round a double to the given precision (number of significant digits)"
@@ -81,8 +82,17 @@
     c'))
 
 (s/defn parse-float :- (s/maybe s/Num)
-  [num :- (s/either s/Num s/Str)]
+  [num :- (s/cond-pre s/Num s/Str)]
   (js/parseFloat num))
+
+(s/defn validate-until-error-fn
+  ([fns] (validate-until-error-fn nil fns))
+  ([val :- s/Any
+    fns :- [s/Any]]
+    (when-let [f (first fns)]
+      (if-let [error (f val)]
+        error
+        #(validate-until-error-fn val (rest fns))))))
 
 (def validate-until-error
   "This is trampoline function, which stops executing until one of fns returns truthy value
@@ -93,6 +103,16 @@
   (do-until \"_*_\" [reqired alphanumeric])
   => This field needs to be alphanumeric"
   (partial trampoline validate-until-error-fn))
+
+(defn drop-nth [n coll]
+  (lazy-seq
+    (when-let [s (seq coll)]
+      (concat (take (dec n) s) (drop-nth n (drop n s))))))
+
+(defn vec-remove
+  "remove elem in coll"
+  [coll pos]
+  (vec (concat (subvec coll 0 pos) (subvec coll (inc pos)))))
 
 (defn dissoc-in
   "Dissociates an entry from a nested associative structure returning a new

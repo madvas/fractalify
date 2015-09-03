@@ -4,18 +4,26 @@
             [material-ui.core :as ui]
             [fractalify.utils :as u]
             [schema.core :as s :include-macros true]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [fractalify.components.form-select :as form-select]))
 
-(def menu-items (map #(hash-map {:payload %
-                                 :text (-> name
-                                           str/capitalize)})
+(def menu-items (map #(hash-map :payload %
+                                :text (-> (name %)
+                                          str/capitalize))
                      [:forward :left :right :push :pop ""]))
 
-(s/defn cmd-input
-  [cmd-key :- s/Str
-   cmd-val :- s/Keyword]
-  [:div.col-xs-12
-   [:div.col-xs-6.col-md-3
-    [form-text/form-text [:l-system :cmd-map {:key cmd-key}]
+(defn cmd-input
+  [key]
+  [:div.row
+   [:div.col-xs-3
+    [form-text/form-text [:l-system :cmds key 0]
+     {:floating-label-text "Variable"}]]
+   [:div.col-xs-8
+    [form-select/form-select
+     [:l-system :cmds key 1]
+     [:config :fractals :all-cmds]
      {:floating-label-text "Action"}]]
-   #_ [ui/select-field]])
+   [:div.col-xs-1.row.middle-xs
+    [ui/icon-button
+     {:icon-class-name "mdi mdi-close-circle-outline"
+      :on-touch-tap    #(f/dispatch [:dissoc-cmd key])}]]])

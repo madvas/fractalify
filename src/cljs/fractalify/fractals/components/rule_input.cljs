@@ -8,18 +8,18 @@
 (def alphabet "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 (def menu-items (map #(hash-map :payload %) alphabet))
 
-(defn rule-input [rule-index]
-  (let [variable (f/subscribe [:get-form-item :l-system :rules rule-index 0])]
+(defn rule-input [key]
+  (let [variable (f/subscribe [:get-form-item :l-system :rules key 0])]
     (fn []
       [:div.row
-       [:div.col-xs-2.col-sm-2.col-md-1
-        [control-text/control-text [:l-system :rules rule-index 0]
-           {:floating-label-text "Var"}]
+       [:div.col-xs-6.col-md-3
+        [control-text/control-text [:l-system :rules key 0]
+           {:floating-label-text "Variable"}]
         #_ [ui/drop-down-menu
          {:menu-items     menu-items
           :display-member "payload"
           :value          @variable
-          :on-change      #(f/dispatch [:set-form-item :l-system :rules rule-index 0 (u/e-val %)])}]]
-       [:div.col-xs-5.col-sm-5.col-md-4
-        [control-text/control-text [:l-system :rules rule-index 1]
+          :on-change      #(f/dispatch [:set-form-item :l-system :rules key 0 (u/e-val %)])}]]
+       [:div.col-xs-6.col-md-9
+        [control-text/control-text [:l-system :rules key 1]
          {:floating-label-text "Rule"}]]])))

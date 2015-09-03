@@ -18,7 +18,7 @@
 (def underline-style {:bottom 22})
 (def error-style {:text-align "left"})
 
-(def params-format [(s/either s/Keyword s/Int)])
+(def params-schema [(s/cond-pre s/Keyword s/Int {:key s/Str} s/Str)])
 
 (declare text-field)
 
@@ -37,9 +37,9 @@
     (text-field subscribe nil nil props))
   ([subscribe dispatch props]
     (text-field subscribe dispatch nil props))
-  ([subscribe :- params-format
-    dispatch :- params-format
-    error-dispatch :- params-format
+  ([subscribe :- params-schema
+    dispatch :- params-schema
+    error-dispatch :- params-schema
     props :- {s/Keyword s/Any}]
     (let [value (f/subscribe subscribe)
           validators (into [] (concat

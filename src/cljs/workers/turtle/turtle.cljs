@@ -16,12 +16,6 @@
 
 (def deg (/ (.-PI js/Math) 180))
 
-(def cmd-map {"F" :forward
-              "+" :left
-              "-" :right
-              "[" :push
-              "]" :pop})
-
 (defmulti command identity)
 
 (s/defn move-coord :- s/Num
@@ -43,20 +37,22 @@
 
 (s/defn exec-cmd :- ch/Turtle
   [l-system :- ch/LSystem
+   cmd-map :- {s/Str s/Keyword}
    turtle :- ch/Turtle
    cmd :- s/Str]
-  (command ((:cmd-map l-system) cmd) turtle l-system))
+  (command (cmd-map cmd) turtle l-system))
 
 (s/defn gen-lines-coords :- ch/Lines
   [l-system :- ch/LSystem
    result-cmds :- s/Str]
-  (p/letk [[origin start-angle] l-system]
-    (let [turtle {:position origin
-                  :angle    start-angle
-                  :stack    '()
-                  :lines    []}
-          exec-fn (partial exec-cmd l-system)]
-      (:lines (reduce exec-fn turtle result-cmds)))))
+  (p/letk [[origin start-angle] l-system
+           turtle {:position origin
+                   :angle    start-angle
+                   :stack    '()
+                   :lines    []}
+           cmd-map (into {} (vals (:cmds l-system)))
+           exec-fn (partial exec-cmd l-system cmd-map)]
+    (:lines (reduce exec-fn turtle result-cmds))))
 
 
 (s/defn update-turtle-lines :- ch/Turtle
@@ -69,12 +65,12 @@
   [turtle :- ch/Turtle
    l-system :- ch/LSystem]
   (p/letk [[angle position] turtle
-           [line-length] l-system]
-    (let [move-fn (partial move-coord angle line-length)]
-      (-> turtle
-          (update-in [:position :x] (partial move-fn :x))
-          (update-in [:position :y] (partial move-fn :y))
-          (update-turtle-lines position)))))
+           [line-length] l-system
+           move-fn (partial move-coord angle line-length)]
+    (-> turtle
+        (update-in [:position :x] (partial move-fn :x))
+        (update-in [:position :y] (partial move-fn :y))
+        (update-turtle-lines position))))
 
 (s/defn move-left :- ch/Turtle
   [turtle :- ch/Turtle
