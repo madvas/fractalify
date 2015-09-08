@@ -11,7 +11,7 @@
     [fractalify.validators :as v]
     [fractalify.styles :as y]
     [plumbing.core :as p]
-    [cljs.core.async :refer [chan close! >! <! sliding-buffer]]))
+    [cljs.core.async :refer [chan >! <!]]))
 
 
 (def style (merge y/w-100 {:padding-bottom 13 :text-align "left"}))

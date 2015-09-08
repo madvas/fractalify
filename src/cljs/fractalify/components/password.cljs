@@ -5,12 +5,11 @@
 
 (s/defn password
   [floating-label-text :- s/Str
-   form :- s/Keyword
-   form-item :- s/Keyword
-   & props :- [{s/Keyword s/Any}]]
-  [form-text/form-text [form form-item]
-   (apply merge {:floating-label-text floating-label-text
-                 :type                "password"
-                 :required            true
-                 :validators          [v/password]}
+   path :- [s/Any]
+   props]
+  [form-text/form-text path
+   (merge {:floating-label-text floating-label-text
+           :type                "password"
+           :required            true
+           :validators          [v/password]}
           props)])

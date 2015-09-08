@@ -7,9 +7,11 @@
             [fractalify.components.text-field :as text-field]
             [fractalify.components.form-text :as form-text]))
 
+(def user-bio-maxlen 140)
+
 (defn edit-profile []
-  (let [form-errors (f/subscribe [:form-errors :edit-profile])
-        user (f/subscribe [:user])]
+  (let [form-errors (f/subscribe [:users-form-errors :edit-profile])
+        user (f/subscribe [:logged-user])]
     (fn []
       [paper-panel/paper-panel
        [:div.col-xs-12
@@ -17,16 +19,16 @@
        [:div.col-xs-12
         [text-field/text-field [:username]
          {:floating-label-text "Username"
-          :disabled          true}]]
+          :disabled            true}]]
        [:div.col-xs-12
-        [email/email :edit-profile :email
+        [email/email [:users :edit-profile :email]
          {:default-value (:email @user)}]]
        [:div.col-xs-12
-        [form-text/form-text [:edit-profile :bio]
+        [form-text/form-text [:users :edit-profile :bio]
          {:floating-label-text "Bio"
-          :multiLine         true
-          :default-value     (:bio @user)
-          :validators        [v/user-bio]}]]
+          :multiLine           true
+          :default-value       (:bio @user)
+          :validators          [(partial v/length 0 user-bio-maxlen)]}]]
        [:div.col-xs-12
         [:div.row.col-xs-12.mar-top-20
          [:div.col-xs-12.col-sm-6.col-sm-offset-6

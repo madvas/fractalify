@@ -11,16 +11,11 @@
             [fractalify.permissons :as p]
             [fractalify.tracer :refer [tracer]]
             [clojure.set :as set]
-            [instar.core :as i]))
-
-(defn get-form-data [db form]
-  (-> db
-      (get-in [:forms form])
-      (dissoc :errors)))
-
+            [instar.core :as i]
+            [fractalify.components.dialog :as dialog]))
 
 (trace-handlers
-  #_ {:tracer (fractalify.tracer/tracer :color "green")}
+  #_{:tracer (fractalify.tracer/tracer :color "green")}
 
   (r/register-handler
     :assoc-db
@@ -36,7 +31,7 @@
 
   (r/register-handler
     :initialize-db
-    m/standard-without-debug
+    m/standard-no-debug
     (fn [_]
       db/default-db))
 
@@ -45,52 +40,68 @@
     m/standard-middlewares
     (fn [db [active-panel permissions]]
       (if-let [error (p/validate-permissions db permissions)]
-        (do (r/dispatch [:show-snackbar (select-keys error [:message])])
+        (do (r/dispatch [:show-snackbar (:message error)])
             (t/go! (:redirect error))
             db)
         (assoc db :active-panel active-panel))))
 
   (r/register-handler
-    :set-form-item
+    :form-item
     m/standard-middlewares
-    (fn [db params]
+    (fn [db [module & params]]
       (let [value (last params)
-            path (into [] (butlast params))]
+            path (vec (butlast params))]
         (if-let [key (:key (last path))]
-          (update-in db (into [:forms] (butlast path)) set/rename-keys {key value})
-          (assoc-in db (into [:forms] path) value)))))
+          (update-in db (into [module :forms] (butlast path)) set/rename-keys {key value})
+          (assoc-in db (into [module :forms] path) value)))))
 
   (r/register-handler
     :dissoc-form-item
     m/standard-middlewares
-    (fn [db path]
-      (u/dissoc-in db (into [:forms] path))))
+    (fn [db module path]
+      (u/dissoc-in db (into [module :forms] path))))
 
   (r/register-handler
     :set-form-error
-    m/standard-without-debug
+    m/standard-no-debug
     ;m/standard-middlewares
-    (fn [db [form-name & params]]
+    (fn [db [module form-name & params]]
       (let [value (last params)
             item-path (into [] (butlast params))
-            path (into [:forms form-name :errors] item-path)]
+            path (into [module :forms form-name :errors] item-path)]
         (if value
           (assoc-in db path value)
           (u/dissoc-in db path)))))
 
   (r/register-handler
     :show-snackbar
-    m/standard-without-debug
-    (fn [db [snackbar-props]]
-      (let [db (assoc db :snackbar-props snackbar-props)]
+    m/standard-no-debug
+    (fn [db [msg & snackbar-props]]
+      (let [db (assoc db :snackbar-props
+                         (assoc snackbar-props :message msg))]
         (snackbar/show-snackbar!)
         db)))
 
   (r/register-handler
+    :show-dialog
+    m/standard-no-debug
+    (fn [db [snackbar-props]]
+      (let [db (assoc db :dialog-props snackbar-props)]
+        (dialog/show-dialog!)
+        db)))
+
+  (r/register-handler
+    :hide-dialog
+    m/standard-no-debug
+    (fn [db _]
+      (dialog/hide-dialog!)
+      db))
+
+  (r/register-handler
     :sidenav-action
-    m/standard-without-debug
+    m/standard-no-debug
     (fn [db [action]]
-      (cond
-        (= action :toggle) (sidenav/toggle-sidenav!)
-        (= action :close) (sidenav/close-sidenav!))
+      (condp = action
+        :toggle (sidenav/toggle-sidenav!)
+        :close (sidenav/close-sidenav!))
       db)))

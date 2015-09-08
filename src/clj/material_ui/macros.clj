@@ -3,6 +3,7 @@
 
 (def material-tags
   '[AppBar
+    AppCanvas
     Avatar
     FlatButton
     RaisedButton

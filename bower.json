@@ -1,0 +1,20 @@
+{
+  "name": "fractalify",
+  "version": "0.0.0",
+  "homepage": "https://github.com/madvas/fractalify",
+  "authors": [
+    "madvas <matus.lestan@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "resources/public/vendor/",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "mdi": "~1.1.70"
+  }
+}

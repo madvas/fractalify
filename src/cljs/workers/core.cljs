@@ -26,4 +26,3 @@
   ([data] (post-message data js/self))
   ([data worker] (.postMessage worker (clj->js data))))
 
-

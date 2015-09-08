@@ -4,8 +4,8 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "js:dev": "browserify main.js > ../resources/public/vendor/material-ui/material.js",
-    "js:min": "NODE_ENV=production browserify main.js | uglifyjs -cm -o ../resources/public/vendor/material-ui/material.min.js",
+    "js:dev": "browserify -t browserify-css main.js > ../resources/public/vendor/vendor.js",
+    "js:min": "NODE_ENV=production browserify -t browserify-css main.js | uglifyjs -cm -o ../resources/public/vendor/vendor.min.js",
     "css": "lessc main.less | cleancss -o ../resources/public/material.css",
     "start": "npm run js:dev && npm run js:min"
   },
@@ -16,9 +16,14 @@
     "clean-css": "^3.1.4",
     "less": "^2.4.0",
     "material-ui": "=0.10.4",
+    "mdi": "^1.2.65",
     "react": "^0.13.3",
+    "react-colors-picker": "=2.0.1",
     "react-tap-event-plugin": "^0.1.7",
     "reactify": "^1.0.0",
     "uglify-js": "^2.4.16"
+  },
+  "devDependencies": {
+    "browserify-css": "^0.6.1"
   }
 }

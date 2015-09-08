@@ -47,7 +47,7 @@
     menu-items-sub :- [s/Any]
     menu-items-fn
     props :- {s/Keyword s/Any}]
-    (let [value (f/subscribe (into [:get-form-item] form-item-path))
+    (let [value (f/subscribe (into [:form-item] form-item-path))
           menu-items-vals (f/subscribe menu-items-sub)
           val-member (first (get-member-names props))]
       (fn []
@@ -60,7 +60,7 @@
                    :style          style
                    :on-change      #(f/dispatch
                                      (u/concat-vec
-                                       [:set-form-item]
+                                       [:form-item]
                                        form-item-path
                                        [(parse-val % menu-items val-member)]))}
                   props)])))))

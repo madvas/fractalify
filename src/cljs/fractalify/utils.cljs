@@ -3,7 +3,8 @@
   (:require [schema.core :as s :include-macros true]
             [cljs.core.async :refer [chan close! >! <!]]
             [cljs.core]
-            [instar.core :as i]))
+            [instar.core :as i]
+            [clojure.string :as str]))
 
 (defn p [& args]
   "Like println, but returns last arg. For debugging purposes"
@@ -28,7 +29,6 @@
 (def dev? goog.DEBUG)
 
 (def select-values (comp vals select-keys))
-
 (s/defn set-timeout
   [f
    ms :- s/Int]
@@ -43,7 +43,6 @@
 
 (defn concat-vec
   [& args]
-  (p (apply concat args))
   (vec (apply concat args)))
 
 (s/defn round
@@ -114,6 +113,22 @@
   [coll pos]
   (vec (concat (subvec coll 0 pos) (subvec coll (inc pos)))))
 
+(defn partial-right
+  "Takes a function f and fewer than the normal arguments to f, and
+ returns a fn that takes a variable number of additional args. When
+ called, the returned function calls f with additional args + args."
+  ([f] f)
+  ([f arg1]
+   (fn [& args] (apply f (concat args [arg1]))))
+  ([f arg1 arg2]
+   (fn [& args] (apply f (concat args [arg1 arg2]))))
+  ([f arg1 arg2 arg3]
+   (fn [& args] (apply f (concat args [arg1 arg2 arg3]))))
+  ([f arg1 arg2 arg3 & more]
+   (fn [& args] (apply f (concat args (concat [arg1 arg2 arg3] more))))))
+
+(def trim-base64-prefix (partial-right str/replace-first #"^data:image/\w+;base64," ""))
+
 (defn dissoc-in
   "Dissociates an entry from a nested associative structure returning a new
   nested structure. keys is a sequence of keys. Any empty maps that result
@@ -127,3 +142,14 @@
           (dissoc m k)))
       m)
     (dissoc m k)))
+
+(defn rand-string [chars n]
+  (->> #(rand-nth (vec chars))
+       (repeatedly n)
+       (apply str)))
+
+(defn char-range [start end]
+  (map char (range (int start) (inc (int end)))))
+
+(defn rand-id [n]
+  (rand-string "ABCDEF" n))

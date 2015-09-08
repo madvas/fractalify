@@ -7,13 +7,13 @@
 
 
 (defn forgot-pass []
-  (let [form-errors (f/subscribe [:form-errors :forgot-password])]
+  (let [form-errors (f/subscribe [:users-form-errors :forgot-password])]
     (fn []
       [paper-panel/paper-panel
        [:div.col-xs-12
         [:h1 "Restore Password"]]
        [:div.col-xs-12
-        [form-text/form-text [:forgot-password :email]
+        [form-text/form-text [:users :forgot-password :email]
          {:floating-label-text "Your email"
           :required            true
           :validators          [v/email]}]

@@ -23,9 +23,4 @@
                             (str "Please enter string up to " max " characters")
                             (str "Please enter string between " min " and " max " characters"))))))
 
-
-(defn user-bio [val]
-  (length 0 140 val))
-
-(defn password [val]
-  (length 6 val))
+(def password (partial length 6))

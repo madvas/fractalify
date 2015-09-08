@@ -96,7 +96,7 @@
 #_(macroexpand-1
     '(trace-subs
        (r/register-sub
-         :get-form-item
+         :form-item
          (fn [db [_ form item index]]
            (reaction (let [form-item (get-in @db [:forms form item])]
                        (if (and (vector? form-item) index)
@@ -106,6 +106,13 @@
        ))
 #_ (macroexpand-1
   '(trace-handlers
+     (f/register-handler
+       :dissoc-l-system-operation
+       m/standard-middlewares
+       (s/fn [db [type :- ch/operation-type key]]
+             (f/dispatch [:dissoc-form-item :l-system type key])
+             db))
+
      (r/register-handler
        :assoc-db
        m/standard-middlewares
@@ -129,13 +136,13 @@
        m/standard-middlewares
        (fn [db [active-panel permissions]]
          (if-let [error (p/validate-permissions db permissions)]
-           (do (r/dispatch [:show-snackbar (select-keys error [:message])])
+           (do (r/dispatch [:show-snackbar (:message error)])
                (t/go! (:redirect error))
                db)
            (assoc db :active-panel active-panel))))
 
      (r/register-handler
-       :set-form-item
+       :form-item
        m/standard-middlewares
        (fn [db params]
          (let [value (last params)

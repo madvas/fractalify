@@ -4,10 +4,9 @@
             [fractalify.validators :as v]))
 
 (s/defn email
-  [form :- s/Keyword
-   form-item :- s/Keyword
+  [path :- [s/Any]
    & props :- [{s/Keyword s/Any}]]
-  [form-text/form-text [form form-item]
+  [form-text/form-text path
    (apply merge {:floating-label-text "Email"
                  :required            true
                  :validators          [v/email]}

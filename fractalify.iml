@@ -22,6 +22,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Leiningen: bidi:1.21.0" level="project" />
     <orderEntry type="library" name="Leiningen: binaryage/devtools:0.3.0" level="project" />
+    <orderEntry type="library" name="Leiningen: camel-snake-kebab:0.3.2" level="project" />
     <orderEntry type="library" name="Leiningen: cljs-ajax:0.3.14" level="project" />
     <orderEntry type="library" name="Leiningen: clojure-complete:0.2.3" level="project" />
     <orderEntry type="library" name="Leiningen: com.cemerick/drawbridge:0.0.6" level="project" />

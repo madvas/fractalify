@@ -13,16 +13,16 @@
             [fractalify.components.email :as email]))
 
 (defn login-tab []
-  (let [form-errors (f/subscribe [:form-errors :login])]
+  (let [form-errors (f/subscribe [:users-form-errors :login])]
     (fn []
       [paper-content/paper-content
        [:div.col-xs-12
-        [form-text/form-text [:login :user]
+        [form-text/form-text [:users :login :user]
          {:floating-label-text "Username or email"
-          :required          true}]]
+          :required            true}]]
 
        [:div.col-xs-12
-        [password/password "Password" :login :password]]
+        [password/password "Password" [:users :login :password]]]
 
        [:div.row.col-xs-12.mar-top-20
         [:div.col-xs-6
@@ -38,24 +38,24 @@
                           :onTouchTap #(f/dispatch [:login])}]]]])))
 
 (defn join-tab []
-  (let [form-errors (f/subscribe [:form-errors :join])
-        password (f/subscribe [:get-form-item :join :password])]
+  (let [form-errors (f/subscribe [:users-form-errors :join])
+        password (f/subscribe [:form-item :users :join :password])]
     (fn []
       [paper-content/paper-content
        [:div.col-xs-12
-        [form-text/form-text [:join :username]
+        [form-text/form-text [:users :join :username]
          {:floating-label-text "Username"
-          :required          true
-          :validators        [(partial v/length 3)]}]]
+          :required            true
+          :validators          [(partial v/length 3)]}]]
 
        [:div.col-xs-12
-        [email/email :join :email]]
+        [email/email [:users :join :email]]]
 
        [:div.col-xs-12
-        [password/password "Password" :join :password]]
+        [password/password "Password" [:users :join :password]]]
 
        [:div.col-xs-12
-        [password/password "Confirm Password" :join :confirm-pass
+        [password/password "Confirm Password" [:users :join :confirm-pass]
          {:validators [#(v/passwords-match % @password)]}]]
 
        [:div.row.col-xs-12.mar-top-20

@@ -5,30 +5,28 @@
             [fractalify.main.components.header :as header]
             [fractalify.main.components.sidenav :as sidenav]
             [fractalify.components.snackbar :as snackbar]
-            [fractalify.main.components.footer :as footer]))
+            [fractalify.main.components.footer :as footer]
+            [fractalify.components.dialog :as dialog]
+            [material-ui.core :as ui]))
 
-(def ^:dynamic *mui-theme*
-  (.getCurrentTheme (js/MaterialUI.Styles.ThemeManager.)))
+
+(defn main-layout []
+  (let [active-panel (f/subscribe [:active-panel])]
+    (fn []
+      [ui/app-canvas
+       [header/header]
+       [sidenav/sidenav]
+       [snackbar/snackbar]
+       [dialog/dialog]
+       [:div.main-body
+        (t/panels @active-panel)]
+       [footer/footer]])))
 
 (defn main-view []
-  (let [active-panel (f/subscribe [:active-panel])]
-    (r/create-class
-      {:display-name "Main Panel"
+  (ui/set-palette!
+    {:canvasColor "#F2F2F2"})
 
-       :child-context-types
-                     #js {:muiTheme (aget js/React "PropTypes" "object")}
-
-       :get-child-context
-                     (fn [_]
-                       #js {:muiTheme *mui-theme*})
-       :reagent-render
-                     (fn []
-                       [:div
-                        [header/header]
-                        [sidenav/sidenav]
-                        [snackbar/snackbar]
-                        [:div.main-body
-                         (t/panels @active-panel)]
-                        [footer/footer]])})))
+  [ui/mui-theme-wrap
+   [main-layout]])
 
 

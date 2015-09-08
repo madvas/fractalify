@@ -2,24 +2,46 @@
   (:require [re-frame.core :as f]
             [reagent.core :as r]
             [fractalify.styles :as y]
-            [fractalify.utils :as u]
-            [clojure.set :as set]))
+            [fractalify.utils :as u]))
 
-(defn dispatch-render [this l-system]
-  (f/dispatch [:l-system-change (r/dom-node this) l-system]))
+;(def ^:dynamic *canvas-dom* (atom))
 
-(defn canvas []
-  (let [l-system (f/subscribe [:new-l-system])]
+(defn dispatch [this type & args]
+  (println "dispatchng: " type)
+  (f/dispatch (u/concat-vec [type (r/dom-node this)] args)))
+
+(defn canvas-el []
+  (let [canvas (f/subscribe [:canvas])]
+    (r/create-class
+      {:component-will-update
+       (fn [this]
+         (f/dispatch [:canvas-change (r/dom-node this) @canvas]))
+       :reagent-render
+       (fn []
+         [:canvas
+          {:width  (:size @canvas)
+           :height (:size @canvas)
+           :style  y/canvas-style}])})))
+
+(defn l-system []
+  (let [l-system (f/subscribe [:l-system-new])]
     (r/create-class
       {:component-did-mount
-       (fn [this]
-         (dispatch-render this @l-system))
+       (fn []
+         (println "l-system :component-did-mount")
+         (f/dispatch [:l-system-change @l-system]))
        :component-will-update
-       (fn [this]
-         (dispatch-render this @l-system))
+       (fn []
+         (f/dispatch [:l-system-change @l-system]))
        :reagent-render
        (fn []
          @l-system
-         [:canvas (merge
-                    y/canvas-size
-                    {:style y/canvas-style})])})))
+         [:div])})))
+
+(defn canvas []
+  [:div
+   [canvas-el]
+   [l-system]])
+
+
+

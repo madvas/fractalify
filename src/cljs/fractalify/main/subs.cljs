@@ -29,27 +29,27 @@
       (reaction (:snackbar-props @db))))
 
   (r/register-sub
-    :config
-    (fn [db [_ & path]]
-      (reaction (get-in @db (into [:config] path)))))
+    :dialog-props
+    (fn [db [_]]
+      (reaction (:dialog-props @db))))
 
   (r/register-sub
     :form-errors
-    (fn [db [_ form]]
-      (reaction (get-in @db [:forms form :errors]))))
+    (fn [db [_ module form]]
+      (reaction (get-in @db [module :forms form :errors]))))
 
   (r/register-sub
-    :get-form-item
-    (fn [db [_ & path]]
+    :form-item
+    (fn [db [_ module & path]]
       (reaction
         (if-let [key (:key (last path))]
           key
-          (get-in @db (into [:forms] path))))))
+          (get-in @db (into [module :forms] path))))))
 
   (r/register-sub
     :form-data
-    (fn [db [_ form]]
-      (reaction (h/get-form-data @db form)))))
+    (fn [db [_ module form]]
+      (reaction (h/get-form-data @db module form)))))
 
 
 

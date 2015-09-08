@@ -10,28 +10,34 @@
 
 (def is-dev? (env :is-dev))
 
+(def ^:dynamic *fig-server* (atom nil))
+
 (def inject-devmode-html
   (comp
-     (set-attr :class "is-dev")
-     (prepend (html [:script {:type "text/javascript" :src "/js/out/goog/base.js"}]))
-     (append  (html [:script {:type "text/javascript"} "goog.require('fractalify.main')"]))))
+    (set-attr :class "is-dev")
+    (prepend (html [:script {:type "text/javascript" :src "/js/out/goog/base.js"}]))
+    (append (html [:script {:type "text/javascript"} "goog.require('fractalify.main')"]))))
 
 (defn browser-repl []
   (let [repl-env (weasel/repl-env :ip "0.0.0.0" :port 9001)]
     (piggieback/cljs-repl :repl-env repl-env)))
 
 (defn start-figwheel []
-  (let [server (fig/start-server { :css-dirs ["resources/public/css"] })
-        config {:builds [{:id "dev"
-                          :source-paths ["src/cljs" "env/dev/cljs"]
-                          :compiler {:output-to            "resources/public/js/app.js"
-                                     :output-dir           "resources/public/js/out"
-                                     :source-map           true
-                                     :optimizations        :none
-                                     :source-map-timestamp true
-                                     :preamble             ["react/react.min.js"]}}]
+  (let [server (fig/start-server {:css-dirs ["resources/public/css"]})
+        config {:builds          [{:id           "dev"
+                                   :source-paths ["src/cljs" "env/dev/cljs"]
+                                   :compiler     {:output-to            "resources/public/js/app.js"
+                                                  :output-dir           "resources/public/js/out"
+                                                  :source-map           true
+                                                  :optimizations        :none
+                                                  :source-map-timestamp true
+                                                  :preamble             ["react/react.min.js"]}}]
                 :figwheel-server server}]
-    (fig-auto/autobuild* config)))
+    (fig-auto/autobuild* config)
+    (reset! *fig-server* server)))
+
+(defn stop-figwheel []
+  (fig/stop-server @*fig-server*))
 
 (defn start-less []
   (future

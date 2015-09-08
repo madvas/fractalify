@@ -4,13 +4,19 @@
   (:require [re-frame.core :as r]
             [fractalify.tracer :refer [tracer]]))
 
-(trace-subs
-  (r/register-sub
-    :user
-    (fn [db _]
-      (reaction (:user @db))))
+(r/register-sub
+  :logged-user
+  (fn [db _]
+    (reaction (get-in @db [:users :logged-user]))))
 
-  (r/register-sub
-    :username
-    (fn [db _]
-      (reaction (get-in @db [:user :username])))))
+(r/register-sub
+  :username
+  (fn [_]
+    (let [user (r/subscribe [:logged-user])]
+      (reaction (:username @user)))))
+
+(r/register-sub
+  :users-form-errors
+  (fn [_ path & args]
+    (let [errors (apply r/subscribe (into [:form-errors :users] path) args)]
+      (reaction @errors))))

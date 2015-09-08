@@ -10,7 +10,7 @@
 (def Lines [(s/maybe Line)])
 
 (def LSystem
-  {(o :rules)   {s/Str [(s/one s/Str "rule-source")
+  {(o :rules)   {s/Int [(s/one s/Str "rule-variable")
                         (s/one s/Str "rule-product")]}
    :start       s/Str
    :angle       s/Num
@@ -18,7 +18,7 @@
    :line-length s/Num
    :start-angle s/Num
    :origin      coords
-   (o :cmds)    {s/Str [(s/one s/Str "cmd-variable")
+   (o :cmds)    {s/Int [(s/one s/Str "cmd-variable")
                         (s/one s/Keyword "cmd-action")]}})
 
 (def Turtle
@@ -30,9 +30,13 @@
 (defn keyword->string [k]
   (name k))
 
+(defn keyword->int [k]
+  (js/parseInt (keyword->string k)))
+
 (def +keyword-coercion+
   (merge
-    {s/Str keyword->string}))
+    {s/Str keyword->string
+     s/Int keyword->int}))
 
 
 (defn l-system-coercion-matcher [schema]

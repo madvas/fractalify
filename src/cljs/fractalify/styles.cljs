@@ -35,13 +35,23 @@
     :-o-transition      (s/join " " [property duration easing])
     :transition         (s/join " " [property duration easing])}))
 
-(def canvas-indicator
+(def canvas-refresh-indicator-wrap
+  {:position     "absolute"
+   :margin-left  "auto"
+   :margin-right "auto"
+   :left         0
+   :right        0
+   :top          "45%"
+   :width        40
+   :height       40})
+
+(def canvas-refresh-indicator
   (merge
-    {:left (-> (:width canvas-size)
-               (/ 2)
-               (- 20))
-     :top  20}
     (transition "opacity" "0.5s" "ease-in-out")))
+
+(def canvas-paper-wrap
+  {:position      :relative
+   :margin-bottom 10})
 
 (def pad-0 {:padding 0})
 (def pad-5 {:padding 5})

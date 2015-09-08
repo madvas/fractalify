@@ -22,7 +22,6 @@ time, mark, audio, video {
 	font-size: 100%;
 	font: inherit;
 	vertical-align: baseline;
-	-webkit-font-smoothing: antialiased;
 }
 /* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure,
@@ -56,6 +55,10 @@ a {
   text-decoration: none;
 }
 
+.colorpicker-trigger-btn {
+  background-color: transparent !important;
+}
+
 a:hover {
   text-decoration: underline;
 }
@@ -66,11 +69,8 @@ html {
 }
 
 body {
-	line-height: 1;
-	background-color: #F2F2F2;
 	font-size: 13px;
-    line-height: 20px;
-    min-height:100%;
+    line-height: 1;
     width: 100%;
 }
 
@@ -99,9 +99,32 @@ footer {
     height: 150px;
 }
 
+h1, h2, h3 {
+   font-weight: 300;
+}
+
 h1 {
-    font-size: 1.8em;
-    font-weight: 300;
+    font-size: 2em;
+}
+
+h2 {
+    font-size: 1.5em;
+}
+
+h3 {
+    font-size: 1.3em;
+}
+
+h4 {
+    font-size: 1em;
+}
+
+h5 {
+    font-size: 0.9em;
+}
+
+h6 {
+    font-size: 0.85em;
 }
 
 .no-dec {
@@ -119,7 +142,12 @@ h1 {
 }
 
 .canvas-paper-wrap {
+   position: relative;
+   margin-bottom: 10px;
+}
 
+.w-auto {
+   width: auto;
 }
 
 .w-100 {
@@ -258,7 +286,7 @@ h1 {
 }
 
 .pad-0 {
-  padding: 0px;
+  padding: 0px !important;
 }
 
 .pad-5 {
@@ -451,4 +479,12 @@ h1 {
 
 .no-dec {
     text-decoration: none !important;
+}
+
+.text-right {
+   text-align :right;
+}
+
+.text-left {
+   text-align :left;
 }

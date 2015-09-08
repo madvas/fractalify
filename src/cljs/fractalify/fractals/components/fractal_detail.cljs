@@ -1,0 +1,51 @@
+(ns fractalify.fractals.components.fractal-detail
+  (:require [fractalify.fractals.components.canvas-controls :as canvas-controls]
+            [fractalify.fractals.components.fractal-page-layout :as fractal-page-layout]
+            [re-frame.core :as f]
+            [plumbing.core :as p]
+            [fractalify.utils :as u]
+            [fractalify.styles :as y]
+            [fractalify.fractals.schemas :as ch]
+            [schema.core :as s :include-macros true]
+            [material-ui.core :as ui]
+            [fractalify.router :as t]))
+
+(s/set-fn-validation! true)
+
+(defn canvas-section [_]
+  (p/fnk [src] :- ch/PublishedFractal
+    [:img {:src   src
+           :style y/w-100}]))
+
+(defn btn-section [_]
+  (p/fnk
+    [[:info title {desc ""}]
+     star-count starred-by-me id
+     [:author gravatar username]] :- ch/PublishedFractal
+    [ui/paper {:style (merge y/pad-ver-20 y/pad-hor-10)}
+     [:div.row.between-xs.middle-xs
+      [:div.col-xs
+       [:h1.mar-bot-10 title]
+       [:div.row.center-xs
+        [:a.col-xs-2.col-sm-2.mar-bot-10.text-center.default-color
+         {:href (t/url :user-view :username username)}
+         [ui/avatar {:src gravatar}]
+         [:h6.mar-top-5 username]]
+        [:div.col-xs.text-left
+         [:h3 desc]]]]
+      [:div.row.middle-xs.col-xs-4
+       [:div.col-xs-6.text-right
+        [:h1 star-count]]
+       [:div.col-xs-6
+        [:div
+         [ui/floating-action-button
+          {:icon-class-name  (str "mdi mdi-star" (when-not starred-by-me "-outline"))
+           :background-color (ui/color :green400)
+           :on-touch-tap     #(f/dispatch [:fractal-toggle-star])}]]]]]]))
+
+(defn fractal-detail []
+  (let [fractal (f/subscribe [:fractal-detail])]
+    (fn []
+      [fractal-page-layout/fractal-page-layout
+       [canvas-section @fractal]
+       [btn-section @fractal]])))

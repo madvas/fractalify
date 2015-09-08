@@ -1,6 +1,6 @@
 (ns fractalify.middleware
   (:require [fractalify.db :as db]
-            [re-frame.core :as r :refer [after trim-v debug]]
+            [re-frame.core :as r :refer [after trim-v debug undoable]]
             [fractalify.utils :as u]))
 
 (def enabled?
@@ -23,4 +23,4 @@
 (def standard-middlewares [(when ^boolean (and goog.DEBUG enabled?) debug)
                            trim-validate])
 
-(def standard-without-debug (rest standard-middlewares))
+(def standard-no-debug (rest standard-middlewares))

@@ -1,6 +1,6 @@
 (ns fractalify.core
   (:require [reagent.core :as reagent]
-            [re-frame.core :as re-frame]
+            [re-frame.core :as f]
             [fractalify.router :as router]
             [fractalify.main.handlers]
             [fractalify.main.subs]
@@ -28,7 +28,7 @@
 (fractalify.fractals.routes/define-routes!)
 (fractalify.main.routes/define-routes!)
 (router/start!)
-(re-frame/dispatch-sync [:initialize-db])
+(f/dispatch-sync [:initialize-db])
 
 (defn ^:export init []
   (mount-root))

@@ -47,8 +47,9 @@
   (reset! *history* (p/pushy dispatch-route parse-url))
   (p/start! @*history*))
 
-(defn go! [route]
-  (p/set-token! @*history* (url route)))
+(defn go! [& route]
+  (println (url :fractal-detail :id 111))
+  (p/set-token! @*history* (u/p "here:" (apply url route))))
 
-(defn replace! [route]
-  (p/replace-token! @*history* (url route)))
+(defn replace! [& route]
+  (p/replace-token! @*history* (apply url route)))
