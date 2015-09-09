@@ -9,6 +9,7 @@
 
 (def ^:dynamic *routes* (atom ["/" {}]))
 (def ^:dynamic *history* (atom))
+(def ^:dynamic *current-params* (atom))
 
 (declare go!)
 (declare swap-route!)
@@ -22,9 +23,11 @@
         active-panel (if (keyword? active-panel)
                        active-panel
                        (:tag matched-route))]
-    (f/dispatch [:assoc-db :route-params (:route-params matched-route)])
-    (f/dispatch [:set-active-panel active-panel (:permissions matched-route)])
-    (f/dispatch [:sidenav-action :close])))
+    (reset! *current-params* (:route-params matched-route))
+    (f/dispatch [:set-active-panel active-panel (:permissions matched-route)])))
+
+(defn current-params []
+  @*current-params*)
 
 (defn add-routes! [routes]
   (swap! *routes* (fn [[root current] new]
@@ -48,8 +51,7 @@
   (p/start! @*history*))
 
 (defn go! [& route]
-  (println (url :fractal-detail :id 111))
-  (p/set-token! @*history* (u/p "here:" (apply url route))))
+  (p/set-token! @*history* (apply url route)))
 
 (defn replace! [& route]
   (p/replace-token! @*history* (apply url route)))

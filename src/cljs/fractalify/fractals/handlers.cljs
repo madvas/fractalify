@@ -12,7 +12,8 @@
             [schema.core :as s :include-macros true]
             [fractalify.fractals.schemas :as ch]
             [fractalify.router :as t]
-            [fractalify.db-utils :as d]))
+            [fractalify.db-utils :as d]
+            [fractalify.components.dialog :as dialog]))
 
 
 (def turtle-worker (new js/Worker "/js/turtle-worker.js"))
@@ -81,7 +82,7 @@
                                              :author (d/logged-user db)
                                              :star-count 0
                                              :starred-by-me false)))]
-      (f/dispatch [:hide-dialog])
+      (dialog/hide-dialog!)
       (t/go! :fractal-detail :id id)
       new-db)))
 

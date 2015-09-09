@@ -8,7 +8,7 @@
   (t/add-routes! {"fractals"
                   {"/"
                    {"create"       (t/perm :fractal-create [:login-required])
-                    [[#"\d+" :id]] :fractal-detail}}})
+                    [[long :id]] :fractal-detail}}})
 
   (defmethod t/panels :fractal-create [] [fractal-create/fractal-create])
   (defmethod t/panels :fractal-detail [] [fractal-detail/fractal-detail]))

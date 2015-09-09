@@ -1,4 +1,4 @@
-(ns fractalify.fractals.components.rule
+(ns fractalify.fractals.components.l-system-operations.rule
   (:require [re-frame.core :as f]
             [fractalify.fractals.components.control-text :as control-text]
             [material-ui.core :as ui]

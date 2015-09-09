@@ -12,6 +12,7 @@
             [fractalify.fractals.handlers]
             [fractalify.fractals.subs]
             [fractalify.fractals.routes]
+            [fractalify.fractals.generator]
             [schema.core :as s]))
 
 (enable-console-print!)

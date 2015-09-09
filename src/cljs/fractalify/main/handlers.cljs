@@ -1,8 +1,7 @@
 (ns fractalify.main.handlers
   (:require-macros [fractalify.tracer-macros :refer [trace-handlers]]
                    [clairvoyant.core :refer [trace-forms]])
-  (:require [re-frame.core :as r]
-            [fractalify.db :as db]
+  (:require [fractalify.db :as db]
             [fractalify.middleware :as m]
             [fractalify.utils :as u]
             [fractalify.components.snackbar :as snackbar]
@@ -12,40 +11,44 @@
             [fractalify.tracer :refer [tracer]]
             [clojure.set :as set]
             [instar.core :as i]
-            [fractalify.components.dialog :as dialog]))
+            [fractalify.components.dialog :as dialog]
+            [fractalify.api :as api]
+            [clojure.string :as str]
+            [re-frame.core :as f]))
 
 (trace-handlers
-  #_{:tracer (fractalify.tracer/tracer :color "green")}
+  #_{:tracer (fractalify.tracef/tracer :color "green")}
 
-  (r/register-handler
+  (f/register-handler
     :assoc-db
     m/standard-middlewares
     (fn [db [key value]]
       (assoc db key value)))
 
-  (r/register-handler
+  (f/register-handler
     :dissoc-db
     m/standard-middlewares
     (fn [db [key]]
       (dissoc db key)))
 
-  (r/register-handler
+  (f/register-handler
     :initialize-db
     m/standard-no-debug
     (fn [_]
       db/default-db))
 
-  (r/register-handler
+  (f/register-handler
     :set-active-panel
     m/standard-middlewares
     (fn [db [active-panel permissions]]
+      (sidenav/close-sidenav!)
       (if-let [error (p/validate-permissions db permissions)]
-        (do (r/dispatch [:show-snackbar (:message error)])
+        (do (f/dispatch [:show-snackbar (:message error)])
             (t/go! (:redirect error))
             db)
         (assoc db :active-panel active-panel))))
 
-  (r/register-handler
+  (f/register-handler
     :form-item
     m/standard-middlewares
     (fn [db [module & params]]
@@ -55,13 +58,13 @@
           (update-in db (into [module :forms] (butlast path)) set/rename-keys {key value})
           (assoc-in db (into [module :forms] path) value)))))
 
-  (r/register-handler
+  (f/register-handler
     :dissoc-form-item
     m/standard-middlewares
     (fn [db module path]
       (u/dissoc-in db (into [module :forms] path))))
 
-  (r/register-handler
+  (f/register-handler
     :set-form-error
     m/standard-no-debug
     ;m/standard-middlewares
@@ -73,35 +76,40 @@
           (assoc-in db path value)
           (u/dissoc-in db path)))))
 
-  (r/register-handler
+  (f/register-handler
     :show-snackbar
     m/standard-no-debug
     (fn [db [msg & snackbar-props]]
-      (let [db (assoc db :snackbar-props
-                         (assoc snackbar-props :message msg))]
-        (snackbar/show-snackbar!)
-        db)))
+      (snackbar/show-snackbar!)
+      (assoc db :snackbar-props
+                (assoc snackbar-props :message msg))))
 
-  (r/register-handler
+  (f/register-handler
     :show-dialog
     m/standard-no-debug
-    (fn [db [snackbar-props]]
-      (let [db (assoc db :dialog-props snackbar-props)]
+    (fn [db [dialog-props]]
+      (let [db (assoc db :dialog-props dialog-props)]
         (dialog/show-dialog!)
         db)))
 
-  (r/register-handler
-    :hide-dialog
-    m/standard-no-debug
-    (fn [db _]
-      (dialog/hide-dialog!)
-      db))
+  (f/register-handler
+    :fetch
+    m/standard-middlewares
+    (fn [db [path query-params]]
+      (println "fetching " path query-params)
+      (let [url (str/join "/" (map name path))]
+        (api/request! url query-params
+                      #(f/dispatch [:process-response path query-params %])
+                      #(f/dispatch [:process-response-err path query-params %])))
+      (update-in db path #(vary-meta % assoc :loading true))))
 
-  (r/register-handler
-    :sidenav-action
-    m/standard-no-debug
-    (fn [db [action]]
-      (condp = action
-        :toggle (sidenav/toggle-sidenav!)
-        :close (sidenav/close-sidenav!))
-      db)))
+  (f/register-handler
+    :process-response
+    m/standard-middlewares
+    (fn [db [path query-params value]]
+      (println ":process-response")
+      (-> db
+          (update-in path #(with-meta value {:query-params query-params})))))
+
+  )
+

@@ -7,6 +7,7 @@
             [fractalify.fractals.components.l-system-operations.tab :as tab]
             [fractalify.components.color-picker :as color-picker]))
 
+
 (defn canvas-controls []
   [:div.col-xs-12.col-sm-5.col-md-offset-1.col-md-5.col-lg-4.col-lg-offset-2
    [ui/paper

@@ -3,8 +3,8 @@
             [material-ui.core :as ui]
             [schema.core :as s :include-macros true]
             [fractalify.fractals.schemas :as ch]
-            [fractalify.fractals.components.cmd :as cmd]
-            [fractalify.fractals.components.rule :as rule]))
+            [fractalify.fractals.components.l-system-operations.cmd :as cmd]
+            [fractalify.fractals.components.l-system-operations.rule :as rule]))
 
 (s/defn operations
   [type :- ch/operation-type]

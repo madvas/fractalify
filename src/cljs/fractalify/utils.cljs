@@ -84,6 +84,13 @@
   [num :- (s/cond-pre s/Num s/Str)]
   (js/parseFloat num))
 
+(defn parse-int [num]
+  (p "parsing int:" (js/parseInt num)))
+
+#_ (s/defn parse-int :- (s/maybe s/Num)
+  [num :- (s/cond-pre s/Num s/Str)]
+  (p "parsing int:" (js/parseInt num)))
+
 (s/defn validate-until-error-fn
   ([fns] (validate-until-error-fn nil fns))
   ([val :- s/Any
@@ -143,7 +150,7 @@
       m)
     (dissoc m k)))
 
-(defn rand-string [chars n]
+(defn rand-str [chars n]
   (->> #(rand-nth (vec chars))
        (repeatedly n)
        (apply str)))
@@ -152,4 +159,4 @@
   (map char (range (int start) (inc (int end)))))
 
 (defn rand-id [n]
-  (rand-string "ABCDEF" n))
+  (rand-str "ABCDEF" n))

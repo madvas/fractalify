@@ -1,4 +1,4 @@
-(ns fractalify.fractals.components.cmd
+(ns fractalify.fractals.components.l-system-operations.cmd
   (:require [fractalify.utils :as u]
             [schema.core :as s :include-macros true]
             [fractalify.components.form-select :as form-select]

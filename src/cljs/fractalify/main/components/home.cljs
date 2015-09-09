@@ -2,7 +2,9 @@
   (:require [fractalify.router :as t]))
 
 (defn home []
-  [:p "This is home "])
+  [:div
+   [:p "This is home "]
+   [:a {:href (str "/fractals/" (rand-int 9999))} "Some fractal"]])
 
 
 #_[:div (str "Hello fromaaa " @name ". This is the Home Page.")

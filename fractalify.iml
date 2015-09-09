@@ -41,6 +41,7 @@
     <orderEntry type="library" name="Leiningen: org.clojars.stumitchell/clairvoyant:0.1.0-20150715.050527-4" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/clojure:1.7.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Leiningen: org.clojure/clojurescript:1.7.48" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojure/test.check:0.8.1" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.nrepl:0.2.6" level="project" />
     <orderEntry type="library" name="Leiningen: prismatic/plumbing:0.4.4" level="project" />
     <orderEntry type="library" name="Leiningen: prismatic/schema:1.0.0" level="project" />

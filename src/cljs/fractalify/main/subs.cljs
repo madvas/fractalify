@@ -1,44 +1,35 @@
 (ns fractalify.main.subs
   (:require-macros [reagent.ratom :refer [reaction]]
                    [fractalify.tracer-macros :refer [trace-subs]])
-  (:require [re-frame.core :as r]
-            [fractalify.main.handlers :as h]
+  (:require [fractalify.main.handlers :as h]
             [clairvoyant.core :refer-macros [trace-forms]]
             [fractalify.tracer :refer [tracer]]
-            [fractalify.utils :as u]))
+            [fractalify.utils :as u]
+            [fractalify.db-utils :as d]
+            [re-frame.core :as f]))
 
 (trace-subs
-  (r/register-sub
-    :db
-    (fn [db]
-      (reaction @db)))
-
-  (r/register-sub
+  (f/register-sub
     :active-panel
     (fn [db _]
       (reaction (:active-panel @db))))
 
-  (r/register-sub
-    :route-params
-    (fn [db _]
-      (reaction (:route-params @db))))
-
-  (r/register-sub
+  (f/register-sub
     :snackbar-props
     (fn [db [_]]
       (reaction (:snackbar-props @db))))
 
-  (r/register-sub
+  (f/register-sub
     :dialog-props
     (fn [db [_]]
       (reaction (:dialog-props @db))))
 
-  (r/register-sub
+  (f/register-sub
     :form-errors
     (fn [db [_ module form]]
       (reaction (get-in @db [module :forms form :errors]))))
 
-  (r/register-sub
+  (f/register-sub
     :form-item
     (fn [db [_ module & path]]
       (reaction
@@ -46,10 +37,21 @@
           key
           (get-in @db (into [module :forms] path))))))
 
-  (r/register-sub
+  (f/register-sub
     :form-data
     (fn [db [_ module form]]
-      (reaction (h/get-form-data @db module form)))))
+      (reaction (d/get-form-data @db module form))))
+
+  (f/register-sub
+    :query
+    (fn [db [_ path query-params]]
+      (reaction
+        (let [val (get-in @db path)
+              old-query-params (:query-params (meta val))]
+          (println "query" path query-params)
+          (when (not= (u/p "old-q:" old-query-params) (u/p "new-q:" query-params))
+            (f/dispatch [:fetch path query-params]))
+          val)))))
 
 
 
