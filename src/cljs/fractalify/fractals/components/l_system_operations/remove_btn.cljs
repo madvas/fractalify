@@ -2,13 +2,12 @@
   (:require [re-frame.core :as f]
             [material-ui.core :as ui]
             [schema.core :as s :include-macros true]
-            [fractalify.fractals.schemas :as ch]))
+            [fractalify.fractals.schemas :as ch]
+            [fractalify.components.icon-button-remove :as icon-button-remove]))
 
 (s/defn remove-btn
   [type :- ch/operation-type
    key]
   [:div.col-xs-1.row.middle-xs
-   [ui/icon-button
-    {:icon-class-name "mdi mdi-close-circle-outline"
-     :icon-style      {:color (ui/palette-color :accent1-color)}
-     :on-touch-tap    #(f/dispatch [:dissoc-l-system-operation type key])}]])
+   [icon-button-remove/icon-button-remove
+    {:on-touch-tap    #(f/dispatch [:dissoc-l-system-operation type key])}]])

@@ -40,13 +40,14 @@
   (f/register-handler
     :set-active-panel
     m/standard-middlewares
-    (fn [db [active-panel permissions]]
+    (fn [db [active-panel permissions route-params]]
       (sidenav/close-sidenav!)
       (if-let [error (p/validate-permissions db permissions)]
         (do (f/dispatch [:show-snackbar (:message error)])
             (t/go! (:redirect error))
             db)
-        (assoc db :active-panel active-panel))))
+        (assoc db :active-panel active-panel
+                  :route-params route-params))))
 
   (f/register-handler
     :form-item
@@ -101,15 +102,17 @@
         (api/request! url query-params
                       #(f/dispatch [:process-response path query-params %])
                       #(f/dispatch [:process-response-err path query-params %])))
-      (update-in db path #(vary-meta % assoc :loading true))))
+      #_ (u/p "update:" (meta (get-in path (update-in db path #(vary-meta % assoc :loading true)))))
+
+      (if (get-in db path)
+        (update-in db path #(vary-meta % assoc :loading true))
+        (u/dissoc-in db path))))
 
   (f/register-handler
     :process-response
     m/standard-middlewares
     (fn [db [path query-params value]]
-      (println ":process-response")
       (-> db
           (update-in path #(with-meta value {:query-params query-params})))))
-
   )
 

@@ -34,7 +34,9 @@
                  [servant "0.1.3"]
                  [instar "1.0.10"]
                  [camel-snake-kebab "0.3.2"]
-                 [org.clojure/test.check "0.8.1"]]
+                 [org.clojure/test.check "0.8.1"]
+                 [com.andrewmcveigh/cljs-time "0.3.13"]
+                 [clj-time "0.11.0"]]
 
   :plugins [[lein-cljsbuild "1.1.0"]
             [lein-environ "1.0.0"]

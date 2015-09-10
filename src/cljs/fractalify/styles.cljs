@@ -140,4 +140,4 @@
 (def mar-ver-20 (merge mar-bot-20 mar-top-20))
 
 (def tab-anchor (merge w-100 block pad-ver-15))
-
+(def paper-block (merge pad-ver-20 pad-hor-10))

@@ -29,13 +29,19 @@
    (o :info)     {(o :title) s/Str
                   (o :desc)  s/Str}})
 
+(def Comment
+  {:id       s/Int
+   :text     s/Str
+   :author   user-schemas/User
+   :datetime s/Any})
+
 (def PublishedFractal
   (assoc Fractal :id s/Int
                  :src s/Str
                  :author user-schemas/User
                  :star-count s/Int
                  :starred-by-me s/Bool
-                 (o :comments) [s/Any]))
+                 (o :comments) [Comment]))
 
 (def FractalsSchema
   {:forms                   Fractal

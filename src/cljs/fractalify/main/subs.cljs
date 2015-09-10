@@ -40,18 +40,7 @@
   (f/register-sub
     :form-data
     (fn [db [_ module form]]
-      (reaction (d/get-form-data @db module form))))
-
-  (f/register-sub
-    :query
-    (fn [db [_ path query-params]]
-      (reaction
-        (let [val (get-in @db path)
-              old-query-params (:query-params (meta val))]
-          (println "query" path query-params)
-          (when (not= (u/p "old-q:" old-query-params) (u/p "new-q:" query-params))
-            (f/dispatch [:fetch path query-params]))
-          val)))))
+      (reaction (d/get-form-data @db module form)))))
 
 
 

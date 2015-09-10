@@ -103,7 +103,13 @@
             (update-in (into path [:star-count]) f)
             (update-in (into path [:starred-by-me]) not))))))
 
-
+(f/register-handler
+  :remove-comment
+  m/standard-middlewares
+  (fn [db [id]]
+    (update-in db [:fractals :fractal-detail :comments]
+               (fn [comments]
+                 (u/remove-first #(= (:id %) id) comments)))))
 
 
 

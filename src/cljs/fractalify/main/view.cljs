@@ -19,7 +19,7 @@
        [snackbar/snackbar]
        [dialog/dialog]
        [:div.main-body
-        (conj (t/panels @active-panel) @active-panel)]
+        (t/panels @active-panel)]
        [footer/footer]])))
 
 (defn main-view []

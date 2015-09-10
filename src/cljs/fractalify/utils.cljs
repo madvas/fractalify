@@ -4,7 +4,8 @@
             [cljs.core.async :refer [chan close! >! <!]]
             [cljs.core]
             [instar.core :as i]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [cljs-time.core :as m]))
 
 (defn p [& args]
   "Like println, but returns last arg. For debugging purposes"
@@ -85,7 +86,7 @@
   (js/parseFloat num))
 
 (defn parse-int [num]
-  (p "parsing int:" (js/parseInt num)))
+  (js/parseInt num))
 
 #_ (s/defn parse-int :- (s/maybe s/Num)
   [num :- (s/cond-pre s/Num s/Str)]
@@ -150,13 +151,34 @@
       m)
     (dissoc m k)))
 
-(defn rand-str [chars n]
-  (->> #(rand-nth (vec chars))
-       (repeatedly n)
-       (apply str)))
+(defn remove-first [pred coll]
+  (lazy-seq
+    (when (seq coll)
+      (let [[y & ys] coll]
+        (if (pred y)
+          ys
+          (cons y (remove-first pred ys)))))))
 
-(defn char-range [start end]
-  (map char (range (int start) (inc (int end)))))
+#_ (defn remove-first [pred coll]
+  (let [[pre post] (split-with #(pred %) coll)]
+    (concat (pre (rest post)))))
 
-(defn rand-id [n]
-  (rand-str "ABCDEF" n))
+  (defn time-ago [time]
+  (let [units [{:name "second" :limit 60 :in-second 1}
+               {:name "minute" :limit 3600 :in-second 60}
+               {:name "hour" :limit 86400 :in-second 3600}
+               {:name "day" :limit 604800 :in-second 86400}
+               {:name "week" :limit 2629743 :in-second 604800}
+               {:name "month" :limit 31556926 :in-second 2629743}
+               {:name "year" :limit nil :in-second 31556926}]
+        diff (m/in-seconds (m/interval time (m/now)))]
+    (if (< diff 5)
+      "just now"
+      (let [unit (first (drop-while #(or (>= diff (:limit %))
+                                         (not (:limit %)))
+                                    units))]
+        (-> (/ diff (:in-second unit))
+            parse-int
+            (#(str % " " (:name unit) (when (> % 1) "s") " ago")))))))
+
+

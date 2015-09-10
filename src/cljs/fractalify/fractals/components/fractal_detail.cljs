@@ -9,7 +9,9 @@
             [schema.core :as s :include-macros true]
             [material-ui.core :as ui]
             [fractalify.router :as t]
-            [reagent.core :as r]))
+            [reagent.core :as r]
+            [fractalify.db-utils :as d]
+            [fractalify.fractals.components.comments :as comments]))
 
 (s/set-fn-validation! true)
 
@@ -21,9 +23,10 @@
 (defn btn-section [_]
   (p/fnk
     [[:info title {desc ""}]
-     star-count starred-by-me
+     star-count
+     starred-by-me
      [:author gravatar username]] :- ch/PublishedFractal
-    [ui/paper {:style (merge y/pad-ver-20 y/pad-hor-10)}
+    [ui/paper {:style y/paper-block}
      [:div.row.between-xs.middle-xs
       [:div.col-xs
        [:h1.mar-bot-10 title]
@@ -48,15 +51,12 @@
   [:a {:href (str "/fractals/" (rand-int 5000))} "Click here"])
 
 (defn fractal-detail []
-  (let [fractal (f/subscribe [:fractal-detail])]
-    (r/create-class
-      {:component-will-unmount
-       (fn []
-         (println "unmount"))
-       :reagent-render
-       (fn [panel]
-         (println "fractal-detail RENDER " panel)
-         [fractal-page-layout/fractal-page-layout
-          [canvas-section @fractal]
+  (let [fractal (f/subscribe [:fractal-detail-query])]
+    (fn []
+      [fractal-page-layout/fractal-page-layout
+       (when-not (d/empty? @fractal) [canvas-section @fractal])
+       (when-not (d/empty? @fractal)
+         [:div
           [btn-section @fractal]
-          [sidebar-section]])})))
+          [comments/comments]])
+       [sidebar-section]])))

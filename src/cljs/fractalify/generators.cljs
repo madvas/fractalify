@@ -16,7 +16,7 @@
   (gen/generate
     (gen/fmap
       (partial str/join " ")
-      (gen/vector (gen/resize word-size gen/string-ascii) words-min words-max))))
+      (gen/vector (gen/resize word-size gen/string-alphanumeric) words-min words-max))))
 
 (s/defn add-generator!
   [url :- s/Str
