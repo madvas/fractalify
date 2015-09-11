@@ -29,14 +29,28 @@
       (reaction (get-in @db [:fractals :all-cmds]))))
 
   (f/register-sub
+    :fractal-detail
+    (fn [db _]
+      (reaction (get-in @db [:fractals :fractal-detail]))))
+
+  (f/register-sub
+    :fractal-comments
+    (fn [db _]
+      (reaction (get-in @db [:fractals :fractal-detail :comments]))))
+
+  (f/register-sub
     :fractal-detail-query
     (fn [db _]
-      (reaction (d/query @db [:fractals :fractal-detail] (:route-params @db) :fractal-detail))))
+      (reaction (d/query @db [:fractals :fractal-detail]
+                         (:route-params @db)
+                         :fractal
+                         :fractal-detail))))
 
   (f/register-sub
     :fractal-comments-query
     (fn [db _]
       (reaction (d/query @db [:fractals :fractal-detail :comments]
                          (:route-params @db)
+                         :fractal-comments
                          :fractal-detail))))
   )

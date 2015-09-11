@@ -19,7 +19,10 @@
                         (o :action)           s/Str
                         (o :autoHideDuration) s/Int
                         (o :onActionTouchTap) s/Any}
-   (o :route-params)   (s/maybe {s/Keyword s/Any})})
+   (o :route-params)   (s/maybe {s/Keyword s/Any})
+   (o :queries)        {[s/Keyword] {(o :query-params) {s/Keyword s/Any}
+                                     (o :loading?)     s/Bool
+                                     (o :error)        s/Any}}})
 
 (defn assoc-form-errors [db-schema]
   (i/transform db-schema [* :forms *] #(merge % main-schemas/FormErros)))

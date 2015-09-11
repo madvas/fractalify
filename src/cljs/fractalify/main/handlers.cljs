@@ -13,8 +13,14 @@
             [instar.core :as i]
             [fractalify.components.dialog :as dialog]
             [fractalify.api :as api]
-            [clojure.string :as str]
-            [re-frame.core :as f]))
+            [re-frame.core :as f]
+            [fractalify.db-utils :as d]
+            [schema.core :as s :include-macros true]
+            [fractalify.main.schemas :as ch]))
+
+(defn default-on-send-err []
+  (f/dispatch [:undo])
+  (f/dispatch [:show-snackbar "Sorry, there was an error"]))
 
 (trace-handlers
   #_{:tracer (fractalify.tracef/tracer :color "green")}
@@ -28,8 +34,8 @@
   (f/register-handler
     :dissoc-db
     m/standard-middlewares
-    (fn [db [key]]
-      (dissoc db key)))
+    (fn [db [ks]]
+      (u/dissoc-in db ks)))
 
   (f/register-handler
     :initialize-db
@@ -94,25 +100,29 @@
         db)))
 
   (f/register-handler
-    :fetch
+    :api-fetch
     m/standard-middlewares
-    (fn [db [path query-params]]
-      (println "fetching " path query-params)
-      (let [url (str/join "/" (map name path))]
-        (api/request! url query-params
-                      #(f/dispatch [:process-response path query-params %])
-                      #(f/dispatch [:process-response-err path query-params %])))
-      #_ (u/p "update:" (meta (get-in path (update-in db path #(vary-meta % assoc :loading true)))))
-
-      (if (get-in db path)
-        (update-in db path #(vary-meta % assoc :loading true))
-        (u/dissoc-in db path))))
+    (fn [db [endpoint-key path query-params]]
+      (u/mwarn "fetching " path query-params)
+      (api/fetch! endpoint-key query-params
+                  #(f/dispatch [:process-fetch-response path query-params %])
+                  #(f/dispatch [:process-fetch-response-err path query-params %]))
+      (d/assoc-loading db path true)))
 
   (f/register-handler
-    :process-response
+    :process-fetch-response
     m/standard-middlewares
-    (fn [db [path query-params value]]
+    (fn [db [path query-params val]]
       (-> db
-          (update-in path #(with-meta value {:query-params query-params})))))
+          (assoc-in path val)
+          (d/assoc-query-params path query-params))))
+
+  (f/register-handler
+    :api-send
+    m/standard-middlewares
+    (fn [db [endpoint-key body on-succes on-err]]
+      (u/mwarn "posting " endpoint-key body)
+      (api/send! endpoint-key body on-succes (or on-err default-on-send-err))
+      db))
   )
 

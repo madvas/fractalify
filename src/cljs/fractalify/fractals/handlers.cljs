@@ -17,99 +17,119 @@
 
 
 (def turtle-worker (new js/Worker "/js/turtle-worker.js"))
-
-
-(f/register-handler
-  :l-system-change
-  m/standard-middlewares
-  (fn [db [l-system]]
-    (let [db (assoc-in db [:fractals :l-system-generating] true)]
-      (f/dispatch [:generate-cmds l-system])
-      db)))
-
-(f/register-handler
-  :generate-cmds
-  m/standard-middlewares
-  (fn [db [l-system]]
-    (let [result-cmds (l/l-system l-system)]
-      (w/on-message-once #(f/dispatch [:lines-generated %]) turtle-worker)
-      (w/post-message [l-system result-cmds] turtle-worker))
-    db))
-
-(f/register-handler
-  :lines-generated
-  m/standard-no-debug
-  (fn [db [lines]]
-    (-> db
-        (assoc-in [:fractals :forms :canvas :lines] lines)
-        (assoc-in [:fractals :l-system-generating] false))))
-
-(f/register-handler
-  :canvas-change
-  m/standard-no-debug
-  (fn [db [canvas-dom canvas]]
-    (renderer/render! canvas-dom canvas)
-    db))
-
-(f/register-handler
-  :dissoc-l-system-operation
-  m/standard-middlewares
-  (s/fn [db path :- [(s/one ch/operation-type "oper-type") s/Int]]
-    (f/dispatch (u/concat-vec [:dissoc-form-item :fractals :l-system] path))
-    db))
-
-(f/register-handler
-  :assoc-l-system-operation
-  m/standard-middlewares
-  (s/fn [db [type] :- [(s/one ch/operation-type "oper-type")]]
-    (let [last-id (-> (get-in db [:fractals :forms :l-system type]) keys sort last)
-          val (condp = type
-                :cmds ["" :default]
-                :rules ["" ""])]
-      (f/dispatch [:form-item :fractals :l-system type (inc last-id) val]))
-    db))
-
-(f/register-handler
-  :fractal-publish
-  m/standard-middlewares
-  (fn [db _]
-    (let [src (renderer/get-data-url)
-          id (rand-int 9999)
-          new-db (i/transform db [:fractals (i/%% :forms) :fractal-detail]
-                              (fn [forms]
-                                (assoc forms :id id
-                                             :src src
-                                             :author (d/logged-user db)
-                                             :star-count 0
-                                             :starred-by-me false)))]
-      (dialog/hide-dialog!)
-      (t/go! :fractal-detail :id id)
-      new-db)))
-
 (def starred-by-me? (u/partial-right get-in [:fractals :fractal-detail :starred-by-me]))
 
-(f/register-handler
-  :fractal-toggle-star
-  m/standard-middlewares
-  (fn [db _]
-    (if-not (d/logged-user db)
-      (do
-        (f/dispatch [:show-snackbar "You must be logged in to star a fractal"])
-        (t/go! :login)
-        db)
-      (let [path [:fractals :fractal-detail]
-            f (if (starred-by-me? db) dec inc)]
-        (-> db
-            (update-in (into path [:star-count]) f)
-            (update-in (into path [:starred-by-me]) not))))))
+(trace-handlers
+  (f/register-handler
+    :l-system-change
+    m/standard-middlewares
+    (fn [db [l-system]]
+      (let [db (assoc-in db [:fractals :l-system-generating] true)]
+        (f/dispatch [:generate-cmds l-system])
+        db)))
 
-(f/register-handler
-  :remove-comment
-  m/standard-middlewares
-  (fn [db [id]]
-    (update-in db [:fractals :fractal-detail :comments]
-               (fn [comments]
-                 (u/remove-first #(= (:id %) id) comments)))))
+  (f/register-handler
+    :generate-cmds
+    m/standard-middlewares
+    (fn [db [l-system]]
+      (let [result-cmds (l/l-system l-system)]
+        (w/on-message-once #(f/dispatch [:lines-generated %]) turtle-worker)
+        (w/post-message [l-system result-cmds] turtle-worker))
+      db))
+
+  (f/register-handler
+    :lines-generated
+    m/standard-no-debug
+    (fn [db [lines]]
+      (-> db
+          (assoc-in [:fractals :forms :canvas :lines] lines)
+          (assoc-in [:fractals :l-system-generating] false))))
+
+  (f/register-handler
+    :canvas-change
+    m/standard-no-debug
+    (fn [db [canvas-dom canvas]]
+      (renderer/render! canvas-dom canvas)
+      db))
+
+  (f/register-handler
+    :dissoc-l-system-operation
+    m/standard-middlewares
+    (s/fn [db path :- [(s/one ch/operation-type "oper-type") s/Int]]
+      (f/dispatch (u/concat-vec [:dissoc-form-item :fractals :l-system] path))
+      db))
+
+  (f/register-handler
+    :assoc-l-system-operation
+    m/standard-middlewares
+    (s/fn [db [type] :- [(s/one ch/operation-type "oper-type")]]
+      (let [last-id (-> (get-in db [:fractals :forms :l-system type]) keys sort last)
+            val (condp = type
+                  :cmds ["" :default]
+                  :rules ["" ""])]
+        (f/dispatch [:form-item :fractals :l-system type (inc last-id) val]))
+      db))
+
+  (f/register-handler
+    :fractal-publish
+    m/standard-middlewares
+    (fn [db _]
+      (let [src (renderer/get-data-url)
+            id (rand-int 9999)
+            #_new-db #_(d/insert-queryable
+                         db
+                         [:fractals (i/%% :forms) :fractal-detail]
+                         (fn [forms]
+                           (assoc forms :id id
+                                        :src src
+                                        :author (d/logged-user db)
+                                        :star-count 0
+                                        :starred-by-me false))
+                         {:id id})]
+        (dialog/hide-dialog!)
+        (u/set-timeout (t/go! :fractal-detail :id id) 1000)
+        db)))
+
+  (f/register-handler
+    :fractal-publish-response
+    m/standard-middlewares
+    (fn [db []]
+      ; TODO implement
+      ))
+
+  (f/register-handler
+    :fractal-toggle-star
+    [m/standard-middlewares (f/undoable "fractal-toggle-star")]
+    (fn [db [id]]
+      (if-not (d/logged-user db)
+        (do
+          (f/dispatch [:show-snackbar "You must be logged in to star a fractal"])
+          (t/go! :login)
+          db)
+        (let [path [:fractals :fractal-detail]
+              f (if (starred-by-me? db) dec inc)]
+          (f/dispatch [:api-send "fractals/1/star" {:id id}])
+          (-> db
+              (update-in (into path [:star-count]) f)
+              (update-in (into path [:starred-by-me]) not))))))
+
+  (f/register-handler
+    :remove-comment
+    [m/standard-middlewares (f/undoable "remove-comment")]
+    (fn [db [id]]
+      (f/dispatch [:api-send :fractal-comment-remove {:id id}])
+      (update-in db [:fractals :fractal-detail :comments]
+                 (fn [comments]
+                   (u/remove-first #(= (:id %) id) comments)))))
+
+  (f/register-handler
+    :fetch-fractal
+    m/standard-middlewares
+    (fn [db [query-params]]
+      (let [path [:fractals :fractal-detail]]
+        (f/dispatch [:api-fetch :fractal path query-params])
+        (d/assoc-loading db path true))))
+  )
 
 
 

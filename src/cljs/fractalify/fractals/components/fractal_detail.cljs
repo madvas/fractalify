@@ -11,7 +11,9 @@
             [fractalify.router :as t]
             [reagent.core :as r]
             [fractalify.db-utils :as d]
-            [fractalify.fractals.components.comments :as comments]))
+            [fractalify.fractals.components.comments :as comments]
+            [fractalify.main.schemas :as mch]
+            [fractalify.components.api-wrap :as api-wrap]))
 
 (s/set-fn-validation! true)
 
@@ -23,6 +25,7 @@
 (defn btn-section [_]
   (p/fnk
     [[:info title {desc ""}]
+     id
      star-count
      starred-by-me
      [:author gravatar username]] :- ch/PublishedFractal
@@ -45,18 +48,39 @@
          [ui/floating-action-button
           {:icon-class-name  (str "mdi mdi-star" (when-not starred-by-me "-outline"))
            :background-color (ui/color :green400)
-           :on-touch-tap     #(f/dispatch [:fractal-toggle-star])}]]]]]]))
+           :on-touch-tap     #(f/dispatch [:fractal-toggle-star id])}]]]]]]))
 
 (defn sidebar-section []
-  [:a {:href (str "/fractals/" (rand-int 5000))} "Click here"])
+  (fn []
+    [:div
+     [:a {:href (str "/fractals/" (rand-int 9999))} "Click here"]
+     [:a {:href (str "/fractals/" (rand-int 9999))} "Click here"]]))
+
+
+(defn fractal-detail-content [_]
+  (fn [fractal]
+    (println "fractal-detail-content" (:id fractal))
+    [fractal-page-layout/fractal-page-layout
+     (when-not (empty? fractal) [canvas-section fractal])
+     (when-not (empty? fractal)
+       [:div
+        [btn-section fractal]
+        [comments/comments]])
+     [sidebar-section]]))
+
+(def fractal-api-wrap
+  (api-wrap/create-api-wrap
+    :fractal
+    :fractal-detail
+    [:fractals :fractal-detail]
+    :route-params))
 
 (defn fractal-detail []
-  (let [fractal (f/subscribe [:fractal-detail-query])]
-    (fn []
-      [fractal-page-layout/fractal-page-layout
-       (when-not (d/empty? @fractal) [canvas-section @fractal])
-       (when-not (d/empty? @fractal)
-         [:div
-          [btn-section @fractal]
-          [comments/comments]])
-       [sidebar-section]])))
+  [fractal-api-wrap
+   [fractal-detail-content]]
+
+
+  #_(let [route-params (f/subscribe [:route-params])]
+      (fn []
+        [fractal-api-wrap @route-params
+         [fractal-detail-content]])))

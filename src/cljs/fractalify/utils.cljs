@@ -2,15 +2,25 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [schema.core :as s :include-macros true]
             [cljs.core.async :refer [chan close! >! <!]]
-            [cljs.core]
             [instar.core :as i]
             [clojure.string :as str]
             [cljs-time.core :as m]))
 
+(defn ensure-vec [x]
+  (if (vector? x) x [x]))
+
 (defn p [& args]
   "Like println, but returns last arg. For debugging purposes"
-  (apply cljs.core/println args)
+  (apply println args)
   (last args))
+
+(defn pk [msg ks x]
+  (let [ks (ensure-vec ks)]
+    (apply println msg (get-in x ks))
+    x))
+
+(defn pk-> [x msg ks]
+  (pk msg ks x))
 
 (defn mlog [& messages]
   (.apply (.-log js/console) js/console (clj->js messages)))
@@ -88,9 +98,9 @@
 (defn parse-int [num]
   (js/parseInt num))
 
-#_ (s/defn parse-int :- (s/maybe s/Num)
-  [num :- (s/cond-pre s/Num s/Str)]
-  (p "parsing int:" (js/parseInt num)))
+#_(s/defn parse-int :- (s/maybe s/Num)
+    [num :- (s/cond-pre s/Num s/Str)]
+    (p "parsing int:" (js/parseInt num)))
 
 (s/defn validate-until-error-fn
   ([fns] (validate-until-error-fn nil fns))
@@ -152,18 +162,10 @@
     (dissoc m k)))
 
 (defn remove-first [pred coll]
-  (lazy-seq
-    (when (seq coll)
-      (let [[y & ys] coll]
-        (if (pred y)
-          ys
-          (cons y (remove-first pred ys)))))))
+  (let [n (take-while (complement pred) coll)]
+    (concat n (take-last (- (count coll) (inc (count n))) coll))))
 
-#_ (defn remove-first [pred coll]
-  (let [[pre post] (split-with #(pred %) coll)]
-    (concat (pre (rest post)))))
-
-  (defn time-ago [time]
+(defn time-ago [time]
   (let [units [{:name "second" :limit 60 :in-second 1}
                {:name "minute" :limit 3600 :in-second 60}
                {:name "hour" :limit 86400 :in-second 3600}

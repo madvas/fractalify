@@ -15,6 +15,11 @@
       (reaction (:active-panel @db))))
 
   (f/register-sub
+    :route-params
+    (fn [db _]
+      (reaction (:route-params @db))))
+
+  (f/register-sub
     :snackbar-props
     (fn [db [_]]
       (reaction (:snackbar-props @db))))

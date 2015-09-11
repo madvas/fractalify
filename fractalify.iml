@@ -48,7 +48,7 @@
     <orderEntry type="library" name="Leiningen: prismatic/plumbing:0.4.4" level="project" />
     <orderEntry type="library" name="Leiningen: prismatic/schema:1.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: re-frame:0.4.1" level="project" />
-    <orderEntry type="library" name="Leiningen: reagent:0.5.0" level="project" />
+    <orderEntry type="library" name="Leiningen: reagent:0.5.1" level="project" />
     <orderEntry type="library" name="Leiningen: ring-basic-authentication:1.0.5" level="project" />
     <orderEntry type="library" name="Leiningen: ring/ring-defaults:0.1.5" level="project" />
     <orderEntry type="library" name="Leiningen: ring:1.4.0" level="project" />

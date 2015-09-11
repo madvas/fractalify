@@ -7,18 +7,26 @@
             [reagent.core :as r]
             [fractalify.router :as t]
             [cljs-time.core :as m]
-            [fractalify.components.icon-button-remove :as icon-button-remove]))
+            [fractalify.components.icon-button-remove :as icon-button-remove]
+            [fractalify.components.api-wrap :as api-wrap]))
 
-(defn comments []
-  (let [comments (f/subscribe [:fractal-comments-query])
-        logged-user (f/subscribe [:logged-user])]
-    (fn []
+
+(def comments-api-wrap
+  (api-wrap/create-api-wrap
+    :fractal-comments
+    :fractal-comments
+    [:fractals :fractal-detail :comments]
+    :route-params))
+
+(defn comments-content []
+  (let [logged-user (f/subscribe [:logged-user])]
+    (fn [comments]
       [ui/paper
        [ui/list
         {:style     y/mar-top-10
          :subheader "Comments"}
         (doall
-          (for [comment @comments]
+          (for [comment comments]
             (p/letk [[id text datetime [:author gravatar username]] comment]
               ^{:key id}
               [ui/list-item
@@ -30,3 +38,7 @@
                                                      {:on-touch-tap #(f/dispatch [:remove-comment id])})))
                 :secondary-text    (u/time-ago datetime)}
                [:p text]])))]])))
+
+(defn comments []
+  [comments-api-wrap
+   [comments-content]])

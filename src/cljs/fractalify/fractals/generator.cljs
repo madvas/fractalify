@@ -66,7 +66,7 @@
    :bio      (g/gen-sentence 10 3 10)
    :gravatar "http://www.gravatar.com/avatar/bfdb252fe9d0ab9759f41e3c26d7700e.jpg?s=50"})
 
-(defmethod g/generator "fractals/fractal-detail"
+(defmethod g/generator :fractal
   [_ query-params]
   (-> (rand-nth [plant cantor-dust dragon-curve])
       (assoc :info {:title (g/gen-sentence 7 1 3)
@@ -76,7 +76,7 @@
              :star-count (gen/generate gen/nat 1000)
              :starred-by-me (gen/generate gen/boolean))))
 
-(defmethod g/generator "fractals/fractal-detail/comments"
+(defmethod g/generator :fractal-comments
   [_]
   (repeatedly 10 #(hash-map :id (rand-int 9999)
                             :text (g/gen-sentence 10 3 10)
