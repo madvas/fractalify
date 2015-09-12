@@ -39,18 +39,12 @@
       (reaction (get-in @db [:fractals :fractal-detail :comments]))))
 
   (f/register-sub
-    :fractal-detail-query
+    :fractals-sidebar
     (fn [db _]
-      (reaction (d/query @db [:fractals :fractal-detail]
-                         (:route-params @db)
-                         :fractal
-                         :fractal-detail))))
+      (reaction (get-in @db [:fractals :fractals-sidebar]))))
 
   (f/register-sub
-    :fractal-comments-query
+    :fractals-sidebar-query-params
     (fn [db _]
-      (reaction (d/query @db [:fractals :fractal-detail :comments]
-                         (:route-params @db)
-                         :fractal-comments
-                         :fractal-detail))))
+      (reaction (get-in @db [:fractals :forms :sidebar]))))
   )

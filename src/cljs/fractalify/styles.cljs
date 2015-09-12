@@ -53,6 +53,9 @@
   {:position      :relative
    :margin-bottom 10})
 
+(def comments-wrap
+  {:min-height 400})
+
 (def pad-0 {:padding 0})
 (def pad-5 {:padding 5})
 (def pad-10 {:padding 10})
@@ -141,3 +144,4 @@
 
 (def tab-anchor (merge w-100 block pad-ver-15))
 (def paper-block (merge pad-ver-20 pad-hor-10))
+(def sidebar-wrap (merge paper-block {:min-height 300}))

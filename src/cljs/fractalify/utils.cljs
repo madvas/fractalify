@@ -83,6 +83,15 @@
            (recur (js/Date.) t)))))
    c'))
 
+(defn debouncer [ms f & args]
+  (let [c (chan)
+        dc (debounce c ms)]
+    (go
+      (while true
+        (let [x (<! dc)]
+          (apply f x args))))
+    c))
+
 (defn throttle [c ms]
   (let [c' (chan)]
     (go
@@ -98,9 +107,14 @@
 (defn parse-int [num]
   (js/parseInt num))
 
-#_(s/defn parse-int :- (s/maybe s/Num)
-    [num :- (s/cond-pre s/Num s/Str)]
-    (p "parsing int:" (js/parseInt num)))
+(defn ellipsis [s max-chars]
+  (str (subs s 0 max-chars) "..."))
+
+(defn select-key [map k]
+  (select-keys map [k]))
+
+(defn empty-seq? [x]
+  (and (empty? x) (sequential? x)))
 
 (s/defn validate-until-error-fn
   ([fns] (validate-until-error-fn nil fns))

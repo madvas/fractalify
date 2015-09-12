@@ -34,36 +34,6 @@
 (defn valid? [db]
   (s/validate (create-db-schema db-schema) db))
 
-(def dragon-curve
-  {:l-system {:rules       {1 ["X" "X+YF"]
-                            2 ["Y" "FX-Y"]}
-              :angle       90
-              :start       "FX"
-              :iterations  12
-              :line-length 6
-              :origin      {:x 300 :y 300}
-              :start-angle 90
-              :cmds        {1 ["F" :forward]
-                            2 ["+" :left]
-                            3 ["-" :right]
-                            4 ["[" :push]
-                            5 ["]" :pop]}}
-   :canvas   {:bg-color   ["#FFF" 100]
-              :size       600
-              :color      ["#000" 100]
-              :line-width 1}})
-
 (def default-db
-  {:users    {:logged-user {:username "madvas"
-                            :email    "some@email.com"
-                            :bio      "I am good"
-                            :gravatar "http://www.gravatar.com/avatar/bfdb252fe9d0ab9759f41e3c26d7700e.jpg?s=50"}
-
-              :forms       {:login {:user "HEHE" :password "abcdef"}}}
-   :fractals {:forms    (merge {} dragon-curve)
-              :all-cmds {:forward "Forward"
-                         :left    "Rotate Left"
-                         :right   "Rotate Right"
-                         :push    "Push Position"
-                         :pop     "Pop Position"
-                         :default "No Action"}}})
+  {:users    users-schemas/default-db
+   :fractals fractals-schemas/default-db})

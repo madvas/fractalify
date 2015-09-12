@@ -27,3 +27,11 @@
 
                      (o :edit-profile)    {(o :email) s/Str
                                            (o :bio)   s/Str}}})
+
+(def default-db
+  {:logged-user {:username "madvas"
+                 :email    "some@email.com"
+                 :bio      "I am good"
+                 :gravatar "http://www.gravatar.com/avatar/bfdb252fe9d0ab9759f41e3c26d7700e.jpg?s=50"}
+
+   :forms       {:login {:user "HEHE" :password "abcdef"}}})

@@ -5,7 +5,8 @@
             [schema.core :as s :include-macros true]
             [reagent.impl.util :as ru]
             [fractalify.utils :as u]
-            [reagent.impl.batching :as rb]))
+            [reagent.impl.batching :as rb]
+            [plumbing.core :as p]))
 
 
 (defn- dispatch [endpoint-key path query-params]
@@ -13,40 +14,33 @@
 
 (s/defn ^:private api-wrap
   [endpoint-key :- s/Keyword
-   subscription :- s/Keyword
    path :- mch/DbPath
+   value-sub :- s/Keyword
    query-params :- mch/QueryParams
    & args]
-  (let [item (f/subscribe [subscription])]
+  (let [val (f/subscribe [value-sub])
+        loading? (f/subscribe [:loading? path])]
     (r/create-class
-      {:component-did-mount
+      {:component-will-mount
        (fn [this]
-         (println ":component-did-mount")
          (dispatch endpoint-key path (r/props this)))
        :component-will-receive-props
        (fn [_ new-argv]
-         (println ":component-will-receive-props")
          (dispatch endpoint-key path (ru/extract-props new-argv)))
-       :component-will-unmount
-       (fn []
-         (f/dispatch [:dissoc-db path]))
        :reagent-render
        (fn [_ child]
-         (println ":reagent-render " (:id @item))
-         [child @item])})))
+         (conj child @val @loading?))})))
 
 (s/defn ^:private api-query-params-wrap
   [endpoint-key :- s/Keyword
-   value-sub :- s/Keyword
    path :- mch/DbPath
+   value-sub :- s/Keyword
    query-params-sub :- s/Keyword
    & args]
   (let [query-params (f/subscribe [query-params-sub])
-        f (partial api-wrap endpoint-key value-sub path)]
+        f (partial api-wrap endpoint-key path value-sub)]
     (fn [child]
-      (println "api-query-params-wrap" @query-params)
-      [f @query-params
-       child])))
+      [f @query-params child])))
 
-(s/defn create-api-wrap [& args]
-  (apply partial api-query-params-wrap args))
+(p/defnk create-api-wrap [endpoint-key path value-sub query-params-sub]
+  (partial api-query-params-wrap endpoint-key path value-sub query-params-sub))

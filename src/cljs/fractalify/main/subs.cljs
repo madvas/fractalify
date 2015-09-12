@@ -6,7 +6,9 @@
             [fractalify.tracer :refer [tracer]]
             [fractalify.utils :as u]
             [fractalify.db-utils :as d]
-            [re-frame.core :as f]))
+            [re-frame.core :as f]
+            [schema.core :as s :include-macros true]
+            [fractalify.main.schemas :as ch]))
 
 (trace-subs
   (f/register-sub
@@ -45,7 +47,12 @@
   (f/register-sub
     :form-data
     (fn [db [_ module form]]
-      (reaction (d/get-form-data @db module form)))))
+      (reaction (d/get-form-data @db module form))))
+
+  (f/register-sub
+    :loading?
+    (s/fn [db [_ path :- ch/QueryParams]]
+      (reaction (d/query-loading? @db path)))))
 
 
 

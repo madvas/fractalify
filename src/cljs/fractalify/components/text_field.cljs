@@ -32,6 +32,12 @@
   (let [d (or (:debounce props) 0)]
     (apply u/debounce change-ch (if (number? d) [d] d))))
 
+(defn- dirty? [this]
+  (:dirty? (r/state this)))
+
+(defn- set-dirty! [this]
+  (r/set-state this {:dirty? true}))
+
 (s/defn text-field
   ([subscribe props]
     (text-field subscribe nil nil props))
@@ -55,19 +61,21 @@
           (let [val (<! debounced-chan)]
             (f/dispatch (conj dispatch val)))))
       (fn []
-        (let [error-text (u/validate-until-error @value validators)]
+        (let [this (r/current-component)
+              error-text (u/validate-until-error @value validators)]
           (when error-dispatch
             (f/dispatch (conj error-dispatch error-text)))
           [ui/text-field
            (merge
-             {:default-value  @value
-              :errorText      error-text
-              :style          style
-              :underlineStyle underline-style
-              :errorStyle     error-style
-              }
+             {:default-value   @value
+              :errorText       (when (dirty? this) error-text)
+              :style           style
+              :underline-style underline-style
+              :error-style     error-style}
              (when dispatch
                {:on-change (fn [evt]
                              (let [val (parse-val evt (:type props))]
+                               (set-dirty! this)
                                (go (>! change-ch val))))})
-             props)])))))
+             props
+             (when-not @value {:value ""}))])))))

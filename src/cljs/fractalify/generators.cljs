@@ -23,5 +23,4 @@
    query-params :- ch/QueryParams
    callback
    ms :- s/Int]
-  #_ (u/set-timeout #(callback ((@*generators* endpoint-key) query-params)) ms)
   (u/set-timeout #(callback (generator endpoint-key query-params)) ms))

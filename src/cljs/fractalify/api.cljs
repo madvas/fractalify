@@ -2,7 +2,8 @@
   (:require [fractalify.generators :as g]
             [fractalify.utils :as u]
             [schema.core :as s :include-macros true]
-            [fractalify.main.schemas :as ch]))
+            [fractalify.main.schemas :as ch]
+            [re-frame.core :as f]))
 
 (s/defn fetch!
   [endpoint-key :- s/Keyword
@@ -13,9 +14,9 @@
     (g/generate endpoint-key query-params on-success 100)
     (println "Making real Ajax req")))
 
-(defn send! [endpoint-key query-params on-success on-err]
+(s/defn send! [endpoint-key body-params on-success :- s/Keyword on-err :- s/Keyword]
   (if goog.DEBUG
-    (u/set-timeout #(on-err) 200)
+    (g/generate endpoint-key body-params #(f/dispatch (into [on-success] %&)) 100)
     (println "Making real Ajax post")))
 
 #_ (defn request! [method endpoint-key query-params on-success on-err]

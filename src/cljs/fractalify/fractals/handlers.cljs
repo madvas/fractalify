@@ -17,6 +17,7 @@
 
 
 (def turtle-worker (new js/Worker "/js/turtle-worker.js"))
+(def fractal-detail (u/partial-right get-in [:fractals :fractal-detail]))
 (def starred-by-me? (u/partial-right get-in [:fractals :fractal-detail :starred-by-me]))
 
 (trace-handlers
@@ -76,7 +77,7 @@
     (fn [db _]
       (let [src (renderer/get-data-url)
             id (rand-int 9999)
-            #_new-db #_(d/insert-queryable
+            #_new-db #_(d/assoc-with-query-params
                          db
                          [:fractals (i/%% :forms) :fractal-detail]
                          (fn [forms]
@@ -114,8 +115,8 @@
               (update-in (into path [:starred-by-me]) not))))))
 
   (f/register-handler
-    :remove-comment
-    [m/standard-middlewares (f/undoable "remove-comment")]
+    :fractal-comment-remove
+    [m/standard-middlewares (f/undoable "comment-remove")]
     (fn [db [id]]
       (f/dispatch [:api-send :fractal-comment-remove {:id id}])
       (update-in db [:fractals :fractal-detail :comments]
@@ -123,12 +124,35 @@
                    (u/remove-first #(= (:id %) id) comments)))))
 
   (f/register-handler
-    :fetch-fractal
+    :fractal-comment-add
+    [m/standard-middlewares]
+    (fn [db [_]]
+      (f/dispatch [:api-send
+                   :fractal-comment-add
+                   (d/get-form-data db :fractals :comment)
+                   :fractal-comment-add-resp])
+      (u/dissoc-in db [:fractals :forms :comment :text])))
+
+  (f/register-handler
+    :fractal-comment-add-resp
+    [m/standard-middlewares]
+    (fn [db [comment]]
+      (update-in db [:fractals :fractal-detail :comments] #(u/concat-vec [comment] %))))
+
+  (f/register-handler
+    :fractals-sidebar-select
     m/standard-middlewares
-    (fn [db [query-params]]
-      (let [path [:fractals :fractal-detail]]
-        (f/dispatch [:api-fetch :fractal path query-params])
-        (d/assoc-loading db path true))))
+    (s/fn [db [fractal :- ch/PublishedFractal]]
+      (if-not (= (:id (fractal-detail db)) (:id fractal))
+        (do
+          (t/go! :fractal-detail :id (:id fractal))
+          (d/assoc-with-query-params
+            db
+            [:fractals :fractal-detail]
+            fractal
+            (u/select-key fractal :id)))
+        db)))
+
   )
 
 

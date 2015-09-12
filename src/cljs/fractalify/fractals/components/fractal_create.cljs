@@ -35,7 +35,6 @@
                          :disabled   (not (empty? @form-errors))
                          :onTouchTap #(f/dispatch [:fractal-publish])}]))))
 
-
 (defn publish-dialog-props []
   {:title        "Publish Fractal"
    :action-focus "publish"

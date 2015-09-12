@@ -192,6 +192,10 @@ h5 {
 h6 {
   font-size: 0.85em;
 }
+h5,
+h6 {
+  color: rgba(0, 0, 0, 0.54);
+}
 .no-dec,
 .no-dec:hover {
   color: inherit !important;
@@ -465,4 +469,7 @@ h6 {
 }
 .text-left {
   text-align: left;
+}
+.text-center {
+  text-align: center;
 }

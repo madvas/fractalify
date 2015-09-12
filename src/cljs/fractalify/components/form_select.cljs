@@ -6,19 +6,16 @@
     [fractalify.utils :as u]
     [plumbing.core :as p]
     [instar.core :as i]
-    [clojure.walk :as w]))
+    [clojure.walk :as w]
+    [fractalify.main.schemas :as ch]))
 
-(def params-schema [(s/cond-pre s/Keyword s/Int s/Str)])
+(def default-val-member :payload)
+(def default-display-member :text)
 
-(def default-val-member "payload")
-(def default-display-member "text")
 (def style {:width "100%"})
+(def MenuItems [{(s/cond-pre s/Str s/Keyword s/Num) s/Any}])
 
-
-(s/defn parse-val :- (s/cond-pre s/Str s/Keyword s/Num)
-  [evt
-   menu-items :- [{s/Str s/Any}]
-   val-member :- s/Str]
+(s/defn parse-val [evt menu-items :- MenuItems val-member]
   "Hack to retrieve value types other than string, because e.target.value
   always returns string (no keywords)"
   (let [val (u/e-val evt)]
@@ -29,38 +26,25 @@
         (#(nth menu-items (% val)))
         (get val-member))))
 
-(s/defn get-member-names :- [(s/one s/Str "value-member")
-                             (s/one s/Str "display-member")]
-  [props]
+(s/defn get-member-names [props]
   (p/letk [[{value-member default-val-member}] props
            [{display-member default-display-member}] props]
     [value-member display-member]))
 
-(s/defn default-menu-items-fn :- [{s/Str s/Any}]
-  [menu-items props]
-  (map #(zipmap (get-member-names props) %) menu-items))
-
 (s/defn form-select
-  ([form-item-path menu-items-sub props]
-    (form-select form-item-path menu-items-sub default-menu-items-fn props))
-  ([form-item-path :- params-schema
-    menu-items-sub :- [s/Any]
-    menu-items-fn
+  ([path :- ch/DbPath
     props :- {s/Keyword s/Any}]
-    (let [value (f/subscribe (into [:form-item] form-item-path))
-          menu-items-vals (f/subscribe menu-items-sub)
+    (let [value (f/subscribe (into [:form-item] path))
           val-member (first (get-member-names props))]
       (fn []
-        (let [menu-items (vec (menu-items-fn @menu-items-vals props))]
-          [ui/select-field
-           (merge {:menu-items     menu-items
-                   :value-member   default-val-member
-                   :display-member default-display-member
-                   :value          @value
-                   :style          style
-                   :on-change      #(f/dispatch
-                                     (u/concat-vec
-                                       [:form-item]
-                                       form-item-path
-                                       [(parse-val % menu-items val-member)]))}
-                  props)])))))
+        [ui/select-field
+         (merge {:value-member   default-val-member
+                 :display-member default-display-member
+                 :value          @value
+                 :style          style
+                 :on-change      #(f/dispatch
+                                   (u/concat-vec
+                                     [:form-item]
+                                     path
+                                     [(parse-val % (:menu-items props) val-member)]))}
+                props)]))))

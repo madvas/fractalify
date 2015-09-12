@@ -2,7 +2,10 @@
   (:require [fractalify.generators :as g]
             [fractalify.utils :as u]
             [clojure.test.check.generators :as gen]
-            [cljs-time.core :as m]))
+            [cljs-time.core :as m]
+            [schema.core :as s :include-macros true]
+            [fractalify.main.schemas :as mch]
+            [fractalify.fractals.schemas :as fch]))
 
 (def dragon-curve
   {:l-system {:rules       {1 ["X" "X+YF"]
@@ -66,19 +69,49 @@
    :bio      (g/gen-sentence 10 3 10)
    :gravatar "http://www.gravatar.com/avatar/bfdb252fe9d0ab9759f41e3c26d7700e.jpg?s=50"})
 
+(defn gen-past-date []
+  (m/ago (m/seconds (rand-int 99999))))
+
+(s/defn gen-fractal :- fch/PublishedFractal
+  ([] (gen-fractal nil))
+  ([query-params :- (s/maybe mch/QueryParams)]
+    (-> (rand-nth [plant cantor-dust dragon-curve])
+        (assoc :id (or (:id query-params) (rand-int 9999))
+               :title (g/gen-sentence 7 1 3)
+               :desc (g/gen-sentence 10 3 10)
+               :author (gen-user)
+               :star-count (gen/generate gen/nat 1000)
+               :starred-by-me (gen/generate gen/boolean)
+               :created (gen-past-date)))))
+
 (defmethod g/generator :fractal
   [_ query-params]
-  (-> (rand-nth [plant cantor-dust dragon-curve])
-      (assoc :info {:title (g/gen-sentence 7 1 3)
-                    :desc  (g/gen-sentence 10 3 10)}
-             :author (gen-user)
-             :id (:id query-params)
-             :star-count (gen/generate gen/nat 1000)
-             :starred-by-me (gen/generate gen/boolean))))
+  (gen-fractal query-params))
 
 (defmethod g/generator :fractal-comments
   [_]
   (repeatedly 10 #(hash-map :id (rand-int 9999)
                             :text (g/gen-sentence 10 3 10)
                             :author (gen-user)
-                            :datetime (m/minus (m/now) (m/seconds (rand-int 99999))))))
+                            :created (gen-past-date))))
+
+(defmethod g/generator :fractals
+  [_ query-params]
+  {:items       (repeatedly (:limit query-params) gen-fractal)
+   :total-items (rand-int 9999)})
+
+(defmethod g/generator :fractal-comment-add
+  [_ query-params]
+  {:text    (:text query-params)
+   :id      (rand-int 9999)
+   :created (m/now)
+   :author  (gen-user)})
+
+(defmethod g/generator :fractal-publish
+  [_ query-params]
+  (merge
+    (dissoc query-params :info)
+    (:info query-params)
+    :id (rand-int 9999)
+    :created (m/now)
+    :author (gen-user)))

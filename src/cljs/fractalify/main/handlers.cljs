@@ -18,10 +18,6 @@
             [schema.core :as s :include-macros true]
             [fractalify.main.schemas :as ch]))
 
-(defn default-on-send-err []
-  (f/dispatch [:undo])
-  (f/dispatch [:show-snackbar "Sorry, there was an error"]))
-
 (trace-handlers
   #_{:tracer (fractalify.tracef/tracer :color "green")}
 
@@ -103,11 +99,13 @@
     :api-fetch
     m/standard-middlewares
     (fn [db [endpoint-key path query-params]]
-      (u/mwarn "fetching " path query-params)
-      (api/fetch! endpoint-key query-params
-                  #(f/dispatch [:process-fetch-response path query-params %])
-                  #(f/dispatch [:process-fetch-response-err path query-params %]))
-      (d/assoc-loading db path true)))
+      (if-not (= (d/path-query-params db path) query-params)
+        (do (u/mwarn "fetching " path query-params)
+            (api/fetch! endpoint-key query-params
+                        #(f/dispatch [:process-fetch-response path query-params %])
+                        #(f/dispatch [:process-fetch-response-err path query-params %]))
+            (d/assoc-query-loading db path true))
+        db)))
 
   (f/register-handler
     :process-fetch-response
@@ -115,14 +113,22 @@
     (fn [db [path query-params val]]
       (-> db
           (assoc-in path val)
-          (d/assoc-query-params path query-params))))
+          (d/assoc-path-query-params path query-params))))
 
   (f/register-handler
     :api-send
     m/standard-middlewares
-    (fn [db [endpoint-key body on-succes on-err]]
-      (u/mwarn "posting " endpoint-key body)
-      (api/send! endpoint-key body on-succes (or on-err default-on-send-err))
+    (fn [db [endpoint-key body-params on-succes on-err]]
+      (u/mwarn "posting " endpoint-key body-params)
+      (api/send! endpoint-key body-params on-succes (or on-err :api-send-resp-err))
+      db))
+
+  (f/register-handler
+    :api-send-resp-err
+    m/standard-middlewares
+    (fn [db [err]]
+      (f/dispatch [:undo])
+      (f/dispatch [:show-snackbar "Sorry, there was an error"])
       db))
   )
 
