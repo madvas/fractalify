@@ -1,6 +1,6 @@
 (ns fractalify.components.text-field
   (:require-macros [fractalify.tracer-macros :refer [trace-views]]
-                   [cljs.core.async.macros :refer [go go-loop]])
+                   [cljs.core.async.macros :refer [go]])
   (:require
     [reagent.core :as r]
     [fractalify.tracer]
@@ -11,14 +11,13 @@
     [fractalify.validators :as v]
     [fractalify.styles :as y]
     [plumbing.core :as p]
-    [cljs.core.async :refer [chan >! <!]]))
+    [cljs.core.async :refer [chan >! <!]]
+    [fractalify.main.schemas :as ch]))
 
 
 (def style (merge y/w-100 {:padding-bottom 13 :text-align "left"}))
 (def underline-style {:bottom 22})
 (def error-style {:text-align "left"})
-
-(def params-schema [(s/cond-pre s/Keyword s/Int {:key s/Str} s/Str)])
 
 (declare text-field)
 
@@ -28,54 +27,44 @@
       (p/?> (= type "number")
             u/parse-float)))
 
-(defn get-debounced-ch [change-ch props]
-  (let [d (or (:debounce props) 0)]
-    (apply u/debounce change-ch (if (number? d) [d] d))))
-
 (defn- dirty? [this]
   (:dirty? (r/state this)))
 
 (defn- set-dirty! [this]
   (r/set-state this {:dirty? true}))
 
+(defn on-change [dispatch val]
+  (f/dispatch (conj dispatch val)))
+
+(def Value (s/maybe (s/cond-pre s/Str s/Num)))
+
 (s/defn text-field
-  ([subscribe props]
-    (text-field subscribe nil nil props))
-  ([subscribe dispatch props]
-    (text-field subscribe dispatch nil props))
-  ([subscribe :- params-schema
-    dispatch :- params-schema
-    error-dispatch :- params-schema
+  ([value floating-label-text props]
+    (text-field value floating-label-text nil nil props))
+  ([value :- Value
+    floating-label-text :- s/Str
+    path :- (s/maybe ch/DbPath)
+    err-path :- (s/maybe ch/DbPath)
     props :- {s/Keyword s/Any}]
-    (let [value (f/subscribe subscribe)
-          validators (into [] (concat
-                                (when (:required props)
-                                  [v/required])
-                                (:validators props)))
-          change-ch (chan)
-          debounced-chan (get-debounced-ch change-ch props)]
-      (when-let [default-value (:default-value props)]
-        (f/dispatch (conj dispatch default-value)))
-      (go
-        (while true
-          (let [val (<! debounced-chan)]
-            (f/dispatch (conj dispatch val)))))
-      (fn []
+    (let [debounced-change (u/debounce #(on-change path %) (:debounce props))]
+      (fn [value _ _ _ props]
         (let [this (r/current-component)
-              error-text (u/validate-until-error @value validators)]
-          (when error-dispatch
-            (f/dispatch (conj error-dispatch error-text)))
+              validators (u/concat-vec (when (:required props) [v/required])
+                                       (:validators props))
+              error-text (u/validate-until-error value validators)]
+          (when err-path
+            (f/dispatch (conj err-path error-text)))
           [ui/text-field
            (merge
-             {:default-value   @value
-              :errorText       (when (dirty? this) error-text)
-              :style           style
-              :underline-style underline-style
-              :error-style     error-style}
-             (when dispatch
+             {:default-value       value
+              :floating-label-text floating-label-text
+              :errorText           (when (dirty? this) error-text)
+              :style               style
+              :underline-style     underline-style
+              :error-style         error-style}
+             (when path
                {:on-change (fn [evt]
                              (let [val (parse-val evt (:type props))]
                                (set-dirty! this)
-                               (go (>! change-ch val))))})
-             props
-             (when-not @value {:value ""}))])))))
+                               (debounced-change val)))})
+             props)])))))

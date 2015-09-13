@@ -54,7 +54,7 @@
                               Fractal
                               {(o :comment) {(o :text) s/Str}
                                :sidebar     {:page  s/Int
-                                             :order (s/enum :best :recent :random)
+                                             :order (s/enum :best :recent)
                                              :limit s/Int}})
    (o :fractal-detail)      PublishedFractal
    (o :fractals-sidebar)    {:items       [PublishedFractal]

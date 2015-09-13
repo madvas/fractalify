@@ -1,10 +1,11 @@
 (ns fractalify.utils
-  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [schema.core :as s :include-macros true]
             [cljs.core.async :refer [chan close! >! <!]]
             [instar.core :as i]
             [clojure.string :as str]
-            [cljs-time.core :as m]))
+            [cljs-time.core :as m]
+            [reagent.core :as r]))
 
 (defn ensure-vec [x]
   (if (vector? x) x [x]))
@@ -65,9 +66,9 @@
 
 (def deg (/ (.-PI js/Math) 180))
 
-(defn debounce
-  ([c ms] (debounce (chan) c ms false))
-  ([c ms instant] (debounce (chan) c ms instant))
+(defn debounce-ch
+  ([c ms] (debounce-ch (chan) c ms false))
+  ([c ms instant] (debounce-ch (chan) c ms instant))
   ([c' c ms instant]
    (go
      (loop [start (js/Date.) timeout nil]
@@ -83,14 +84,17 @@
            (recur (js/Date.) t)))))
    c'))
 
-(defn debouncer [ms f & args]
-  (let [c (chan)
-        dc (debounce c ms)]
-    (go
-      (while true
-        (let [x (<! dc)]
-          (apply f x args))))
-    c))
+(defn debounce
+  ([f ms] (debounce f ms false))
+  ([f ms instant]
+   (let [change-ch (chan)
+         debounced-chan (debounce-ch change-ch ms instant)]
+     (go-loop []
+              (let [args (<! debounced-chan)]
+                (apply f args)
+                (recur)))
+     (fn [& args]
+       (go (>! change-ch args))))))
 
 (defn throttle [c ms]
   (let [c' (chan)]
@@ -104,6 +108,9 @@
   [num :- (s/cond-pre s/Num s/Str)]
   (js/parseFloat num))
 
+(defn ceil [num]
+  (.ceil js/Math num))
+
 (defn parse-int [num]
   (js/parseInt num))
 
@@ -115,6 +122,12 @@
 
 (defn empty-seq? [x]
   (and (empty? x) (sequential? x)))
+
+(defn with-default-props [form default-props other-args]
+  (let [[params props] (if (map? (last other-args))
+                         [(butlast other-args) (last other-args)]
+                         [other-args {}])]
+    (concat-vec form params [(r/merge-props default-props props)])))
 
 (s/defn validate-until-error-fn
   ([fns] (validate-until-error-fn nil fns))

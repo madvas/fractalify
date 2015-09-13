@@ -8,7 +8,7 @@
             [fractalify.router :as t]
             [re-frame.core :as f]
             [fractalify.components.form-select :as form-select]
-            [fractalify.components.form-text :as form-text]))
+            [fractalify.fractals.components.sidebar-pagination :as sidebar-pagination]))
 
 (def fractals-api-wrap
   (api-wrap/create-api-wrap
@@ -19,37 +19,11 @@
 
 (def order-items
   [{:payload :best :text "Top Rated"}
-   {:payload :recent :text "Most Recent"}
-   {:payload :random :text "Random"}])
+   {:payload :recent :text "Most Recent"}])
 
 (defn list-order-select []
   [form-select/form-select [:fractals :sidebar :order]
    {:menu-items order-items}])
-
-(def pagination-items
-  [["rewind" "First page" #(identity 1)]
-   ["chevron-double-left" "Back 10 pages" #(max (- %1 10) %2)]
-   ["chevron-left" "Previous page" #(max (dec %1) 1)]
-   ["chevron-right" "Next page" #(min (inc %1) %2)]
-   ["chevron-double-right" "Forward 10 pages" #(min (+ %1 10) %2)]
-   ["fast-forward" "Last Page" #(identity %2)]])
-
-(defn pagination [_]
-  (let [query-params (f/subscribe [:fractals-sidebar-query-params])]
-    (fn [fractals loading?]
-      (when fractals
-        (p/letk [[page limit] @query-params
-                 [total-items] fractals]
-          [:div
-           [:div.row.around-xs.middle-xs
-            (for [[icon tooltip] pagination-items]
-              ^{:key icon}
-              [ui/icon-button
-               {:icon-class-name (str "mdi mdi-" icon)
-                :icon-style      {:color (ui/color :grey700)}
-                :tooltip         tooltip}])]
-           [:div.row.center-xs
-            (str page "/" total-items)]])))))
 
 (defn fractal-list []
   (fn [fractals loading?]
@@ -79,7 +53,7 @@
                                  :class-name "mdi mdi-star"}]
                   [:h6 star-count]]]]
                [ui/list-divider]]))))]
-     [pagination fractals loading?]]))
+     [sidebar-pagination/sidebar-pagination fractals loading?]]))
 
 (defn fractals-sidebar []
   (fn []

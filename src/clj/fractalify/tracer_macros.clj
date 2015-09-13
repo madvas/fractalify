@@ -150,7 +150,7 @@
            (assoc-in db (into [:forms] path) value))))
 
      (r/register-handler
-       :set-form-error
+       :form-error
        m/standard-without-debug
        (fn [db [form-name & params]]
          (let [value (last params)

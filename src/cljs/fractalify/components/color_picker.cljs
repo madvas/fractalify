@@ -5,32 +5,29 @@
             [re-frame.core :as f]
             [fractalify.utils :as u]
             [cljs.core.async :refer [chan >! <!]]
-            [material-ui.core :as ui]))
+            [material-ui.core :as ui]
+            [fractalify.main.schemas :as ch]
+            [fractalify.fractals.schemas :as fch]))
 
 (def react-color-picker (r/adapt-react-class js/ColorPicker))
 (def react-color-picker-panel (r/adapt-react-class (aget js/ColorPicker "Panel")))
-
-(defn get-debounced-ch [change-ch props]
-  (let [d (or (:debounce props) 0)]
-    (apply u/debounce change-ch (if (number? d) [d] d))))
 
 (defn parse-val [x]
   (-> (js->clj x)
       (select-keys ["color" "alpha"])
       vals vec))
 
+(defn on-change [path val]
+  (f/dispatch (conj path val)))
+
 (s/defn color-picker
-  [db-path :- [s/Any] props]
-  (let [color (f/subscribe db-path)
-        change-ch (chan)
-        debounced-chan (get-debounced-ch change-ch props)]
-    (go
-      (while true
-        (let [val (<! debounced-chan)]
-          (f/dispatch (conj db-path val)))))
-    (fn []
+  [color :- fch/Color
+   path :- ch/DbPath
+   props]
+  (let [debounced-change (u/debounce #(on-change path %) (:debounce props))]
+    (fn [color]
       [react-color-picker
-       (let [[hex-color alpha] @color]
+       (let [[hex-color alpha] color]
          (merge
            {:default-color hex-color
             :alpha         alpha
@@ -44,6 +41,6 @@
                                  :tooltip          "Choose Color"
                                  :tooltip-position "top-center"}
                                 (:trigger-props props))])
-            :on-change     #(go (>! change-ch (parse-val %)))}
+            :on-change     #(-> % parse-val debounced-change)}
 
            props))])))

@@ -40,12 +40,12 @@
    :action-focus "publish"
    :content      [:div.row
                   [:div.col-xs-12
-                   [form-text/form-text [:fractals :info :title]
+                   [form-text/text [:fractals :info :title]
                     {:floating-label-text "Title"
                      :required            true
                      :validators          [(partial v/length 0 title-maxlen)]}]]
                   [:div.col-xs-12
-                   [form-text/form-text [:fractals :info :desc]
+                   [form-text/text [:fractals :info :desc]
                     {:floating-label-text "Description"
                      :multi-line          true
                      :validators          [(partial v/length 0 desc-maxlen)]}]]]
@@ -66,7 +66,7 @@
      :on-touch-tap #(f/dispatch [:show-dialog (publish-dialog-props)])}]])
 
 (defn sidebar-section []
-  [canvas-controls/canvas-controls])
+  [canvas-controls/canvas-controls [:fractal-new]])
 
 (defn fractal-create []
   [fractal-page-layout/fractal-page-layout

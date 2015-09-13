@@ -4,7 +4,8 @@
             [schema.core :as s :include-macros true]
             [fractalify.fractals.schemas :as ch]
             [fractalify.fractals.components.l-system-operations.cmd :as cmd]
-            [fractalify.fractals.components.l-system-operations.rule :as rule]))
+            [fractalify.fractals.components.l-system-operations.rule :as rule]
+            [fractalify.utils :as u]))
 
 (s/defn operations
   [type :- ch/operation-type]
@@ -14,10 +15,12 @@
                :rules rule/rule)]
     (fn []
       [:div.row.col-xs-12
-       (for [k (keys @items)]
-         ^{:key k}
-         [:div.col-xs-12
-          [oper k]])])))
+       (for [item @items]
+         (let [k (key item)
+               v (val item)]
+           ^{:key k}
+           [:div.col-xs-12
+            [oper k v]]))])))
 
 (s/defn tab
   [type :- ch/operation-type

@@ -3,13 +3,37 @@
   (:require
     [schema.core :as s :include-macros true]
     [fractalify.components.text-field :as text-field]
-    [fractalify.utils :as u]))
+    [fractalify.utils :as u]
+    [fractalify.validators :as v]
+    [reagent.core :as r]))
 
-(s/defn form-text
-  [params :- [s/Any]
-   props :- {s/Keyword s/Any}]
+(s/defn text
+  [value floating-label-text path props]
   [text-field/text-field
-   (into [:form-item] params)
-   (into [:form-item] params)
-   (into [:set-form-error] params)
+   value
+   floating-label-text
+   (into [:form-item] path)
+   (into [:form-error] path)
    props])
+
+(defn number [& args]
+  (u/with-default-props
+    [text]
+    {:type       "number"}
+    args))
+
+(defn password [& args]
+  (u/with-default-props
+    [text]
+    {:type       "password"
+     :required   true
+     :validators [v/password]}
+    args))
+
+(defn email
+  [& args]
+  (u/with-default-props
+    [text]
+    {:required   true
+     :validators [v/email]}
+    args))

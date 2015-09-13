@@ -25,7 +25,7 @@
       (when logged-user
         [:div.row.pad-hor-10.mar-top-10.end-xs
          [:div.col-xs-12
-          [form-text/form-text [:fractals :comment :text]
+          [form-text/text [:fractals :comment :text]
            {:floating-label-text "Enter your comment"
             :required            true
             :multi-line          true}]]

@@ -109,7 +109,7 @@
           db)
         (let [path [:fractals :fractal-detail]
               f (if (starred-by-me? db) dec inc)]
-          (f/dispatch [:api-send "fractals/1/star" {:id id}])
+          (f/dispatch [:api-send :fractal-toggle-star {:id id}])
           (-> db
               (update-in (into path [:star-count]) f)
               (update-in (into path [:starred-by-me]) not))))))
@@ -152,6 +152,12 @@
             fractal
             (u/select-key fractal :id)))
         db)))
+
+  #_ (f/register-handler
+    :fractals-sidebar-page
+    m/standard-middlewares
+    (s/fn [db [page :- s/Int]]
+      (assoc-in db [:fractals])))
 
   )
 

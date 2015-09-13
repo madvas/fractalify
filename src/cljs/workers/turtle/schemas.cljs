@@ -9,17 +9,21 @@
            (s/one coords "line-to")])
 (def Lines [(s/maybe Line)])
 
+(def Rule [(s/one s/Str "rule-variable")
+           (s/one s/Str "rule-product")])
+
+(def Cmd [(s/one s/Str "cmd-variable")
+          (s/one s/Keyword "cmd-action")])
+
 (def LSystem
-  {(o :rules)   {s/Int [(s/one s/Str "rule-variable")
-                        (s/one s/Str "rule-product")]}
+  {(o :rules)   {s/Int Rule}
    :start       s/Str
    :angle       s/Num
    :iterations  (s/pred pos?)
    :line-length s/Num
    :start-angle s/Num
    :origin      coords
-   (o :cmds)    {s/Int [(s/one s/Str "cmd-variable")
-                        (s/one s/Keyword "cmd-action")]}})
+   (o :cmds)    {s/Int Cmd}})
 
 (def Turtle
   {:position coords

@@ -144,4 +144,4 @@
 
 (def tab-anchor (merge w-100 block pad-ver-15))
 (def paper-block (merge pad-ver-20 pad-hor-10))
-(def sidebar-wrap (merge paper-block {:min-height 300}))
+(def sidebar-wrap (merge paper-block {:min-height 1120}))

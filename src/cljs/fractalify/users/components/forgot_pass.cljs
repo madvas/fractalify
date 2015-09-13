@@ -3,23 +3,21 @@
             [fractalify.validators :as v]
             [fractalify.components.form-text :as form-text]
             [re-frame.core :as f]
-            [material-ui.core :as ui]))
+            [material-ui.core :as ui]
+            [fractalify.components.form :as form]))
 
 
 (defn forgot-pass []
-  (let [form-errors (f/subscribe [:users-form-errors :forgot-password])]
-    (fn []
-      [paper-panel/paper-panel
-       [:div.col-xs-12
-        [:h1 "Restore Password"]]
-       [:div.col-xs-12
-        [form-text/form-text [:users :forgot-password :email]
-         {:floating-label-text "Your email"
-          :required            true
-          :validators          [v/email]}]
-        [:div.row.col-xs-12.mar-top-20
-         [:div.col-xs-12.col-sm-6.col-sm-offset-6
-          [ui/flat-button {:label      "Send"
-                           :primary    true
-                           :disabled   (not (empty? @form-errors))
-                           :onTouchTap #(f/dispatch [:forgot-password])}]]]]])))
+  [form/form :users :forgot-password
+   (fn [vals has-err?]
+     [paper-panel/paper-panel
+      [:div.col-xs-12
+       [:h1 "Restore Password"]]
+      [:div.col-xs-12
+       [form-text/email (:email vals) "Your Email" [:users :forgot-password :email]]
+       [:div.row.col-xs-12.mar-top-20
+        [:div.col-xs-12.col-sm-6.col-sm-offset-6
+         [ui/flat-button {:label      "Send"
+                          :primary    true
+                          :disabled   has-err?
+                          :onTouchTap #(f/dispatch [:forgot-password])}]]]]])])

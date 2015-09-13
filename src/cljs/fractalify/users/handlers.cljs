@@ -5,45 +5,117 @@
             [fractalify.db-utils :as d]
             [re-frame.core :as f]
             [fractalify.router :as t]
-            [fractalify.tracer]))
+            [fractalify.tracer]
+            [fractalify.utils :as u]))
 
 (trace-handlers
   (r/register-handler
     :login
     m/standard-middlewares
     (fn [db _]
-      (let [creds (d/get-form-data db :users :login)]
-        (assoc db :logged-user {:username (:user creds)
-                                :email    "some@email.com"
-                                :bio      "oh my bio"}))))
+      (f/dispatch [:api-send
+                   :login
+                   (d/get-form-data db :users :login)
+                   :login-resp
+                   :login-err])
+      db))
+
+  (r/register-handler
+    :login-resp
+    m/standard-middlewares
+    (fn [db [user]]
+      (assoc-in db [:users :logged-user] user)))
+
+  (r/register-handler
+    :login-err
+    m/standard-middlewares
+    (fn [db [user]]
+      ;TODO
+      db))
 
   (r/register-handler
     :join
     m/standard-middlewares
     (fn [db _]
-      (let [creds (d/get-form-data db :users :join)]
-        (assoc db :logged-user (select-keys creds [:username :email])))))
+      (f/dispatch [:api-send
+                   :join
+                   (d/get-form-data db :users :join)
+                   :login-resp
+                   :join-err])
+      db))
+
+  (r/register-handler
+    :join-err
+    m/standard-middlewares
+    (fn [db [user]]
+      ;TODO
+      db))
 
   (r/register-handler
     :logout
-    m/standard-middlewares
+    [m/standard-middlewares (f/undoable "logout")]
     (fn [db _]
-      (dissoc db :logged-user)))
+      (f/dispatch [:api-send
+                   :logout
+                   {}
+                   :logout-resp])
+      (t/go! :home)
+      (u/dissoc-in db [:users :logged-user])))
 
   (r/register-handler
     :forgot-password
+    [m/standard-middlewares (r/undoable "forgot-password")]
+    (fn [db _]
+      (f/dispatch [:api-send
+                   :forgot-password
+                   (d/get-form-data db :users :forgot-password)
+                   :forgot-password-resp])
+      (assoc-in db [:users :forms :forgot-password :email] "")
+      db))
+
+  (r/register-handler
+    :forgot-password-resp
     m/standard-middlewares
     (fn [db _]
-      (let [email (:email (d/get-form-data :users db :forgot-password))]
-        (f/dispatch [:show-snackbar "Password was reset. Please check your email."])
-        (t/go! :home)
-        (assoc-in db [:forms :forgot-password :email] ""))))
+      (f/dispatch [:show-snackbar "Password was reset. Please check your email."])
+      (t/go! :home)
+      db))
 
   (r/register-handler
     :edit-profile
-    m/standard-middlewares
+    [m/standard-middlewares (f/undoable "edit-profile")]
     (fn [db _]
       (let [profile (d/get-form-data db :users :edit-profile)]
-        (f/dispatch [:show-snackbar "Your profile was successfully saved."])
-        (t/go! :home)
-        (merge-with merge db {:logged-user profile})))))
+        (f/dispatch [:api-send
+                     :edit-profile
+                     profile
+                     :edit-profile-resp])
+        (merge-with merge db {:logged-user profile}))
+      db))
+
+  (r/register-handler
+    :edit-profile-resp
+    m/standard-middlewares
+    (fn [db _]
+      (f/dispatch [:show-snackbar "Your profile was successfully saved."])
+      (t/go! :home)
+      db))
+
+  (r/register-handler
+    :change-password
+    m/standard-middlewares
+    (fn [db _]
+      (f/dispatch [:api-send
+                   :change-password
+                   (d/get-form-data db :users :change-password)
+                   :change-password-resp])
+      db))
+
+  (r/register-handler
+    :change-password-resp
+    m/standard-middlewares
+    (fn [db _]
+      (f/dispatch [:show-snackbar "Your password has been successfully changed."])
+      (t/go! :home)
+      db))
+  )

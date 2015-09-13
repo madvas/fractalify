@@ -3,7 +3,8 @@
             [schema.core :as s :include-macros true]
             [fractalify.components.form-select :as form-select]
             [fractalify.fractals.components.l-system-operations.remove-btn :as remove-btn]
-            [fractalify.fractals.components.control-text :as control-text]))
+            [fractalify.fractals.components.control-text :as control-text]
+            [workers.turtle.schemas :as ch]))
 
 (def all-cmds
   [{:payload :forward :text "Forward"}
@@ -13,13 +14,14 @@
    {:payload :pop :text "Pop Position"}
    {:payload :default :text "No Action"}])
 
-(defn cmd [k]
-  [:div.row
-   [:div.col-xs-3
-    [control-text/control-text [:l-system :cmds k 0]
-     {:floating-label-text "Variable"}]]
-   [:div.col-xs-8
-    [form-select/form-select [:fractals :l-system :cmds k 1]
-     {:floating-label-text "Action"
-      :menu-items          all-cmds}]]
-   [remove-btn/remove-btn :cmds k]])
+(s/defn cmd
+  [k :- s/Int
+   cmd-item :- ch/Cmd]
+  (let [[var action-val] cmd-item]
+    [:div.row
+     [:div.col-xs-3
+      [control-text/control-text var "Variable" [:l-system :cmds k 0]]]
+     [:div.col-xs-8
+      [form-select/form-select action-val "Action" [:fractals :l-system :cmds k 1]
+       {:menu-items all-cmds}]]
+     [remove-btn/remove-btn :cmds k]]))

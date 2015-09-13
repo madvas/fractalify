@@ -68,7 +68,7 @@
       (u/dissoc-in db (into [module :forms] path))))
 
   (f/register-handler
-    :set-form-error
+    :form-error
     m/standard-no-debug
     ;m/standard-middlewares
     (fn [db [module form-name & params]]
@@ -128,7 +128,17 @@
     m/standard-middlewares
     (fn [db [err]]
       (f/dispatch [:undo])
-      (f/dispatch [:show-snackbar "Sorry, there was an error"])
+      (f/dispatch [:show-snackbar "Oops, something went awfully wrong :/"])
+      db))
+
+  (f/register-handler
+    :send-form
+    m/standard-middlewares
+    (s/fn [db [endpoint-key [module form-name] & args]]
+      (f/dispatch (into [:api-send
+                         endpoint-key
+                         (d/get-form-data db module form-name)]
+                        args))
       db))
   )
 

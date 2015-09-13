@@ -24,9 +24,11 @@
       (reaction (get-in @db [:fractals :forms :canvas]))))
 
   (f/register-sub
-    :all-cmds
+    :fractal-new
     (fn [db _]
-      (reaction (get-in @db [:fractals :all-cmds]))))
+      (reaction (-> @db
+                    (get-in [:fractals :forms])
+                    (select-keys [:canvas :l-system])))))
 
   (f/register-sub
     :fractal-detail
