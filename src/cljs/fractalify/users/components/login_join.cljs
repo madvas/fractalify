@@ -3,7 +3,7 @@
             [material-ui.core :as ui]
             [fractalify.styles :as y]
             [fractalify.router :as t]
-            [fractalify.components.form-text :as form-text]
+            [fractalify.components.form-input :as form-input]
             [schema.core :as s :include-macros true]
             [fractalify.components.tab-anchor :as tab-anchor]
             [fractalify.validators :as v]
@@ -19,11 +19,11 @@
      (let [{:keys [user password]} vals]
        [paper-content/paper-content
         [:div.col-xs-12
-         [form-text/text user "Username or email" [:users :login :user]
+         [form-input/text user "Username or email" [:users :login :user]
           {:required true}]]
 
         [:div.col-xs-12
-         [form-text/password "Password" password [:users :login :password]]]
+         [form-input/password "Password" password [:users :login :password]]]
 
         [:div.row.col-xs-12.mar-top-20
          [:div.col-xs-6
@@ -44,18 +44,18 @@
      (let [{:keys [username email password confirm-pass]} vals]
        [paper-content/paper-content
         [:div.col-xs-12
-         [form-text/text username "Username" [:users :join :username]
+         [form-input/text username "Username" [:users :join :username]
           {:required   true
            :validators [(v/length 3)]}]]
 
         [:div.col-xs-12
-         [form-text/email email "Email" [:users :join :email]]]
+         [form-input/email email "Email" [:users :join :email]]]
 
         [:div.col-xs-12
-         [form-text/password password "Password" [:users :join :password]]]
+         [form-input/password password "Password" [:users :join :password]]]
 
         [:div.col-xs-12
-         [form-text/password confirm-pass "Confirm Password" [:users :join :confirm-pass]
+         [form-input/password confirm-pass "Confirm Password" [:users :join :confirm-pass]
           {:validators [(v/passwords-match password)]}]]
 
         [:div.row.col-xs-12.mar-top-20

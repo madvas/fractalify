@@ -1,5 +1,5 @@
 (ns fractalify.fractals.components.control-text
-  (:require [fractalify.components.form-text :as form-text]
+  (:require [fractalify.components.form-input :as form-input]
             [fractalify.utils :as u]))
 
 (def controls-debounce 700)
@@ -10,7 +10,7 @@
    (merge {:debounce controls-debounce} props)])
 
 (defn control-text [& args]
-  (apply control-input form-text/text args))
+  (apply control-input form-input/text args))
 
 (defn control-number [& args]
-  (apply control-input form-text/number args))
+  (apply control-input form-input/number args))

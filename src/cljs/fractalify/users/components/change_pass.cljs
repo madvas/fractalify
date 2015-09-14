@@ -4,7 +4,7 @@
             [fractalify.components.paper-panel :as paper-panel]
             [re-frame.core :as f]
             [fractalify.components.form :as form]
-            [fractalify.components.form-text :as form-text]))
+            [fractalify.components.form-input :as form-input]))
 
 (defn change-pass []
   [form/form :users :change-password
@@ -14,11 +14,11 @@
         [:div.col-xs-12
          [:h1 "Change Password"]]
         [:div.col-xs-12
-         [form-text/password current-pass "Current password"
+         [form-input/password current-pass "Current password"
           [:users :change-password :current-pass]]
-         [form-text/password new-pass "New password"
+         [form-input/password new-pass "New password"
           [:users :change-password :new-pass]]
-         [form-text/password confirm-new-pass "Confirm new password"
+         [form-input/password confirm-new-pass "Confirm new password"
           [:users :change-password :confirm-new-pass]
           {:validators [(v/passwords-match new-pass)]}]
          [:div.row.col-xs-12.mar-top-20

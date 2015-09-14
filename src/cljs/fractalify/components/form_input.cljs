@@ -1,4 +1,4 @@
-(ns fractalify.components.form-text
+(ns fractalify.components.form-input
   (:require-macros [fractalify.tracer-macros :refer [trace-views]])
   (:require
     [schema.core :as s :include-macros true]
@@ -18,22 +18,21 @@
 
 (defn number [& args]
   (u/with-default-props
-    [text]
-    {:type       "number"}
+    text
+    {:type "number"}
     args))
 
 (defn password [& args]
   (u/with-default-props
-    [text]
+    text
     {:type       "password"
      :required   true
      :validators [v/password]}
     args))
 
-(defn email
-  [& args]
+(defn email [& args]
   (u/with-default-props
-    [text]
+    text
     {:required   true
      :validators [v/email]}
     args))

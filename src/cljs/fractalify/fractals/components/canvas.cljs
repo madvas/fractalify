@@ -4,8 +4,6 @@
             [fractalify.styles :as y]
             [fractalify.utils :as u]))
 
-;(def ^:dynamic *canvas-dom* (atom))
-
 (defn dispatch [this type & args]
   (println "dispatchng: " type)
   (f/dispatch (u/concat-vec [type (r/dom-node this)] args)))
@@ -28,7 +26,6 @@
     (r/create-class
       {:component-did-mount
        (fn []
-         (println "l-system :component-did-mount")
          (f/dispatch [:l-system-change @l-system]))
        :component-will-update
        (fn []

@@ -10,6 +10,10 @@
     FloatingActionButton
     Card
     CardHeader
+    CardMedia
+    CardTitle
+    CardActions
+    CardText
     DatePicker
     Dialog
     DropDownMenu

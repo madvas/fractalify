@@ -41,13 +41,13 @@
 (s/defn text-field
   ([value floating-label-text props]
     (text-field value floating-label-text nil nil props))
-  ([value :- Value
+  ([value
     floating-label-text :- s/Str
     path :- (s/maybe ch/DbPath)
     err-path :- (s/maybe ch/DbPath)
     props :- {s/Keyword s/Any}]
     (let [debounced-change (u/debounce #(on-change path %) (:debounce props))]
-      (fn [value _ _ _ props]
+      (s/fn [value :- Value _ _ _ props]
         (let [this (r/current-component)
               validators (u/concat-vec (when (:required props) [v/required])
                                        (:validators props))

@@ -127,7 +127,7 @@
   (let [[params props] (if (map? (last other-args))
                          [(butlast other-args) (last other-args)]
                          [other-args {}])]
-    (concat-vec form params [(r/merge-props default-props props)])))
+    (concat-vec [form] params [(r/merge-props default-props props)])))
 
 (s/defn validate-until-error-fn
   ([fns] (validate-until-error-fn nil fns))

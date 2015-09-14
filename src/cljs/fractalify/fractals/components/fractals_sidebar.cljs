@@ -8,7 +8,9 @@
             [fractalify.router :as t]
             [re-frame.core :as f]
             [fractalify.components.form-select :as form-select]
-            [fractalify.fractals.components.sidebar-pagination :as sidebar-pagination]))
+            [fractalify.fractals.components.sidebar-pagination :as sidebar-pagination]
+            [fractalify.components.form :as form]
+            [fractalify.fractals.components.star-count :as star-count]))
 
 (def fractals-api-wrap
   (api-wrap/create-api-wrap
@@ -22,8 +24,10 @@
    {:payload :recent :text "Most Recent"}])
 
 (defn list-order-select []
-  [form-select/form-select [:fractals :sidebar :order]
-   {:menu-items order-items}])
+  [form/form :fractals :sidebar
+   (fn [vals]
+     [form-select/form-select (:order vals) "Order by" [:fractals :sidebar :order]
+      {:menu-items order-items}])])
 
 (defn fractal-list []
   (fn [fractals loading?]
@@ -49,9 +53,7 @@
                   [:div.col-xs-12 title]
                   [:h6.col-xs-12.mar-top-5 (u/ellipsis desc 20)]]
                  [:div.col-xs-1.row.center-xs
-                  [ui/font-icon {:style      {:font-size "1.2em"}
-                                 :class-name "mdi mdi-star"}]
-                  [:h6 star-count]]]]
+                  [star-count/star-count star-count]]]]
                [ui/list-divider]]))))]
      [sidebar-pagination/sidebar-pagination fractals loading?]]))
 

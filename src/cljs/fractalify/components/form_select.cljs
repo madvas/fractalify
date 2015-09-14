@@ -7,7 +7,8 @@
     [plumbing.core :as p]
     [instar.core :as i]
     [clojure.walk :as w]
-    [fractalify.main.schemas :as ch]))
+    [fractalify.main.schemas :as ch]
+    [reagent.core :as r]))
 
 (def default-val-member :payload)
 (def default-display-member :text)
@@ -31,20 +32,25 @@
            [{display-member default-display-member}] props]
     [value-member display-member]))
 
+(def Value (s/maybe (s/cond-pre s/Str s/Keyword s/Num)))
+
 (s/defn form-select
-  ([path :- ch/DbPath
+  ([_
+    floating-label-text :- s/Str
+    path :- ch/DbPath
     props :- {s/Keyword s/Any}]
-    (let [value (f/subscribe (into [:form-item] path))
-          val-member (first (get-member-names props))]
-      (fn []
+    (let [val-member (first (get-member-names props))]
+      (s/fn [value :- Value]
         [ui/select-field
-         (merge {:value-member   default-val-member
-                 :display-member default-display-member
-                 :value          @value
-                 :style          style
-                 :on-change      #(f/dispatch
+         (r/merge-props
+           {:value-member        default-val-member
+            :display-member      default-display-member
+            :floating-label-text floating-label-text
+            :value               value
+            :style               style
+            :on-change           #(f/dispatch
                                    (u/concat-vec
                                      [:form-item]
                                      path
                                      [(parse-val % (:menu-items props) val-member)]))}
-                props)]))))
+           props)]))))

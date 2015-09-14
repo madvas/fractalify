@@ -18,7 +18,7 @@
     (fn []
       (let [right-btn (if @user
                         (right-button (:username @user)
-                                      (t/url :user-view :username (:username @user)))
+                                      (t/url :user-detail :username (:username @user)))
                         (right-button "Login / Join"
                                       (t/url :login)))]
         [ui/app-bar {

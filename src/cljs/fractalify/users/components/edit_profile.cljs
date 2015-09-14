@@ -4,7 +4,7 @@
             [fractalify.components.paper-panel :as paper-panel]
             [re-frame.core :as f]
             [fractalify.components.text-field :as text-field]
-            [fractalify.components.form-text :as form-text]
+            [fractalify.components.form-input :as form-input]
             [fractalify.components.form :as form]))
 
 (def user-bio-maxlen 140)
@@ -22,9 +22,9 @@
              [text-field/text-field (:username @user) "Username" nil nil
               {:disabled true}]]
             [:div.col-xs-12
-             [form-text/email email "Email" [:users :edit-profile :email]]]
+             [form-input/email email "Email" [:users :edit-profile :email]]]
             [:div.col-xs-12
-             [form-text/text bio "Bio" [:users :edit-profile :bio]
+             [form-input/text bio "Bio" [:users :edit-profile :bio]
               {:multi-line true
                :validators [(v/length 0 user-bio-maxlen)]}]]
             [:div.col-xs-12

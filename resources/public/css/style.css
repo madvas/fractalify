@@ -152,7 +152,8 @@ body {
   display: block;
 }
 .main-body {
-  padding-bottom: 300px;
+  padding-bottom: 40px;
+  padding-top: 20px;
   height: 100%;
   display: block;
   position: relative;
@@ -196,10 +197,26 @@ h5,
 h6 {
   color: rgba(0, 0, 0, 0.54);
 }
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  margin: 1em 0;
+  padding: 0;
+  border-top: 1px solid #ccc;
+}
 .no-dec,
 .no-dec:hover {
   color: inherit !important;
   text-decoration: none;
+}
+@media only screen and (min-width: 75em) {
+  .col-lg-2p5 {
+    -webkit-flex-basis: 17%;
+    -ms-flex-preferred-size: 17%;
+    flex-basis: 17%;
+    max-width: 17%;
+  }
 }
 [class^="col-"] > *,
 [class*=" col-"] > * {
@@ -329,6 +346,18 @@ h6 {
 }
 .pad-20 {
   padding: 20px;
+}
+.pad-top-30 {
+  padding-top: 30px;
+}
+.pad-top-40 {
+  padding-top: 40px;
+}
+.mar-top-30 {
+  margin-top: 30px;
+}
+.mar-top-40 {
+  margin-top: 40px;
 }
 .mar-top-20 {
   margin-top: 20px;

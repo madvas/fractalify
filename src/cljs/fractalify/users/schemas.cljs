@@ -26,7 +26,8 @@
                                            (o :confirm-new-pass) s/Str}
 
                      (o :edit-profile)    {(o :email) s/Str
-                                           (o :bio)   s/Str}}})
+                                           (o :bio)   s/Str}}
+   (o :user-detail) User})
 
 (def default-db
   {:logged-user {:username "madvas"

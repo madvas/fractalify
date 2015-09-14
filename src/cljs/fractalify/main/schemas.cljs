@@ -11,3 +11,7 @@
   {(o :errors) {s/Keyword s/Any}})
 
 (def Date (s/pred m/date?))
+
+(defn list-response [item-type]
+  {:items       [item-type]
+   :total-items s/Int})

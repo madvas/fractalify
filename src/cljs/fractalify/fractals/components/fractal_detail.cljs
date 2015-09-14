@@ -30,7 +30,7 @@
        [:h1.mar-bot-10 title]
        [:div.row.center-xs
         [:a.col-xs-2.mar-bot-10.default-color
-         {:href (t/url :user-view :username username)}
+         {:href (t/url :user-detail :username username)}
          [ui/avatar {:src gravatar}]
          [:h6.mar-top-5 username]]
         [:div.col-xs.text-left
@@ -54,7 +54,7 @@
       [fractals-sidebar/fractals-sidebar]]
      [ui/tab
       {:label "Fractal Settings"}
-      [:div "settings"]]]))
+      [canvas-controls/canvas-controls [:fractal-detail] true]]]))
 
 
 (defn fractal-detail-content [_]

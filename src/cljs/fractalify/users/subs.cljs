@@ -1,22 +1,27 @@
 (ns fractalify.users.subs
   (:require-macros [reagent.ratom :refer [reaction]]
                    [fractalify.tracer-macros :refer [trace-subs]])
-  (:require [re-frame.core :as r]
+  (:require [re-frame.core :as f]
             [fractalify.tracer :refer [tracer]]))
 
-(r/register-sub
+(f/register-sub
   :logged-user
   (fn [db _]
     (reaction (get-in @db [:users :logged-user]))))
 
-(r/register-sub
+(f/register-sub
   :username
   (fn [_]
-    (let [user (r/subscribe [:logged-user])]
+    (let [user (f/subscribe [:logged-user])]
       (reaction (:username @user)))))
 
-(r/register-sub
+(f/register-sub
+  :user-detail
+  (fn [db _]
+    (reaction (get-in @db [:users :user-detail]))))
+
+(f/register-sub
   :users-form-errors
   (fn [_ path & args]
-    (let [errors (apply r/subscribe (into [:form-errors :users] path) args)]
+    (let [errors (apply f/subscribe (into [:form-errors :users] path) args)]
       (reaction @errors))))

@@ -9,7 +9,8 @@
             [cljs-time.core :as m]
             [fractalify.components.icon-button-remove :as icon-button-remove]
             [fractalify.components.api-wrap :as api-wrap]
-            [fractalify.components.form-text :as form-text]))
+            [fractalify.components.form-input :as form-input]
+            [fractalify.components.form :as form]))
 
 
 (def comments-api-wrap
@@ -20,20 +21,20 @@
      :query-params-sub :route-params}))
 
 (defn add-comment [_]
-  (let [form-errors (f/subscribe [:form-errors :fractals :comment])]
-    (fn [logged-user]
-      (when logged-user
-        [:div.row.pad-hor-10.mar-top-10.end-xs
-         [:div.col-xs-12
-          [form-text/text [:fractals :comment :text]
-           {:floating-label-text "Enter your comment"
-            :required            true
-            :multi-line          true}]]
-         [:div.col-xs-3
-          [ui/flat-button
-           {:label        "Send"
-            :on-touch-tap #(f/dispatch [:fractal-comment-add])
-            :disabled     (not (empty? @form-errors))}]]]))))
+  (fn [logged-user]
+    (when logged-user
+      [form/form :fractals :comment
+       (fn [vals has-err?]
+         [:div.row.pad-hor-10.mar-top-10.end-xs
+          [:div.col-xs-12
+           [form-input/text (:text vals) "Enter your comment" [:fractals :comment :text]
+            {:required   true
+             :multi-line true}]]
+          [:div.col-xs-3
+           [ui/flat-button
+            {:label        "Send"
+             :on-touch-tap #(f/dispatch [:fractal-comment-add])
+             :disabled     has-err?}]]])])))
 
 (defn comment-list [logged-user comments loading?]
   [ui/list
@@ -48,7 +49,7 @@
          (p/letk [[id text created [:author gravatar username]] comment]
            ^{:key id}
            [ui/list-item
-            {:left-avatar       (r/as-element [:a {:href (t/url :user-view :username username)}
+            {:left-avatar       (r/as-element [:a {:href (t/url :user-detail :username username)}
                                                [ui/avatar {:src gravatar}]])
              :disabled          true
              :right-icon-button (when (= (:username logged-user) username)

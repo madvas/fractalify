@@ -98,8 +98,9 @@
   (f/register-handler
     :api-fetch
     m/standard-middlewares
-    (fn [db [endpoint-key path query-params]]
-      (if-not (= (d/path-query-params db path) query-params)
+    (fn [db [endpoint-key path query-params force-reload]]
+      (if (or force-reload
+              (not= (d/path-query-params db path) query-params))
         (do (u/mwarn "fetching " path query-params)
             (api/fetch! endpoint-key query-params
                         #(f/dispatch [:process-fetch-response path query-params %])

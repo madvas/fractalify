@@ -49,16 +49,23 @@
    :created       mch/Date
    (o :comments)  [Comment]})
 
+(def FractalOrderTypes (s/enum :best :recent))
+
+(def PublishedFractalsList (mch/list-response PublishedFractal))
+
 (def FractalsSchema
   {:forms                   (merge
                               Fractal
                               {(o :comment) {(o :text) s/Str}
                                :sidebar     {:page  s/Int
-                                             :order (s/enum :best :recent)
+                                             :order FractalOrderTypes
                                              :limit s/Int}})
    (o :fractal-detail)      PublishedFractal
-   (o :fractals-sidebar)    {:items       [PublishedFractal]
-                             :total-items s/Int}
+   (o :fractals-sidebar)    PublishedFractalsList
+   (o :fractals-user)       PublishedFractalsList
+   (o :fractals-home)       {(o :best)   PublishedFractalsList
+                             (o :recent) PublishedFractalsList}
+
    (o :l-system-generating) s/Bool})
 
 (def dragon-curve

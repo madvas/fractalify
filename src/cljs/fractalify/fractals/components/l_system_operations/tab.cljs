@@ -3,30 +3,24 @@
             [material-ui.core :as ui]
             [schema.core :as s :include-macros true]
             [fractalify.fractals.schemas :as ch]
-            [fractalify.fractals.components.l-system-operations.cmd :as cmd]
-            [fractalify.fractals.components.l-system-operations.rule :as rule]
             [fractalify.utils :as u]))
 
-(s/defn operations
-  [type :- ch/operation-type]
-  (let [items (f/subscribe [:form-item :fractals :l-system type])
-        oper (condp = type
-               :cmds cmd/cmd
-               :rules rule/rule)]
-    (fn []
-      [:div.row.col-xs-12
-       (for [item @items]
-         (let [k (key item)
-               v (val item)]
-           ^{:key k}
-           [:div.col-xs-12
-            [oper k v]]))])))
+(s/defn operations [items component]
+  [:div.row.col-xs-12
+   (for [item items]
+     (let [k (key item)
+           v (val item)]
+       ^{:key k}
+       [:div.col-xs-12
+        [component k v]]))])
 
 (s/defn tab
-  [type :- ch/operation-type
+  [items
+   type :- ch/operation-type
+   component
    props]
   [ui/tab props
-   [operations type]
+   [operations items component]
    [:div.row.center-xs
     [ui/icon-button
      {:icon-class-name "mdi mdi-plus-circle-outline"

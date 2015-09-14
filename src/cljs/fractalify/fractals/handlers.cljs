@@ -153,12 +153,12 @@
             (u/select-key fractal :id)))
         db)))
 
-  #_ (f/register-handler
-    :fractals-sidebar-page
+  (f/register-handler
+    :fractal-fork
     m/standard-middlewares
-    (s/fn [db [page :- s/Int]]
-      (assoc-in db [:fractals])))
-
+    (s/fn [db [fractal :- ch/PublishedFractal]]
+      (t/go! :fractal-create)
+      (update-in db [:fractals :forms] #(merge % (select-keys fractal [:l-system :canvas])))))
   )
 
 

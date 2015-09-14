@@ -6,10 +6,11 @@
             [fractalify.styles :as y]
             [fractalify.fractals.components.canvas-controls :as canvas-controls]
             [fractalify.utils :as u]
-            [fractalify.components.form-text :as form-text]
+            [fractalify.components.form-input :as form-input]
             [fractalify.validators :as v]
             [fractalify.components.dialog-action :as dialog-action]
-            [fractalify.fractals.components.fractal-page-layout :as fractal-page-layout]))
+            [fractalify.fractals.components.fractal-page-layout :as fractal-page-layout]
+            [fractalify.components.form :as form]))
 
 (def title-maxlen 50)
 (def desc-maxlen 140)
@@ -35,20 +36,24 @@
                          :disabled   (not (empty? @form-errors))
                          :onTouchTap #(f/dispatch [:fractal-publish])}]))))
 
+(def publish-form
+  [form/form :fractals :info
+   (fn [vals]
+     (let [{:keys [title desc]} vals]
+       [:div.row
+        [:div.col-xs-12
+         [form-input/text title "Title" [:fractals :info :title]
+          {:required   true
+           :validators [(v/length 0 title-maxlen)]}]]
+        [:div.col-xs-12
+         [form-input/text desc "Description" [:fractals :info :desc]
+          {:multi-line true
+           :validators [(v/length 0 desc-maxlen)]}]]]))])
+
 (defn publish-dialog-props []
   {:title        "Publish Fractal"
    :action-focus "publish"
-   :content      [:div.row
-                  [:div.col-xs-12
-                   [form-text/text [:fractals :info :title]
-                    {:floating-label-text "Title"
-                     :required            true
-                     :validators          [(partial v/length 0 title-maxlen)]}]]
-                  [:div.col-xs-12
-                   [form-text/text [:fractals :info :desc]
-                    {:floating-label-text "Description"
-                     :multi-line          true
-                     :validators          [(partial v/length 0 desc-maxlen)]}]]]
+   :content      publish-form
    :actions      [{:text "Cancel"} (publish-confirm-btn)]})
 
 (defn canvas-section []

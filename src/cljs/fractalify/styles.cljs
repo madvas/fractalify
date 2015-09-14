@@ -56,6 +56,20 @@
 (def comments-wrap
   {:min-height 400})
 
+(def fractal-controls-shield
+  {:position :absolute
+   :background-color :white
+   :width "100%"
+   :height "100%"
+   :opacity 0.7
+   :z-index 99})
+
+(def fork-btn-wrap
+  {:position :absolute
+   :z-index 100
+   :width        "100%"
+   :height       "100%"})
+
 (def pad-0 {:padding 0})
 (def pad-5 {:padding 5})
 (def pad-10 {:padding 10})
