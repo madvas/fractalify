@@ -10,7 +10,8 @@
             [fractalify.styles :as y]
             [fractalify.router :as t]
             [fractalify.fractals.components.fractal-card-list :as fractal-card-list]
-            [re-frame.core :as f]))
+            [re-frame.core :as f]
+            [reagent.core :as r]))
 
 (def user-api-wrap
   (api-wrap/create-api-wrap
@@ -40,15 +41,23 @@
           [ui/card-title [:h2 username]]
           [ui/card-text [:div bio]]]))]))
 
+(defn create-delete-dialog [fractal]
+  {:title        "Are you sure?"
+   :action-focus "cancel"
+   :content      [:div (str "Once you delete " (:title fractal) ", it's gone forever!")]
+   :actions      [{:text "Cancel" :ref "cancel"}
+                  {:text "Delete" :onTouchTap #(f/dispatch [:fractal-delete fractal])}]})
+
 (defn remove-fractal-btn []
   (s/fn [fractal :- fch/PublishedFractal]
     [:div.col-xs-12.mar-0
      [ui/flat-button
       {:label        "Delete"
-       :on-touch-tap #(f/dispatch [:fractal-remove fractal])}]]))
+       :primary      true
+       :on-touch-tap #(f/dispatch [:show-dialog (create-delete-dialog fractal)])}]]))
 
 (defn user-fractals []
-  (let [logged-user (f/subscribe [:logged-user])]
+  (let [my-user-detail? (f/subscribe [:my-user-detail?])]
     (s/fn [fractals :- (s/maybe fch/PublishedFractalsList)]
       [:div.row.col-xs-12.col-lg-9.top-xs
        [:div.row.col-xs-12.text-left.pad-hor-20.center-xs
@@ -58,7 +67,7 @@
          [:h3.col-xs-12 "This user haven't created anything yet"]
          [:div.row.col-xs-12.text-left.pad-hor-20.center-xs
           [fractal-card-list/fractal-card-list fractals
-           {:actions [remove-fractal-btn]}]])])))
+           (when @my-user-detail? {:actions [remove-fractal-btn]})]])])))
 
 (defn user-detail []
   [:div.row.center-xs

@@ -18,20 +18,13 @@
             [schema.core :as s :include-macros true]
             [fractalify.main.schemas :as ch]))
 
+(defn default-send-err-handler [err]
+  (f/dispatch [:undo])
+  (f/dispatch [:show-snackbar "Oops, something went awfully wrong :("]))
+
 (trace-handlers
   #_{:tracer (fractalify.tracef/tracer :color "green")}
 
-  (f/register-handler
-    :assoc-db
-    m/standard-middlewares
-    (fn [db [key value]]
-      (assoc db key value)))
-
-  (f/register-handler
-    :dissoc-db
-    m/standard-middlewares
-    (fn [db [ks]]
-      (u/dissoc-in db ks)))
 
   (f/register-handler
     :initialize-db
@@ -120,26 +113,13 @@
     :api-send
     m/standard-middlewares
     (fn [db [endpoint-key body-params on-succes on-err]]
-      (u/mwarn "posting " endpoint-key body-params)
-      (api/send! endpoint-key body-params on-succes (or on-err :api-send-resp-err))
+      (let [on-succes (if (keyword? on-succes) (u/create-dispatch on-succes) on-succes)
+            on-err (if (keyword? on-err) (u/create-dispatch on-err) on-err)]
+        (u/mwarn "posting " endpoint-key body-params)
+        (api/send! endpoint-key body-params
+                   (or on-succes identity)
+                   (or on-err default-send-err-handler)))
       db))
 
-  (f/register-handler
-    :api-send-resp-err
-    m/standard-middlewares
-    (fn [db [err]]
-      (f/dispatch [:undo])
-      (f/dispatch [:show-snackbar "Oops, something went awfully wrong :/"])
-      db))
-
-  (f/register-handler
-    :send-form
-    m/standard-middlewares
-    (s/fn [db [endpoint-key [module form-name] & args]]
-      (f/dispatch (into [:api-send
-                         endpoint-key
-                         (d/get-form-data db module form-name)]
-                        args))
-      db))
   )
 

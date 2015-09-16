@@ -31,12 +31,13 @@
                  [rm-hull/monet "0.2.1"]
                  [bidi "1.21.0"]
                  [prismatic/plumbing "0.4.4"]
-                 [servant "0.1.3"]
                  [instar "1.0.10"]
                  [camel-snake-kebab "0.3.2"]
                  [org.clojure/test.check "0.8.1"]
                  [com.andrewmcveigh/cljs-time "0.3.13"]
-                 [clj-time "0.11.0"]]
+                 [clj-time "0.11.0"]
+                 [com.stuartsierra/component "0.2.3"]
+                 [liberator "0.13"]]
 
   :plugins [[lein-cljsbuild "1.1.0"]
             [lein-environ "1.0.0"]
@@ -77,7 +78,7 @@
                                       [weasel "0.6.0"]
                                       [io.aviso/pretty "0.1.18"]]
 
-                       :repl-options {:init-ns          fractalify.server
+                       :repl-options {:init-ns          fractalify.dev
                                       :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl
                                                          io.aviso.nrepl/pretty-middleware]}
 
@@ -105,7 +106,7 @@
                        :env          {:production true}
                        :omit-source  true
                        :aot          :all
-                       :main         fractalify.server
+                       :main         fractalify.system
                        :cljsbuild    {:builds {:app
                                                {:source-paths ["env/prod/cljs"]
                                                 :compiler

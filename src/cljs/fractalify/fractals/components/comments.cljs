@@ -54,7 +54,8 @@
              :disabled          true
              :right-icon-button (when (= (:username logged-user) username)
                                   (r/as-element (icon-button-remove/icon-button-remove
-                                                  {:on-touch-tap #(f/dispatch [:fractal-comment-remove id])})))
+                                                  {:on-touch-tap
+                                                   #(f/dispatch [:fractal-comment-remove comment])})))
              :secondary-text    (u/time-ago created)}
             [:p text]]))))])
 

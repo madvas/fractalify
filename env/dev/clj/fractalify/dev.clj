@@ -6,7 +6,10 @@
             [figwheel-sidecar.auto-builder :as fig-auto]
             [figwheel-sidecar.core :as fig]
             [clojurescript-build.auto :as auto]
-            [clojure.java.shell :refer [sh]]))
+            [clojure.java.shell :refer [sh]]
+            [com.stuartsierra.component :as component]
+            [clojure.tools.namespace.repl :refer (refresh)]
+            [fractalify.system :as system]))
 
 (def is-dev? (env :is-dev))
 
@@ -43,3 +46,25 @@
   (future
     (println "Starting less.")
     (sh "lein" "less" "auto")))
+
+
+(def system nil)
+
+(defn init []
+  (alter-var-root #'system
+                  (constantly (system/start {:host "dbhost.com" :port 123}))))
+
+(defn start []
+  (alter-var-root #'system component/start))
+
+(defn stop []
+  (alter-var-root #'system
+                  (fn [s] (when s (component/stop s)))))
+
+(defn go []
+  (init)
+  (start))
+
+(defn reset []
+  (stop)
+  (refresh :after 'dev.user/go))

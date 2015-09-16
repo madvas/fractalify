@@ -8,8 +8,9 @@
 (def ^:dynamic *generators* (atom {}))
 
 (defmulti generator identity)
-#_ (defmethod generator :default [val]
-  (u/merror "No generator method found for " val))
+(defmethod generator :default [val]
+  (u/mwarn "No generator method found for " val)
+  nil)
 
 (s/defn gen-sentence :- s/Str
   [word-size words-min words-max]
@@ -21,6 +22,9 @@
 (s/defn generate
   [endpoint-key :- s/Keyword
    query-params :- ch/QueryParams
-   callback
+   on-succ
+   on-err
    ms :- s/Int]
-  (u/set-timeout #(callback (generator endpoint-key query-params)) ms))
+  (let [res (generator endpoint-key query-params)
+        f (if res on-succ on-err)]
+    (u/set-timeout #(f res) ms)))

@@ -25,3 +25,10 @@
   (fn [_ path & args]
     (let [errors (apply f/subscribe (into [:form-errors :users] path) args)]
       (reaction @errors))))
+
+(f/register-sub
+  :my-user-detail?
+  (fn [db _]
+    (let [logged-user (f/subscribe [:logged-user])]
+      (reaction (= (:username (get-in @db [:users :user-detail]))
+                   (:username @logged-user))))))

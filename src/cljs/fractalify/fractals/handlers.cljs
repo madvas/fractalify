@@ -10,7 +10,7 @@
             [fractalify.tracer]
             [instar.core :as i]
             [schema.core :as s :include-macros true]
-            [fractalify.fractals.schemas :as ch]
+            [fractalify.fractals.schemas :as fch]
             [fractalify.router :as t]
             [fractalify.db-utils :as d]
             [fractalify.components.dialog :as dialog]))
@@ -56,14 +56,14 @@
   (f/register-handler
     :dissoc-l-system-operation
     m/standard-middlewares
-    (s/fn [db path :- [(s/one ch/operation-type "oper-type") s/Int]]
+    (s/fn [db path :- [(s/one fch/operation-type "oper-type") s/Int]]
       (f/dispatch (u/concat-vec [:dissoc-form-item :fractals :l-system] path))
       db))
 
   (f/register-handler
     :assoc-l-system-operation
     m/standard-middlewares
-    (s/fn [db [type] :- [(s/one ch/operation-type "oper-type")]]
+    (s/fn [db [type] :- [(s/one fch/operation-type "oper-type")]]
       (let [last-id (-> (get-in db [:fractals :forms :l-system type]) keys sort last)
             val (condp = type
                   :cmds ["" :default]
@@ -117,11 +117,10 @@
   (f/register-handler
     :fractal-comment-remove
     [m/standard-middlewares (f/undoable "comment-remove")]
-    (fn [db [id]]
-      (f/dispatch [:api-send :fractal-comment-remove {:id id}])
-      (update-in db [:fractals :fractal-detail :comments]
-                 (fn [comments]
-                   (u/remove-first #(= (:id %) id) comments)))))
+    (fn [db [comment :- fch/Comment]]
+      (let [id (u/select-key comment :id)]
+        (f/dispatch [:api-send :fractal-comment-remove id :fractal-comment-remove-resp])
+        (u/remove-first-in db [:fractals :fractal-detail :comments] id))))
 
   (f/register-handler
     :fractal-comment-add
@@ -142,7 +141,7 @@
   (f/register-handler
     :fractals-sidebar-select
     m/standard-middlewares
-    (s/fn [db [fractal :- ch/PublishedFractal]]
+    (s/fn [db [fractal :- fch/PublishedFractal]]
       (if-not (= (:id (fractal-detail db)) (:id fractal))
         (do
           (t/go! :fractal-detail :id (:id fractal))
@@ -156,9 +155,18 @@
   (f/register-handler
     :fractal-fork
     m/standard-middlewares
-    (s/fn [db [fractal :- ch/PublishedFractal]]
+    (s/fn [db [fractal :- fch/PublishedFractal]]
       (t/go! :fractal-create)
       (update-in db [:fractals :forms] #(merge % (select-keys fractal [:l-system :canvas])))))
+
+  (f/register-handler
+    :fractal-delete
+    [m/standard-middlewares (f/undoable "fractal-delete")]
+    (s/fn [db [fractal :- fch/PublishedFractal]]
+      (let [id (u/select-key fractal :id)]
+        (dialog/hide-dialog!)
+        (f/dispatch [:api-send :fractal-delete id :fractal-comment-add-resp])
+        (u/remove-first-in db [:fractals :fractals-user :items] id))))
   )
 
 

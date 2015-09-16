@@ -5,7 +5,8 @@
             [instar.core :as i]
             [clojure.string :as str]
             [cljs-time.core :as m]
-            [reagent.core :as r]))
+            [reagent.core :as r]
+            [re-frame.core :as f]))
 
 (defn ensure-vec [x]
   (if (vector? x) x [x]))
@@ -129,6 +130,9 @@
                          [other-args {}])]
     (concat-vec [form] params [(r/merge-props default-props props)])))
 
+(s/defn create-dispatch [key :- s/Keyword]
+  #(f/dispatch (into [key] %&)))
+
 (s/defn validate-until-error-fn
   ([fns] (validate-until-error-fn nil fns))
   ([val :- s/Any
@@ -189,8 +193,15 @@
     (dissoc m k)))
 
 (defn remove-first [pred coll]
-  (let [n (take-while (complement pred) coll)]
+  (let [pred (if (map? pred)
+               #(= ((first (keys pred)) %)
+                   (first (vals pred)))
+               pred)
+        n (take-while (complement pred) coll)]
     (concat n (take-last (- (count coll) (inc (count n))) coll))))
+
+(defn remove-first-in [m ks pred]
+  (update-in m ks #(remove-first pred %)))
 
 (defn time-ago [time]
   (let [units [{:name "second" :limit 60 :in-second 1}
