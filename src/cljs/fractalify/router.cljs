@@ -10,7 +10,6 @@
 
 (def ^:dynamic *routes* (atom ["/" {}]))
 (def ^:dynamic *history* (atom))
-#_ (def ^:dynamic *current-params* (atom))
 
 (declare go!)
 (declare swap-route!)
@@ -23,9 +22,6 @@
   (let [active-panel (if (keyword? handler) handler tag)]
     #_ (reset! *current-params* route-params)
     (f/dispatch [:set-active-panel active-panel permissions route-params])))
-
-#_ (defn current-params []
-  @*current-params*)
 
 (defn add-routes! [routes]
   (swap! *routes* (fn [[root current] new]

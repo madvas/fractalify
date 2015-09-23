@@ -4,7 +4,7 @@
             [fractalify.components.form-select :as form-select]
             [fractalify.fractals.components.l-system-operations.remove-btn :as remove-btn]
             [fractalify.fractals.components.control-text :as control-text]
-            [workers.turtle.schemas :as ch]))
+            [fractalify.workers.schemas :as ch]))
 
 (def all-cmds
   [{:payload :forward :text "Forward"}

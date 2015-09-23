@@ -7,8 +7,9 @@
 
 
 (defn gen-user []
-  {:username "madvas"
-             ;(gen/generate gen/string-alphanumeric 8)
+  {:id       "122"
+   :username "madvas"
+   ;(gen/generate gen/string-alphanumeric 8)
    :bio      (g/gen-sentence 10 3 10)
    :gravatar "http://www.gravatar.com/avatar/bfdb252fe9d0ab9759f41e3c26d7700e.jpg"})
 

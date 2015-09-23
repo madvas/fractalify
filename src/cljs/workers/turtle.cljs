@@ -1,7 +1,7 @@
-(ns workers.turtle.turtle
+(ns fractalify.workers.turtle
   (:require [schema.core :as s :include-macros true]
             [workers.core :as w]
-            [workers.turtle.schemas :as ch]
+            [fractalify.workers.schemas :as ch]
             [plumbing.core :as p]
             [schema.coerce :as coerce]))
 

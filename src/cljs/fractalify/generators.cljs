@@ -5,8 +5,6 @@
             [clojure.string :as str]
             [fractalify.main.schemas :as ch]))
 
-(def ^:dynamic *generators* (atom {}))
-
 (defmulti generator identity)
 (defmethod generator :default [val]
   (u/mwarn "No generator method found for " val)

@@ -16,7 +16,8 @@
             [fractalify.components.dialog :as dialog]))
 
 
-(def turtle-worker (new js/Worker "/js/turtle-worker.js"))
+(def turtle-worker (new js/Worker "/public/js/turtle-worker.js"))
+
 (def fractal-detail (u/partial-right get-in [:fractals :fractal-detail]))
 (def starred-by-me? (u/partial-right get-in [:fractals :fractal-detail :starred-by-me]))
 

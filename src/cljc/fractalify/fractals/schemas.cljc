@@ -1,6 +1,6 @@
 (ns fractalify.fractals.schemas
   (:require [schema.core :as s]
-            [workers.turtle.schemas :as turtle-schemas]
+            [fractalify.workers.schemas :as turtle-schemas]
             [fractalify.users.schemas :as uch]
             [fractalify.main.schemas :as mch]))
 
@@ -14,8 +14,17 @@
 (def Base64Png (s/pred (partial re-matches #"^data:image/png;base64,.*")))
 
 (def operation-type (s/enum :cmds :rules))
-(def CanvasElement (s/pred (partial instance? js/HTMLCanvasElement)))
-(def CanvasContext (s/pred (partial instance? js/CanvasRenderingContext2D)))
+
+(do
+  #?@(:cljs [(def CanvasElement (s/pred (partial instance? js/HTMLCanvasElement)))
+             (def CanvasContext (s/pred (partial instance? js/CanvasRenderingContext2D)))]))
+
+(def FractalsQueryParams
+  {(o :page)     s/Int
+   (o :limit)    s/Int
+   (o :sort)     s/Keyword
+   (o :sort-dir) s/Int
+   (o :username) s/Str})
 
 (def Canvas
   {:color      Color

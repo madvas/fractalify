@@ -2,7 +2,7 @@
   (:require [schema.core :as s :include-macros true]
             [monet.canvas :as c]
             [fractalify.styles :as y]
-            [workers.turtle.schemas :as turtle-schemas]
+            [fractalify.workers.schemas :as turtle-schemas]
             [fractalify.fractals.schemas :as ch]
             [fractalify.utils :as u]
             [plumbing.core :as p]))

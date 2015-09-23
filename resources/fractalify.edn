@@ -1,0 +1,5 @@
+{:db-server     {:uri     (environ.core/env :MONGOLAB_URI)
+                 :host    "127.0.0.1"
+                 :db-name "fractalify-dev"
+                 :port    27017}
+ :http-listener {:port 10555}}

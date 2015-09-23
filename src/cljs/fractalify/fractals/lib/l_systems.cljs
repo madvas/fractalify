@@ -1,6 +1,6 @@
 (ns fractalify.fractals.lib.l-systems
   (:require [schema.core :as s :include-macros true]
-            [workers.turtle.schemas :as ch]
+            [fractalify.workers.schemas :as ch]
             [plumbing.core :as p]))
 
 (s/defn apply-rules :- s/Str

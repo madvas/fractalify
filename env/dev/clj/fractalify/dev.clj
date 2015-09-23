@@ -3,68 +3,82 @@
             [net.cgrand.enlive-html :refer [set-attr prepend append html]]
             [cemerick.piggieback :as piggieback]
             [weasel.repl.websocket :as weasel]
-            [figwheel-sidecar.auto-builder :as fig-auto]
-            [figwheel-sidecar.core :as fig]
-            [clojurescript-build.auto :as auto]
-            [clojure.java.shell :refer [sh]]
+            [clojure.pprint :refer (pprint)]
+            [modular.maker :refer (make)]
+            [clojure.reflect :refer (reflect)]
+            [clojure.repl :refer (apropos dir doc find-doc pst source)]
+            [clojure.tools.namespace.repl :as tools-repl]
             [com.stuartsierra.component :as component]
-            [clojure.tools.namespace.repl :refer (refresh)]
-            [fractalify.system :as system]))
-
-(def is-dev? (env :is-dev))
-
-(def ^:dynamic *fig-server* (atom nil))
-
-(def inject-devmode-html
-  (comp
-    (set-attr :class "is-dev")
-    (prepend (html [:script {:type "text/javascript" :src "/js/out/goog/base.js"}]))
-    (append (html [:script {:type "text/javascript"} "goog.require('fractalify.main')"]))))
+            [fractalify.system :as sys]
+            [clojure.java.io :as io]
+            [fractalify.utils :as u]
+            [fractalify.config :as cnf]
+            [modular.bidi :as mb]
+            [schema.core :as s]))
 
 (defn browser-repl []
   (let [repl-env (weasel/repl-env :ip "0.0.0.0" :port 9001)]
     (piggieback/cljs-repl :repl-env repl-env)))
 
-(defn start-figwheel []
-  (let [server (fig/start-server {:css-dirs ["resources/public/css"]})
-        config {:builds          [{:id           "dev"
-                                   :source-paths ["src/cljs" "env/dev/cljs"]
-                                   :compiler     {:output-to            "resources/public/js/app.js"
-                                                  :output-dir           "resources/public/js/out"
-                                                  :source-map           true
-                                                  :optimizations        :none
-                                                  :source-map-timestamp true
-                                                  :preamble             ["react/react.min.js"]}}]
-                :figwheel-server server}]
-    (fig-auto/autobuild* config)
-    (reset! *fig-server* server)))
-
-(defn stop-figwheel []
-  (fig/stop-server @*fig-server*))
-
-(defn start-less []
-  (future
-    (println "Starting less.")
-    (sh "lein" "less" "auto")))
-
-
 (def system nil)
+(s/set-fn-validation! true)
 
-(defn init []
+(defn new-dev-system
+  "Create a development system"
+  []
+  (let [config (cnf/config)
+        s-map (-> (sys/new-system-map config)
+                  (sys/dev-system-map config))]
+    (-> s-map
+        (component/system-using
+          (merge (sys/new-dependency-map)
+                 (sys/dev-dependency-map)))
+        )))
+
+(defn init
+  "Constructs the current development system."
+  []
   (alter-var-root #'system
-                  (constantly (system/start {:host "dbhost.com" :port 123}))))
+                  (constantly (new-dev-system))))
 
-(defn start []
-  (alter-var-root #'system component/start))
+(defn start
+  "Starts the current development system."
+  []
+  (alter-var-root
+    #'system
+    component/start
+    ))
 
-(defn stop []
+(defn stop
+  "Shuts down and destroys the current development system."
+  []
   (alter-var-root #'system
                   (fn [s] (when s (component/stop s)))))
 
-(defn go []
+(defn go
+  "Initializes the current development system and starts it running."
+  []
+  (println "Go called")
   (init)
-  (start))
+  (start)
+  :ok)
+
+(defn repl-refresh []
+  (tools-repl/refresh :after 'fractalify.dev/go))
 
 (defn reset []
   (stop)
-  (refresh :after 'dev.user/go))
+  (repl-refresh))
+
+;; REPL Convenience helpers
+
+(defn routes []
+  (-> system :router :router))
+
+(defn match-route [path]
+  (bidi.bidi/match-route (routes) path))
+
+(defn path-for [path & args]
+  (apply mb/path-for
+         (-> system :router) path args))
+

@@ -1,6 +1,7 @@
-(ns workers.turtle.schemas
+(ns fractalify.workers.schemas
   (:require [schema.core :as s :include-macros true]
             [schema.coerce :as coerce]))
+
 
 (def o s/optional-key)
 
@@ -35,7 +36,7 @@
   (name k))
 
 (defn keyword->int [k]
-  (js/parseInt (keyword->string k)))
+  (int (keyword->string k)))
 
 (def +keyword-coercion+
   (merge

@@ -4,7 +4,7 @@
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :source-paths ["src/clj"]
+  :source-paths ["src/clj" "src/cljc"]
 
   :test-paths ["test/clj"]
 
@@ -37,7 +37,16 @@
                  [com.andrewmcveigh/cljs-time "0.3.13"]
                  [clj-time "0.11.0"]
                  [com.stuartsierra/component "0.2.3"]
-                 [liberator "0.13"]]
+                 [liberator "0.13"]
+                 [org.clojure/tools.logging "0.3.1"]
+                 [juxt.modular/bidi "0.9.4"]
+                 [juxt.modular/http-kit "0.5.4"]
+                 [juxt.modular/maker "0.5.0"]
+                 [juxt.modular/wire-up "0.5.0"]
+                 [me.raynes/conch "0.8.0"]
+                 [com.novemberain/monger "3.0.0-rc2"]
+                 [clojurewerkz/scrypt "1.2.0"]
+                 [cheshire "5.5.0"]]
 
   :plugins [[lein-cljsbuild "1.1.0"]
             [lein-environ "1.0.0"]
@@ -47,7 +56,7 @@
 
   :uberjar-name "fractalify.jar"
 
-  :cljsbuild {:builds {:app           {:source-paths ["src/cljs"]
+  :cljsbuild {:builds {:app           {:source-paths ["src/cljs" "src/cljc"]
                                        :compiler     {:main          fractalify.core
                                                       ;:preamble      ["resources/public/vendor/material-ui/material.js"]
                                                       :output-to     "resources/public/js/app.js"
@@ -57,8 +66,8 @@
                                                       ;:optimizations :advanced
                                                       :externs       ["src/externs.js"]
                                                       :pretty-print  true}}
-                       :turtle-worker {:source-paths ["src/cljs/workers"]
-                                       :compiler     {:main          workers.turtle.turtle
+                       :turtle-worker {:source-paths ["src/cljs/workers" "src/cljc/fractalify/workers"]
+                                       :compiler     {:main          fractalify.workers.turtle
                                                       :output-to     "resources/public/js/turtle-worker.js"
                                                       :output-dir    "resources/public/js/turtle-worker"
                                                       :optimizations :simple
@@ -78,7 +87,8 @@
                                       [weasel "0.6.0"]
                                       [io.aviso/pretty "0.1.18"]]
 
-                       :repl-options {:init-ns          fractalify.dev
+                       :repl-options {:init-ns          fractalify.user
+                                      :welcome          (println "Type (dev) to start")
                                       :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl
                                                          io.aviso.nrepl/pretty-middleware]}
 
@@ -90,7 +100,7 @@
                                       :ring-handler     fractalify.server/http-handler
                                       :on-jsload        "fractalify.core/mount-root"}
 
-                       :env          {:is-dev true}
+                       :env          {:is-dev? true}
 
                        :cljsbuild    {:test-commands {"test" ["phantomjs" "env/test/js/unit-test.js" "env/test/unit-test.html"]}
                                       :builds        {:app  {:source-paths ["env/dev/cljs"]}

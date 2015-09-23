@@ -5,7 +5,7 @@
             [fractalify.utils :as u]
             [fractalify.fractals.components.l-system-operations.remove-btn :as remove-btn]
             [schema.core :as s :include-macros true]
-            [workers.turtle.schemas :as ch]))
+            [fractalify.workers.schemas :as ch]))
 
 (s/defn rule
   [k :- s/Int
