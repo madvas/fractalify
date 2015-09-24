@@ -18,7 +18,11 @@
     [ring.middleware.basic-authentication :refer [wrap-basic-authentication]]
     [ring.middleware.edn :refer [wrap-edn-params]]
     [fractalify.utils :as u]
-    [liberator.dev :as ld]))
+    [fractalify.api.users.routes :as ur]
+    [liberator.dev :as ld]
+    [cemerick.friend :as friend]
+    (cemerick.friend [workflows :as workflows])
+    [fractalify.api.users.users-db :as udb]))
 
 (defn dispatch-route [db resource]
   (fn [res]
@@ -39,12 +43,23 @@
       (defaults/wrap-defaults defaults/site-defaults)
       wrap-edn-params))
 
-(defn wrap-http [handler]
+(defn friend-handler
+  "Returns a middleware that enables authentication via Friend."
+  [handler db]
+  (let [friend-m {:credential-fn (partial udb/verify-credentials db)
+                  :workflows     [(workflows/interactive-form :login-uri ur/login-url)]}]
+    (-> handler
+        (friend/authenticate friend-m))))
+
+(defn wrap-http [handler db]
+  (println (type db))
+  (println (type handler))
   (fn [req]
     (let [handler (if (= "/repl" (:uri req))
                     (wrap-basic-authentication drawbridge-handler authenticated?)
                     (-> handler
                         http-handler
+                        #_ (u/partial-right friend-handler db)
                         (p/?> u/is-dev? reload/wrap-reload)
                         (p/?> u/is-dev? (ld/wrap-trace :header :ui))))]
       (handler req))))
@@ -59,12 +74,6 @@
         (satisfies? RouteProvider service)
         (b/routes service)) handler-fn)
     not-found-handler))
-
-(def new-router-schema
-  {:not-found-handler (s/=>* {:status   s/Int
-                              s/Keyword s/Any}
-                             [{:uri      s/Str
-                               s/Keyword s/Any}])})
 
 (defrecord Router [not-found-handler]
   component/Lifecycle
@@ -83,7 +92,14 @@
   WebRequestHandler
   (request-handler [this]
     (p/letk [[db] (:db-server this)]
-      (wrap-http (as-request-handler this (partial dispatch-route db) nil)))))
+      (wrap-http
+        (as-request-handler this (partial dispatch-route db) nil) db))))
+
+(def new-router-schema
+  {:not-found-handler (s/=>* {:status   s/Int
+                              s/Keyword s/Any}
+                             [{:uri      s/Str
+                               s/Keyword s/Any}])})
 
 (defn new-router
   "Constructor for a ring handler that collates all bidi routes

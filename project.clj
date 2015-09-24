@@ -46,7 +46,12 @@
                  [me.raynes/conch "0.8.0"]
                  [com.novemberain/monger "3.0.0-rc2"]
                  [clojurewerkz/scrypt "1.2.0"]
-                 [cheshire "5.5.0"]]
+                 [cheshire "5.5.0"]
+                 [org.clojure/tools.logging "0.3.1"]
+                 [clj-logging-config "1.9.12"]
+                 [org.slf4j/slf4j-nop "1.7.12"]
+                 [com.cemerick/friend "0.2.1"]
+                 [org.clojure/core.cache "0.6.4"]]
 
   :plugins [[lein-cljsbuild "1.1.0"]
             [lein-environ "1.0.0"]

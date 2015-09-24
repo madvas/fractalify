@@ -3,23 +3,25 @@
     [modular.ring :refer (WebRequestHandler)]
     [bidi.bidi :refer (path-for RouteProvider)]
     [liberator.core :refer [defresource]]
-    [fractalify.utils :as u]))
+    [fractalify.utils :as u]
+    [fractalify.api.api :as api]))
 
-(defn get-fractals [params]
-  )
+(def base-url "/api/users")
+(def login-url (str base-url "/login"))
 
 (defresource user-res [db params]
-             :available-media-types ["application/edn"]
+             api/base-resource
              :handle-ok (fn [_] (format "The text is %s" (:username params))))
 
 (defresource user-list-res [db params]
-             :available-media-types ["application/edn"]
-             :handle-ok (fn [_] {:a 2})
-             )
+             api/base-resource
+             :handle-ok (fn [_] {:a 2}))
 
 (def routes
-  ["/api/users" {["/" :username] user-res
-                 ""              user-list-res}])
+  [base-url {["/" :username] user-res
+             ""              user-list-res}])
+
+
 
 (defrecord UserRoutes []
   RouteProvider

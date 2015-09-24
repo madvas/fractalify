@@ -13,7 +13,8 @@
           {:conn conn :db (m/get-db conn db-name)}))))
 
   (stop [this]
-    (m/disconnect (:conn this))
+    (when-let [conn (:conn this)]
+      (m/disconnect conn))
     (dissoc this :conn :db)))
 
 (def new-mongodb map->MongoDb)

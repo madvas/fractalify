@@ -6,11 +6,8 @@
     [fractalify.utils :as u]
     [monger.joda-time]
     [clj-time.core :as t]
-    [clojurewerkz.scrypt.core :as sc]
     [monger.query :as q]
     [schema.core :as s]
-    [instar.core :as i]
-    [schema.coerce :as coerce]
     [fractalify.fractals.schemas :as fch])
   (:import [org.bson.types ObjectId]))
 
@@ -38,12 +35,11 @@
                                              :author        (u/select-key author :username)
                                              :stars         []
                                              :star-count    0
-                                             :starred-by-me false
+                                             :comments      []
                                              })))
 
 (def parse-fractals-req
-  (coerce/coercer fch/FractalsQueryParams coerce/string-coercion-matcher))
-
+  (u/create-str-coercer fch/FractalsQueryParams))
 
 (s/defn get-fractals [db params]
   (p/letk [[{page 1}
@@ -53,7 +49,7 @@
             {username nil}] (u/p "para:" (parse-fractals-req params))]
     (q/with-collection db coll-name
                        (q/find (when username {:author {:username username}}))
-                       (q/fields [:title :author])
+                       (q/fields {:comments 0 :stars 0})
                        (q/sort (array-map sort sort-dir))
                        (q/paginate :page page :per-page limit))))
 

@@ -35,7 +35,8 @@
                 :fractal-routes (fr/new-fractal-routes)))
 
 (defn fig-component [system config]
-  (assoc system :figwheel (fig/new-figwheel)))
+  (assoc system :figwheel (make fig/new-figwheel config :figwheel)))
+
 
 
 (defn less-component [system config]

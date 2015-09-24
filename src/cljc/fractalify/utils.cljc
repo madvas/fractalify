@@ -6,10 +6,12 @@
     [clojure.string :as str]
     [clojure.walk :as w]
     [clojure.test.check.generators :as gen]
+    [schema.coerce :as coerce]
     #?@(:clj  [
     [environ.core :refer [env]]
     [clojure.core.async :refer [go go-loop chan close! >! <!]]
     [clj-time.core :as m]
+    [clojurewerkz.scrypt.core :as sc]
     [clojure.pprint :refer [pprint]]]
         :cljs [[cljs.pprint :refer [pprint]]
                [cljs.core.async :refer [chan close! >! <!]]
@@ -129,9 +131,10 @@
             (defn s->int [s]
               (if (number? s)
                 s
-                (Integer/parseInt (re-find #"\A-?\d+" s))))]))
+                (Integer/parseInt (re-find #"\A-?\d+" s))))
 
-
+            (defn hash-pass [password salt]
+              (sc/encrypt (str salt password) 16384 8 1))]))
 
 (defn range-count [coll]
   (range 0 (count coll)))
@@ -159,6 +162,7 @@
 (s/defn gen-email []
   (str "some" (rand-int 9999) "@email.com"))
 
+
 (defn gen-str [n]
   (let [charseq (map char (concat
                             (range 48 58)                   ; 0-9
@@ -166,6 +170,9 @@
     (apply str
            (take n
                  (repeatedly #(rand-nth charseq))))))
+
+(defn create-str-coercer [schema]
+  (coerce/coercer schema coerce/string-coercion-matcher))
 
 (s/defn validate-until-error-fn
   ([fns] (validate-until-error-fn nil fns))

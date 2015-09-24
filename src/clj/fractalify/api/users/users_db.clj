@@ -29,10 +29,17 @@
 
 (s/defn add-user [db user]
   (let [salt (u/gen-str 16)
-        pass-hash (sc/encrypt (str salt (:password user)) 16384 8 1)]
+        pass-hash (u/hash-pass salt (:password user))]
     (mc/insert-and-return db coll-name (merge user {:_id      (ObjectId.)
                                                     :salt     salt
                                                     :password pass-hash
                                                     :created  (t/now)
                                                     :role     [:user]}))))
+
+(s/defn verify-credentials [db {:keys [username password]}]
+  (println "verify-credentials")
+  (p/letk [user (mc/find-one-as-map db coll-name {:username username})
+           [password salt] (u/p "user:" user)]
+    (when (= password (u/hash-pass (u/p "salt:" salt) (u/p "pass:" password)))
+      (dissoc user :password))))
 
