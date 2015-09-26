@@ -16,10 +16,10 @@
 (defn login-tab []
   [form/form :users :login
    (fn [vals has-err?]
-     (let [{:keys [user password]} vals]
+     (let [{:keys [username password]} vals]
        [paper-content/paper-content
         [:div.col-xs-12
-         [form-input/text user "Username or email" [:users :login :user]
+         [form-input/text username "Username or email" [:users :login :username]
           {:required true}]]
 
         [:div.col-xs-12

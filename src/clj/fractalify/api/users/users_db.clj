@@ -6,11 +6,15 @@
     [fractalify.utils :as u]
     [monger.joda-time]
     [clj-time.core :as t]
+    [schema.core :as s]
     [clojurewerkz.scrypt.core :as sc]
-    [schema.core :as s])
+    [monger.operators :refer :all])
+
   (:import [org.bson.types ObjectId]))
 
 (def coll-name "users")
+(def private-fields {:password 0 :salt 0})
+(def public-fields (merge {:email 0} private-fields))
 
 (defrecord UsersDb []
   c/Lifecycle
@@ -36,10 +40,24 @@
                                                     :created  (t/now)
                                                     :role     [:user]}))))
 
+(s/defn get-user
+  ([db where]
+    (get-user db where {}))
+  ([db where fields]
+    (mc/find-one-as-map db coll-name where fields)))
+
+(defn get-user-by-acc
+  ([db username]
+   (get-user-by-acc db username username))
+  ([db username email]
+   (get-user db {$or [{:username username}
+                      {:email email}]})))
+
 (s/defn verify-credentials [db {:keys [username password]}]
-  (println "verify-credentials")
-  (p/letk [user (mc/find-one-as-map db coll-name {:username username})
-           [password salt] (u/p "user:" user)]
-    (when (= password (u/hash-pass (u/p "salt:" salt) (u/p "pass:" password)))
-      (dissoc user :password))))
+  (let [user (get-user-by-acc db username)
+        submitted-pass password]
+    (when user
+      (p/letk [[password salt] user]
+        (when (sc/verify (str salt submitted-pass) password)
+          (select-keys user [:_id :username]))))))
 

@@ -133,7 +133,7 @@
                 s
                 (Integer/parseInt (re-find #"\A-?\d+" s))))
 
-            (defn hash-pass [password salt]
+            (defn hash-pass [salt password]
               (sc/encrypt (str salt password) 16384 8 1))]))
 
 (defn range-count [coll]
@@ -150,7 +150,8 @@
 (defn empty-seq? [x]
   (and (empty? x) (sequential? x)))
 
-
+(defn equal-in-key? [k & ms]
+  (-> (map k ms) set count (= 1)))
 
 (s/defn gen-sentence :- s/Str
   [word-size words-min words-max]
@@ -162,6 +163,8 @@
 (s/defn gen-email []
   (str "some" (rand-int 9999) "@email.com"))
 
+(defn valid-schema? [schema x]
+  (nil? (s/check schema x)))
 
 (defn gen-str [n]
   (let [charseq (map char (concat

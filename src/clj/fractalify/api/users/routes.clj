@@ -4,22 +4,66 @@
     [bidi.bidi :refer (path-for RouteProvider)]
     [liberator.core :refer [defresource]]
     [fractalify.utils :as u]
-    [fractalify.api.api :as api]))
+    [fractalify.api.api :as api]
+    [bidi.bidi :as b]
+    [cemerick.friend :as frd]
+    [fractalify.api.users.users-db :as udb]
+    [fractalify.api.main.routes :as mr]
+    [schema.core :as s]
+    [fractalify.users.schemas :as uch]
+    [plumbing.core :as p]))
 
-(def base-url "/api/users")
-(def login-url (str base-url "/login"))
+(def auth-base "/api/auth")
+(def login-url (str auth-base "/login"))
+(declare routes)
 
-(defresource user-res [db params]
+(defresource user [db params]
              api/base-resource
-             :handle-ok (fn [_] (format "The text is %s" (:username params))))
+             :handle-ok
+             (fn [_]
+               (let [fields (if (u/equal-in-key? :username
+                                                 (frd/current-authentication)
+                                                 params)
+                              udb/private-fields
+                              udb/public-fields)]
+                 (udb/get-user db (u/select-key params :username) fields))))
 
-(defresource user-list-res [db params]
+(defresource login [db params]
              api/base-resource
-             :handle-ok (fn [_] {:a 2}))
+             :allowed-methods [:post :get]
+             :malformed? (api/malformed-params? uch/LoginForm params)
+             :allowed?
+             (fn [_]
+               (frd/current-authentication))
+             :post-redirect?
+             (fn [_]
+               {:location
+                (b/path-for routes user :username (:username (frd/current-authentication)))}))
+
+(defresource join [db params]
+             api/base-resource
+             :allowed-methods [:put]
+             :malformed? (api/malformed-params? uch/JoinForm params)
+             :conflict?
+             (fn [_]
+               (udb/get-user-by-acc db (:username params) (:email params)))
+             :put!
+             (fn [_]
+               (udb/add-user))
+
+             #_(fn [_]
+                 {:location
+                  (b/path-for routes user :username (:username (frd/current-authentication)))}))
+
+(defn logout [_ _]
+  (fn [res]
+    (frd/logout* res)))
 
 (def routes
-  [base-url {["/" :username] user-res
-             ""              user-list-res}])
+  ["/api/" {"users" {["/" :username] user}
+            "auth/" [["login" login]
+                     ["logout" logout]
+                     ["join" join]]}])
 
 
 

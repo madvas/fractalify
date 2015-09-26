@@ -17,7 +17,8 @@
     [fractalify.api.users.users-db :as udb]
     [fractalify.api.fractals.fractals-db :as fdb]
     [fractalify.api.users.users-generator :as ug]
-    [fractalify.api.fractals.fractals-generator :as fg]))
+    [fractalify.api.fractals.fractals-generator :as fg]
+    [fractalify.middlewares :as mw]))
 
 
 (defn make [f config k]
@@ -32,7 +33,8 @@
   (assoc system :router (t/new-router)
                 :main-routes (mr/new-main-routes)
                 :user-routes (ur/new-user-routes)
-                :fractal-routes (fr/new-fractal-routes)))
+                :fractal-routes (fr/new-fractal-routes)
+                :middlewares (mw/new-middlewares)))
 
 (defn fig-component [system config]
   (assoc system :figwheel (make fig/new-figwheel config :figwheel)))
@@ -70,7 +72,8 @@
 
 (defn new-dependency-map []
   {:http-listener [:router]
-   :router        [:db-server :fractal-routes :user-routes :main-routes]
+   :router        [:db-server :fractal-routes :user-routes :main-routes :middlewares]
+   :middlewares   [:db-server]
    :users-db      [:db-server]
    :fractals-db   [:db-server]
    :db-server     []})
