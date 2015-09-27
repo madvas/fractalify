@@ -131,7 +131,7 @@
                    :fractal-comment-add
                    (d/get-form-data db :fractals :comment)
                    :fractal-comment-add-resp])
-      (u/dissoc-in db [:fractals :forms :comment :text])))
+      (assoc-in db [:fractals :forms :comment :text] "")))
 
   (f/register-handler
     :fractal-comment-add-resp

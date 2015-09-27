@@ -1,18 +1,19 @@
 (ns fractalify.db
   (:require [schema.core :as s :include-macros true]
             [fractalify.utils :as u]
-            [fractalify.fractals.schemas :as fractals-schemas]
-            [fractalify.users.schemas :as users-schemas]
-            [fractalify.main.schemas :as main-schemas]
+            [fractalify.fractals.schemas :as fch]
+            [fractalify.users.schemas :as uch]
+            [fractalify.main.schemas :as mch]
             [instar.core :as i]))
 
+(enable-console-print!)
 (def o s/optional-key)
 
-(def db-schema
+(def db-schema-base
   {(o :active-panel)   s/Keyword
 
-   (o :users)          users-schemas/UsersSchema
-   (o :fractals)       fractals-schemas/FractalsSchema
+   :users              uch/UsersSchema
+   :fractals           fch/FractalsSchema
 
    (o :dialog-props)   {s/Keyword s/Any}
    (o :snackbar-props) {:message              s/Str
@@ -25,15 +26,15 @@
                                      (o :error)        s/Any}}})
 
 (defn assoc-form-errors [db-schema]
-  (i/transform db-schema [* :forms *] #(merge % main-schemas/FormErros)))
+  (i/transform db-schema [* :forms *] #(merge % mch/FormErros)))
 
-(defn create-db-schema [db-schema]
-  (-> db-schema
+(def db-schema
+  (-> db-schema-base
       assoc-form-errors))
 
 (defn valid? [db]
-  (s/validate (create-db-schema db-schema) db))
+  (s/validate db-schema db))
 
 (def default-db
-  {:users    users-schemas/default-db
-   :fractals fractals-schemas/default-db})
+  {:users    uch/default-db
+   :fractals fch/default-db})

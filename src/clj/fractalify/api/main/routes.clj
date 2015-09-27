@@ -20,8 +20,10 @@
 (deftemplate page (io/resource "index.html") []
              [:body] (if u/is-dev? inject-devmode-html identity))
 
+(def page-html
+  (str/join "" (page)))
 
-(defresource static-routes [db params]
+(defresource static-routes [_]
              :available-media-types
              (fn [ctx]
                (let [file (get-in ctx [:request :uri])]
@@ -47,9 +49,9 @@
 
 
 
-(defresource main-routes [db params]
+(defresource main-routes [_]
              :available-media-types ["text/html" "text/plain"]
-             :handle-ok (str/join "" (page)))
+             :handle-ok page-html)
 
 (def routes
   ["/" [["public/" [[true static-routes]]]

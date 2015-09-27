@@ -4,8 +4,7 @@
     [schema.core :as s :include-macros true]
     [fractalify.components.text-field :as text-field]
     [fractalify.utils :as u]
-    [fractalify.validators :as v]
-    [reagent.core :as r]))
+    [fractalify.validators :as v]))
 
 (s/defn text
   [value floating-label-text path props]

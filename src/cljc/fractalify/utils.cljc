@@ -27,7 +27,6 @@
   (doseq [a args]
     (let [f (if (map? a) pprint print)]
       (f a)))
-  (println)
   (last args))
 
 (defn pk [msg ks x]
@@ -136,6 +135,19 @@
             (defn hash-pass [salt password]
               (sc/encrypt (str salt password) 16384 8 1))]))
 
+
+(defn error [err]
+  #?(:clj  (Error. err)
+     :cljs (js/Error err)))
+
+(defn array-map? [x]
+  (instance? #?(:clj  clojure.lang.PersistentArrayMap
+                :cljs cljs.core/PersistentArrayMap) x))
+
+(defn str-class? [x]
+  (= x #?(:clj  java.lang.String
+          :cljs js/String)))
+
 (defn range-count [coll]
   (range 0 (count coll)))
 
@@ -152,6 +164,9 @@
 
 (defn equal-in-key? [k & ms]
   (-> (map k ms) set count (= 1)))
+
+(defn map-map-vals [f m]
+  (into {} (for [[k v] m] [k (f v)])))
 
 (s/defn gen-sentence :- s/Str
   [word-size words-min words-max]

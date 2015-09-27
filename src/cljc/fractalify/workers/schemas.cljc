@@ -2,6 +2,15 @@
   (:require [schema.core :as s :include-macros true]
             [schema.coerce :as coerce]))
 
+(s/defrecord DefaultCoerceSchema
+  [schema :- (s/protocol s/Schema) default-value]
+  s/Schema
+  (spec [_] (s/spec schema))
+  (explain [_] (cons 'default-coerce schema)))
+
+
+(defn with-coerce [schema default-value]
+  (DefaultCoerceSchema. schema default-value))
 
 (def o s/optional-key)
 
@@ -20,10 +29,12 @@
   {(o :rules)   {s/Int Rule}
    :start       s/Str
    :angle       s/Num
-   :iterations  (s/pred pos?)
+   :iterations  (with-coerce (s/pred pos?) 1)
+   ;:iterations  (s/pred pos?)
    :line-length s/Num
    :start-angle s/Num
-   :origin      coords
+   :origin      (with-coerce coords {:x 0 :y 0})
+   ;:origin      coords
    (o :cmds)    {s/Int Cmd}})
 
 (def Turtle

@@ -23,7 +23,7 @@
           {:required true}]]
 
         [:div.col-xs-12
-         [form-input/password "Password" password [:users :login :password]]]
+         [form-input/password password "Password" [:users :login :password]]]
 
         [:div.row.col-xs-12.mar-top-20
          [:div.col-xs-6

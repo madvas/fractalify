@@ -1,6 +1,8 @@
-{:db-server     {:uri     (environ.core/env :MONGOLAB_URI)
+{:db-server     {:uri     (System/getenv "MONGOLAB_URI")
                  :host    "127.0.0.1"
                  :db-name "fractalify-dev"
                  :port    27017}
  :http-listener {:port 10555}
- :figwheel      {}}
+ :figwheel      {}
+ :mailer        {:api-user (System/getenv "MAILER_USER")
+                 :api-key  (System/getenv "MAILER_PASS")}}

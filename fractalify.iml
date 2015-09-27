@@ -47,10 +47,9 @@
     <orderEntry type="library" name="Leiningen: http-kit:2.1.19" level="project" />
     <orderEntry type="library" name="Leiningen: instar:1.0.10" level="project" />
     <orderEntry type="library" name="Leiningen: io.aviso/pretty:0.1.18" level="project" />
+    <orderEntry type="library" name="Leiningen: io.forward/sendgrid-clj:1.0" level="project" />
     <orderEntry type="library" name="Leiningen: juxt.modular/bidi:0.9.4" level="project" />
     <orderEntry type="library" name="Leiningen: juxt.modular/http-kit:0.5.4" level="project" />
-    <orderEntry type="library" name="Leiningen: juxt.modular/maker:0.5.0" level="project" />
-    <orderEntry type="library" name="Leiningen: juxt.modular/wire-up:0.5.0" level="project" />
     <orderEntry type="library" name="Leiningen: kibu/pushy:0.3.2" level="project" />
     <orderEntry type="library" name="Leiningen: liberator:0.13" level="project" />
     <orderEntry type="library" name="Leiningen: me.raynes/conch:0.8.0" level="project" />
@@ -70,6 +69,7 @@
     <orderEntry type="library" name="Leiningen: ring/ring-defaults:0.1.5" level="project" />
     <orderEntry type="library" name="Leiningen: ring:1.4.0" level="project" />
     <orderEntry type="library" name="Leiningen: rm-hull/monet:0.2.1" level="project" />
+    <orderEntry type="library" name="Leiningen: selmer:0.9.2" level="project" />
     <orderEntry type="library" name="Leiningen: weasel:0.6.0" level="project" />
     <orderEntry type="library" name="Leiningen: com.cemerick/url:0.1.1" level="project" />
     <orderEntry type="library" name="Leiningen: pathetic:0.5.0" level="project" />
@@ -194,5 +194,7 @@
     <orderEntry type="library" name="Leiningen: org.eclipse.jetty/jetty-http:9.2.10.v20150310" level="project" />
     <orderEntry type="library" name="Leiningen: org.eclipse.jetty/jetty-io:9.2.10.v20150310" level="project" />
     <orderEntry type="library" name="Leiningen: org.eclipse.jetty/jetty-util:9.2.10.v20150310" level="project" />
+    <orderEntry type="library" name="Leiningen: json-html:0.3.5" level="project" />
+    <orderEntry type="library" name="Leiningen: hiccups:0.3.0" level="project" />
   </component>
 </module>

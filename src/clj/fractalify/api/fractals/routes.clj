@@ -6,17 +6,19 @@
     [fractalify.api.fractals.fractals-db :as fdb]
     [fractalify.api.api :as api]))
 
-(defresource fractal-res [db params]
-             api/base-resource
-             :handle-ok (fn [_] (format "The text is %s" (:id params))))
+(defresource
+  fractal [{:keys [db params]}]
+  api/base-resource
+  :handle-ok (fn [_] (format "The text is %s" (:id params))))
 
-(defresource fractal-list-res [db params]
-             api/base-resource
-             :handle-ok (fn [_] (fdb/get-fractals db params)))
+(defresource
+  fractals [{:keys [db params]}]
+  api/base-resource
+  :handle-ok (fn [_] (fdb/get-fractals db params)))
 
 (def routes
-  ["/api/fractals" {["/" :id] fractal-res
-                    ""        fractal-list-res}])
+  ["/api/fractals" {["/" :id] fractal
+                    ""        fractals}])
 
 (defrecord FractalRoutes []
   b/RouteProvider

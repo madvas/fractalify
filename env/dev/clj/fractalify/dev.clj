@@ -4,7 +4,6 @@
             [cemerick.piggieback :as piggieback]
             [weasel.repl.websocket :as weasel]
             [clojure.pprint :refer (pprint)]
-            [modular.maker :refer (make)]
             [clojure.reflect :refer (reflect)]
             [clojure.repl :refer (apropos dir doc find-doc pst source)]
             [clojure.tools.namespace.repl :as tools-repl]

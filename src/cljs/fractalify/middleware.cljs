@@ -8,19 +8,8 @@
   false
   )
 
-
-(defn valid-schema? [db]
-  (db/valid? db))
-
-(defn print-db [handler]
-  (fn [db v]
-    (println db)
-    (handler db v)))
-
-(def trim-validate [trim-v
-                    (when ^boolean goog.DEBUG (after valid-schema?))])
-
 (def standard-middlewares [(when ^boolean (and goog.DEBUG enabled?) debug)
-                           trim-validate])
+                           trim-v
+                           (when ^boolean goog.DEBUG (after db/valid?))])
 
 (def standard-no-debug (rest standard-middlewares))

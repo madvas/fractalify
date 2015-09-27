@@ -4,7 +4,6 @@
   (:require
     [com.stuartsierra.component :as c]
     [fractalify.config :as cfg]
-    [modular.maker :as m]
     [fractalify.api.main.routes :as mr]
     [fractalify.api.users.routes :as ur]
     [fractalify.api.fractals.routes :as fr]
@@ -18,7 +17,8 @@
     [fractalify.api.fractals.fractals-db :as fdb]
     [fractalify.api.users.users-generator :as ug]
     [fractalify.api.fractals.fractals-generator :as fg]
-    [fractalify.middlewares :as mw]))
+    [fractalify.middlewares :as mw]
+    [fractalify.mailer :as ml]))
 
 
 (defn make [f config k]
@@ -39,7 +39,8 @@
 (defn fig-component [system config]
   (assoc system :figwheel (make fig/new-figwheel config :figwheel)))
 
-
+(defn mailer-component [system config]
+  (assoc system :mailer (make ml/new-mailer config :mailer)))
 
 (defn less-component [system config]
   (assoc system :less-watcher (lw/new-less-watcher)))
@@ -62,7 +63,10 @@
                 (-> {}
                     (http-listener-components config)
                     (router-components config)
-                    (db-components config)))))
+                    (db-components config)
+                    (mailer-component config)))))
+
+
 
 (defn dev-system-map [system-map config]
   (-> system-map
@@ -72,7 +76,7 @@
 
 (defn new-dependency-map []
   {:http-listener [:router]
-   :router        [:db-server :fractal-routes :user-routes :main-routes :middlewares]
+   :router        [:db-server :fractal-routes :user-routes :main-routes :middlewares :mailer]
    :middlewares   [:db-server]
    :users-db      [:db-server]
    :fractals-db   [:db-server]

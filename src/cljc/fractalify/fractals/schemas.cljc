@@ -1,6 +1,6 @@
 (ns fractalify.fractals.schemas
   (:require [schema.core :as s]
-            [fractalify.workers.schemas :as turtle-schemas]
+            [fractalify.workers.schemas :as wch]
             [fractalify.users.schemas :as uch]
             [fractalify.main.schemas :as mch]))
 
@@ -8,8 +8,10 @@
 
 (def hex-color? (partial re-matches #"^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"))
 
-(def Color [(s/one (s/pred hex-color?) "hex-color")
-            (s/one s/Num "alpha")])
+(def Color
+  (wch/with-coerce
+    [(s/one (s/pred hex-color?) "hex-color")
+     (s/one s/Num "alpha")] ["#000" 0]))
 
 (def Base64Png (s/pred (partial re-matches #"^data:image/png;base64,.*")))
 
@@ -31,13 +33,13 @@
    :bg-color   Color
    :line-width s/Num
    :size       s/Num
-   (o :lines)  turtle-schemas/Lines})
+   (o :lines)  wch/Lines})
 
 (def Fractal
-  {(o :l-system) turtle-schemas/LSystem
-   (o :canvas)   Canvas
-   (o :info)     {(o :title) s/Str
-                  (o :desc)  s/Str}})
+  {:l-system wch/LSystem
+   :canvas   Canvas
+   :info     {:title s/Str
+              :desc  s/Str}})
 
 (def Comment
   {:id      s/Int
@@ -49,7 +51,7 @@
   {:id            s/Int
    :title         s/Str
    :desc          s/Str
-   :l-system      turtle-schemas/LSystem
+   :l-system      wch/LSystem
    :canvas        Canvas
    :src           s/Str
    :author        uch/User
@@ -58,23 +60,25 @@
    :created       mch/Date
    (o :comments)  [Comment]})
 
-(def FractalOrderTypes (s/enum :best :recent))
+(def FractalOrderTypes (wch/with-coerce (s/enum :best :recent) :best))
 
 (def PublishedFractalsList (mch/list-response PublishedFractal))
 
+(def FractalsForms
+  (merge
+    Fractal
+    {:comment {:text s/Str}
+     :sidebar {:page  s/Int
+               :order FractalOrderTypes
+               :limit s/Int}}))
+
 (def FractalsSchema
-  {:forms                   (merge
-                              Fractal
-                              {(o :comment) {(o :text) s/Str}
-                               :sidebar     {:page  s/Int
-                                             :order FractalOrderTypes
-                                             :limit s/Int}})
+  {:forms                   FractalsForms
    (o :fractal-detail)      PublishedFractal
    (o :fractals-sidebar)    PublishedFractalsList
    (o :fractals-user)       PublishedFractalsList
    (o :fractals-home)       {(o :best)   PublishedFractalsList
                              (o :recent) PublishedFractalsList}
-
    (o :l-system-generating) s/Bool})
 
 (def dragon-curve
@@ -98,6 +102,7 @@
 
 (def default-db
   {:forms (merge
+            (mch/coerce-forms-with-defaults FractalsForms)
             {:sidebar {:page  1
                        :order :best
                        :limit 10}}
