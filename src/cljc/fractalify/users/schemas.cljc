@@ -6,32 +6,47 @@
 
 (def Email (s/pred (partial re-matches #"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")))
 (def Username s/Str)
+(def Password s/Str)
 
+(def UsernameField
+  {:username Username})
+
+(def UserRoles [(s/enum :admin :user)])
+
+(def UserSession
+  {:_id      (s/pred (partial instance? org.bson.types.ObjectId))
+   :username Username
+   :roles    UserRoles})
 
 (def User
   {:id        s/Str
-   :username  s/Str
+   :username  Username
    :gravatar  s/Str
    (o :email) Email
    (o :bio)   s/Str})
 
 (def LoginForm
-  {:username s/Str
-   :password s/Str})
+  {:username Username
+   :password Password})
 
 (def JoinForm
-  {:username     s/Str
+  {:username     Username
    :email        s/Str
-   :password     s/Str
-   :confirm-pass s/Str})
+   :password     Password
+   :confirm-pass Password})
 
 (def ForgotPassForm
   {:email s/Str})
 
+(def ResetPassForm
+  {:username Username
+   :token    s/Str
+   :new-pass Password})
+
 (def ChangePassForm
-  {:current-pass     s/Str
-   :new-pass         s/Str
-   :confirm-new-pass s/Str})
+  {:current-pass     Password
+   :new-pass         Password
+   :confirm-new-pass Password})
 
 (def EditProfileForm
   {:email s/Str

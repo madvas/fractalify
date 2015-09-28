@@ -27,6 +27,8 @@
   (doseq [a args]
     (let [f (if (map? a) pprint print)]
       (f a)))
+  (println)
+  (flush)
   (last args))
 
 (defn pk [msg ks x]
@@ -162,11 +164,28 @@
 (defn empty-seq? [x]
   (and (empty? x) (sequential? x)))
 
-(defn equal-in-key? [k & ms]
+(defn eq-in-key? [k & ms]
   (-> (map k ms) set count (= 1)))
 
-(defn map-map-vals [f m]
+(defn map-values [f m]
   (into {} (for [[k v] m] [k (f v)])))
+
+(defn map-keys [f m]
+  (into {} (for [[k v] m] [(f k) v])))
+
+(defn vec->indexed-map [coll]
+  "Converts:
+  [[:a 1] [:b 2]]
+  => {0 [:a 1] 1 [:b 2]}"
+  (into {} (map-indexed (fn [i x] [i x]) coll)))
+
+(defn indexed-map->vec [coll]
+  (into [] (vals coll)))
+
+(defn split-map [m & ks]
+  "Returns 2 maps out of 1. One with selected keys given
+  Other do dissoc on these keys"
+  [(select-keys m ks) (apply dissoc m ks)])
 
 (s/defn gen-sentence :- s/Str
   [word-size words-min words-max]
@@ -175,11 +194,39 @@
       (partial str/join " ")
       (gen/vector (gen/resize word-size gen/string-alphanumeric) words-min words-max))))
 
+(defn and-fn [& fs]
+  "Creates a function, which applies set of functions to a input
+  and applies \"and\" over their result. Think of every-pred, but insted of
+  boolean returns value if last positive function if all positive
+  Examples:
+  ((and-fn #(identity 5) #(identity 1)))
+  => 1
+  ((and-fn #(identity false) #(identity 1)))
+  => nil"
+  (let [fns (apply juxt fs)]
+    (fn [& args]
+      (let [results (apply fns args)]
+        (when (every? identity results)
+          (last results))))))
+
+(defn or-fn [& all-fs]
+  "Like and-fn but with or"
+  (fn [& args]
+    (loop [fs all-fs]
+      (when-let [fs (seq fs)]
+        (let [res (apply (first fs) args)]
+          (if res
+            res
+            (recur (rest fs))))))))
+
 (s/defn gen-email []
   (str "some" (rand-int 9999) "@email.com"))
 
 (defn valid-schema? [schema x]
   (nil? (s/check schema x)))
+
+(defn without-ext [s]
+  (str/join (butlast (str/split s #"\."))))
 
 (defn gen-str [n]
   (let [charseq (map char (concat

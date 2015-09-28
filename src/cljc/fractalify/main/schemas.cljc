@@ -33,7 +33,7 @@
            (->> schema
                 (filter
                   #(and (keyword? (key %))))
-                (u/map-map-vals
+                (u/map-values
                   #(cond
                     (= s/Str %) ""
                     (= s/Num %) 0

@@ -11,23 +11,39 @@
     [fractalify.api.main.routes :as mr]
     [schema.core :as s]
     [fractalify.users.schemas :as uch]
-    [plumbing.core :as p]))
+    [plumbing.core :as p]
+    [fractalify.mailer :as ml]))
 
 (def auth-base "/api/auth")
 (def login-url (str auth-base "/login"))
 (declare routes)
 
+(defn owner? [params]
+  (fn [_]
+    (when-let [user (frd/current-authentication)]
+      (u/eq-in-key? :username params user))))
+
+(defn get-user-fn [db params]
+  (fn [_]
+    (let [fields (if (u/eq-in-key? :username
+                                   (frd/current-authentication)
+                                   params)
+                   udb/private-fields
+                   udb/public-fields)]
+      (api/_id->id (udb/get-user db (u/select-key params :username) fields)))))
+
+(defresource
+  logged-user [{:keys [db params]}]
+  api/base-resource
+  :exists? (fn [_] (frd/current-authentication))
+  :handle-ok
+  (fn [_]
+    (get-user-fn db (u/select-key (frd/current-authentication) :username))))
+
 (defresource
   user [{:keys [db params]}]
   api/base-resource
-  :handle-ok
-  (fn [_]
-    (let [fields (if (u/equal-in-key? :username
-                                      (frd/current-authentication)
-                                      params)
-                   udb/private-fields
-                   udb/public-fields)]
-      (udb/get-user db (u/select-key params :username) fields))))
+  :handle-ok (get-user-fn db params))
 
 (defresource
   login [{:keys [db params]}]
@@ -52,8 +68,10 @@
     (udb/get-user-by-acc db (:username params) (:email params)))
   :put!
   (fn [_]
-    {::user (apply dissoc (udb/add-user db (dissoc params :confirm-pass))
-                   (keys udb/private-fields))})
+    (let [new-user (udb/add-user db (dissoc params :confirm-pass))]
+      {::user (-> new-user
+                  (#(apply dissoc % (keys udb/private-fields)))
+                  api/_id->id)}))
   :handle-created ::user)
 
 (defresource
@@ -64,20 +82,84 @@
   :can-post-to-missing? false
   :exists?
   (fn [_]
-    (let [user (udb/get-user db {:email (:email params)} udb/public-fields)]
-      [false {::user user}]
-      false))
+    (when-let [user (udb/get-user db {:email (:email params)} udb/private-fields)]
+      {::user user}))
+  :post!
+  (fn [ctx]
+    (p/letk [[_id username email] (::user ctx)
+             token (udb/create-reset-token db _id)]
+      (ml/send-email! mailer :forgot-pass
+                      {:token    token
+                       :username username}
+                      {:to      email
+                       :subject "Forgotten password"}))))
+
+(defn set-new-pass [db params]
+  (fn [_]
+    (u/p "set new pass")
+    (p/letk [[username new-pass] params]
+      (udb/set-new-password db username new-pass))))
+
+(defresource
+  reset-pass [{:keys [db params]}]
+  api/base-resource
+  :allowed-methods [:post]
+  :malformed?
+  (api/malformed-params?
+    (merge uch/ResetPassForm uch/UsernameField) params)
+  :authorized?
+  (u/or-fn
+    api/admin?
+    (fn valid-reset-token? [_]
+      (p/letk [[username token] params]
+        (p/when-letk [user (udb/get-user-by-reset-token db username token)]
+          {::user user}))))
+  :post! (set-new-pass db params))
+
+(defresource
+  change-pass [{:keys [db params]}]
+  api/base-resource
+  :allowed-methods [:post]
+  :malformed?
+  (api/malformed-params?
+    (merge uch/ChangePassForm uch/UsernameField) params)
+  :authorized?
+  (u/or-fn
+    api/admin?
+    (u/and-fn
+      (owner? params)
+      (fn current-pass-matches? [_]
+        (p/letk [[username current-pass] params]
+          (p/when-letk [user (udb/verify-credentials
+                               db {:username username
+                                   :password current-pass})]
+            true)))))
+  :post! (set-new-pass db params))
+
+(defresource
+  edit-profile [{:keys [db params]}]
+  api/base-resource
+  :allowed-methods [:post]
+  :malformed?
+  (api/malformed-params?
+    (merge uch/EditProfileForm uch/UsernameField) params)
+  :authorized? (u/or-fn api/admin? (owner? params))
   :post!
   (fn [_]
-    ))
+    (let [[username-entry other-entries] (u/split-map params :username)]
+      (udb/update-user db username-entry other-entries))))
 
 (defn logout [_]
   (fn [res]
     (frd/logout* res)))
 
 (def routes
-  ["/api/" {"users" {["/" :username] user}
-            "auth/" [["login" login]
+  ["/api/" {"users" {["/" :username] [["/reset-pass" reset-pass]
+                                      ["/change-pass" change-pass]
+                                      ["/edit-profile" edit-profile]
+                                      ["" user]]}
+            "auth/" [["logged-user" logged-user]
+                     ["login" login]
                      ["logout" logout]
                      ["join" join]
                      ["forgot-pass" forgot-pass]]}])

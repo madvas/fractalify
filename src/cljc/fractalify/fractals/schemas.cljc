@@ -7,11 +7,14 @@
 (def o s/optional-key)
 
 (def hex-color? (partial re-matches #"^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"))
+(def FractalTitle s/Str)
+(def FractalDesc s/Str)
+(def CommentText s/Str)
 
 (def Color
-  (wch/with-coerce
-    [(s/one (s/pred hex-color?) "hex-color")
-     (s/one s/Num "alpha")] ["#000" 0]))
+  (wch/with-coerce [(s/one (s/pred hex-color?) "hex-color")
+                    (s/one s/Num "alpha")]
+                   ["#000" 0]))
 
 (def Base64Png (s/pred (partial re-matches #"^data:image/png;base64,.*")))
 
@@ -21,13 +24,6 @@
   #?@(:cljs [(def CanvasElement (s/pred (partial instance? js/HTMLCanvasElement)))
              (def CanvasContext (s/pred (partial instance? js/CanvasRenderingContext2D)))]))
 
-(def FractalsQueryParams
-  {(o :page)     s/Int
-   (o :limit)    s/Int
-   (o :sort)     s/Keyword
-   (o :sort-dir) s/Int
-   (o :username) s/Str})
-
 (def Canvas
   {:color      Color
    :bg-color   Color
@@ -35,15 +31,25 @@
    :size       s/Num
    (o :lines)  wch/Lines})
 
-(def Fractal
+(def FractalForms
   {:l-system wch/LSystem
    :canvas   Canvas
-   :info     {:title s/Str
-              :desc  s/Str}})
+   :info     {:title FractalTitle
+              :desc  FractalDesc}})
 
+(def FractalOrderTypes (wch/with-coerce (s/enum :best :recent) :best))
+
+(def FractalListForm
+  {(o :page)     s/Int
+   (o :limit)    s/Int
+   (o :sort)     FractalOrderTypes
+   (o :sort-dir) s/Int
+   (o :username) s/Str})
+
+(def CommentForm {:text CommentText})
 (def Comment
   {:id      s/Int
-   :text    s/Str
+   :text    CommentText
    :author  uch/User
    :created mch/Date})
 
@@ -60,17 +66,13 @@
    :created       mch/Date
    (o :comments)  [Comment]})
 
-(def FractalOrderTypes (wch/with-coerce (s/enum :best :recent) :best))
-
 (def PublishedFractalsList (mch/list-response PublishedFractal))
 
 (def FractalsForms
   (merge
-    Fractal
-    {:comment {:text s/Str}
-     :sidebar {:page  s/Int
-               :order FractalOrderTypes
-               :limit s/Int}}))
+    FractalForms
+    {:comment CommentForm
+     :sidebar FractalListForm}))
 
 (def FractalsSchema
   {:forms                   FractalsForms

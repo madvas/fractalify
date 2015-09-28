@@ -30,11 +30,9 @@
    :start       s/Str
    :angle       s/Num
    :iterations  (with-coerce (s/pred pos?) 1)
-   ;:iterations  (s/pred pos?)
    :line-length s/Num
    :start-angle s/Num
    :origin      (with-coerce coords {:x 0 :y 0})
-   ;:origin      coords
    (o :cmds)    {s/Int Cmd}})
 
 (def Turtle

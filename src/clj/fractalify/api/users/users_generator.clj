@@ -19,7 +19,12 @@
 
 (def admin
   {:username "admin"
-   :email    "admin@admin.com"
+   :email    "matus.lestan@gmail.com"
+   :password "111111"})
+
+(def some-user
+  {:username "matus"
+   :email    "somemai@gmail.com"
    :password "111111"})
 
 (defrecord UsersGenerator []
@@ -27,10 +32,12 @@
   (start [this]
     (p/letk [[db] (:db-server this)]
       (mc/remove db udb/coll-name)
+      (let [admin (udb/add-user db (gen-user admin))]
+        (udb/add-admin-role db (:_id admin)))
+      (udb/add-user db (gen-user some-user))
       (assoc this :users
                   (doall
-                    (conj (take 10 (repeatedly #(udb/add-user db (gen-user))))
-                          (udb/add-user db (gen-user admin)))))))
+                    (take 10 (repeatedly #(udb/add-user db (gen-user))))))))
 
   (stop [this]
     (dissoc this :users)))

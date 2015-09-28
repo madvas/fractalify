@@ -21,8 +21,9 @@
     [fractalify.mailer :as ml]))
 
 
-(defn make [f config k]
-  (f (u/eval-map (get-in config (u/ensure-vec k)))))
+(defn make [f config & ks]
+  (apply f (map #(u/eval-map (get-in config (u/ensure-vec %)))
+                ks)))
 
 (defn http-listener-components
   [system config]
@@ -36,11 +37,12 @@
                 :fractal-routes (fr/new-fractal-routes)
                 :middlewares (mw/new-middlewares)))
 
+
 (defn fig-component [system config]
   (assoc system :figwheel (make fig/new-figwheel config :figwheel)))
 
 (defn mailer-component [system config]
-  (assoc system :mailer (make ml/new-mailer config :mailer)))
+  (assoc system :mailer (make ml/new-mailer config :mailer :site)))
 
 (defn less-component [system config]
   (assoc system :less-watcher (lw/new-less-watcher)))
