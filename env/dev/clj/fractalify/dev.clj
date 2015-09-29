@@ -34,11 +34,10 @@
                  (sys/dev-dependency-map)))
         )))
 
-(defn init
+(defn init [init-system]
   "Constructs the current development system."
   []
-  (alter-var-root #'system
-                  (constantly (new-dev-system))))
+  (alter-var-root #'system (constantly init-system)))
 
 (defn start
   "Starts the current development system."
@@ -58,7 +57,7 @@
   "Initializes the current development system and starts it running."
   []
   (println "Go called")
-  (init)
+  (init (new-dev-system))
   (start)
   :ok)
 

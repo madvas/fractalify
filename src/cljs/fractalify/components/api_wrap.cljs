@@ -14,7 +14,7 @@
 
 (defn ^:private api-wrap
   [endpoint-key path value-sub force-reload]
-  (let [val (f/subscribe (u/ensure-vec value-sub))
+  (let [val (f/subscribe (u/ensure-seq value-sub))
         loading? (f/subscribe [:loading? path])]
     (r/create-class
       {:component-will-mount
@@ -28,7 +28,7 @@
          (conj child @val @loading?))})))
 
 (p/defnk ^:private api-query-params-wrap [endpoint-key path value-sub query-params-sub :as config]
-  (let [query-params (f/subscribe (u/ensure-vec query-params-sub))
+  (let [query-params (f/subscribe (u/ensure-seq query-params-sub))
         f (partial api-wrap endpoint-key path value-sub (:force-reload config))]
     (fn [child]
       [f @query-params child])))

@@ -47,20 +47,21 @@
    (o :username) s/Str})
 
 (def CommentForm {:text CommentText})
+
 (def Comment
   {:id      s/Int
    :text    CommentText
-   :author  uch/User
+   :author  uch/UserDb
    :created mch/Date})
 
 (def PublishedFractal
-  {:id            s/Int
-   :title         s/Str
-   :desc          s/Str
+  {:id            s/Str
+   :title         FractalTitle
+   :desc          FractalDesc
    :l-system      wch/LSystem
    :canvas        Canvas
    :src           s/Str
-   :author        uch/User
+   :author        (s/cond-pre uch/UserOther s/Str)
    :star-count    s/Int
    :starred-by-me s/Bool
    :created       mch/Date

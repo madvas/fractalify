@@ -39,7 +39,7 @@
                     (= s/Num %) 0
                     (= s/Int %) 0
                     (:default-value %) (:default-value %)
-                    :else (u/p "error coerce:" (type %) %)))))))) {}))
+                    :else (println "error coerce:" (type %) %)))))))) {}))
 
 
 (s/defn coerce-forms-with-defaults :- {s/Keyword s/Any}

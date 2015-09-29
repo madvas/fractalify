@@ -18,11 +18,12 @@
     [fractalify.api.users.users-generator :as ug]
     [fractalify.api.fractals.fractals-generator :as fg]
     [fractalify.middlewares :as mw]
-    [fractalify.mailer :as ml]))
+    [fractalify.mailers.sendgrid :as sgm]
+    [fractalify.mailers.mailer :as mm]))
 
 
 (defn make [f config & ks]
-  (apply f (map #(u/eval-map (get-in config (u/ensure-vec %)))
+  (apply f (map #(u/eval-map (get-in config (u/ensure-seq %)))
                 ks)))
 
 (defn http-listener-components
@@ -41,8 +42,10 @@
 (defn fig-component [system config]
   (assoc system :figwheel (make fig/new-figwheel config :figwheel)))
 
-(defn mailer-component [system config]
-  (assoc system :mailer (make ml/new-mailer config :mailer :site)))
+(defn mailer-components [system config]
+  (-> system
+      (assoc :mailer (make mm/new-mailer config :mailer :site))
+      (assoc :mail-sender (make sgm/new-sendgrid-mail-sender config :sendgrid-mail-sender))))
 
 (defn less-component [system config]
   (assoc system :less-watcher (lw/new-less-watcher)))
@@ -66,7 +69,7 @@
                     (http-listener-components config)
                     (router-components config)
                     (db-components config)
-                    (mailer-component config)))))
+                    (mailer-components config)))))
 
 
 
@@ -82,18 +85,19 @@
    :middlewares   [:db-server]
    :users-db      [:db-server]
    :fractals-db   [:db-server]
-   :db-server     []})
+   :mailer        [:mail-sender]})
 
+
+(def db-generators-dependencies
+  {:users-generator    [:db-server :users-db]
+   :fractals-generator [:db-server :fractals-db :users-generator]})
 
 (defn dev-dependency-map []
-  {:figwheel           []
-   :less-watcher       []
-   :users-generator    [:db-server :users-db]
-   :fractals-generator [:db-server :fractals-db :users-generator]})
+  db-generators-dependencies)
 
 (defn new-production-system
   "Create the production system"
+  ([] (new-production-system {}))
   ([opts]
    (-> (new-system-map (merge (cfg/config) opts))
-       (c/system-using (new-dependency-map))))
-  ([] (new-production-system {})))
+       (c/system-using (new-dependency-map)))))

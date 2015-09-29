@@ -1,29 +1,46 @@
 (ns fractalify.users.schemas
   (:require [schema.core :as s]
-            [fractalify.main.schemas :as mch]))
+            [fractalify.main.schemas :as mch]
+            [fractalify.utils :as u]))
 
 (def o s/optional-key)
 
-(def Email (s/pred (partial re-matches #"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")))
+(s/defschema Email (s/pred (partial re-matches #"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")))
 (def Username s/Str)
 (def Password s/Str)
+(def UserBio s/Str)
 
 (def UsernameField
   {:username Username})
 
 (def UserRoles [(s/enum :admin :user)])
 
-(def UserSession
-  {:_id      (s/pred (partial instance? org.bson.types.ObjectId))
-   :username Username
-   :roles    UserRoles})
+(def UserDb
+  {:id                        s/Str
+   :username                  Username
+   :roles                     UserRoles
+   :created                   mch/Date
+   :gravatar                  s/Str
+   :salt                      s/Str
+   :password                  s/Str
+   :email                     Email
+   :bio                       UserBio
+   (o :reset-password-expire) (s/maybe mch/Date)
+   (o :reset-password-token)  (s/maybe s/Str)})
 
-(def User
-  {:id        s/Str
-   :username  Username
-   :gravatar  s/Str
-   (o :email) Email
-   (o :bio)   s/Str})
+(def UserId (u/select-key UserDb :id))
+
+(def UserSession
+  (select-keys UserDb [:id :username :roles]))
+
+(def UserMe
+  (dissoc UserDb
+          :salt
+          :password
+          (o :reset-password-expire)
+          (o :reset-password-token)))
+
+(def UserOther (dissoc UserMe :email))
 
 (def LoginForm
   {:username Username
@@ -33,7 +50,8 @@
   {:username     Username
    :email        s/Str
    :password     Password
-   :confirm-pass Password})
+   :confirm-pass Password
+   :bio          UserBio})
 
 (def ForgotPassForm
   {:email s/Str})
@@ -61,9 +79,9 @@
    })
 
 (def UsersSchema
-  {(o :logged-user) User
+  {(o :logged-user) UserDb
    :forms           UserForms
-   (o :user-detail) User})
+   (o :user-detail) UserDb})
 
 
 (def default-db

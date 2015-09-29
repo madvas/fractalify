@@ -13,16 +13,20 @@
   api/base-resource
   :exists?
   (fn [_]
-    (when-let [fractal (fdb/get-fractal db (:id params))]
+    (when-let [fractal (fdb/fractal-get-by-id db (:id params))]
       {::fractal fractal}))
-  :handle-ok ::fractal)
+  :handle-ok
+  (s/fn :- fch/PublishedFractal [ctx]
+    (::fractal ctx)))
 
 (defresource
   fractals [{:keys [db params]}]
   api/base-resource
-  :handle-ok (s/fn :- fch/PublishedFractalsList [_]
-               {:total-items (fdb/fractal-count db)
-                :items       (fdb/get-fractals db params)}))
+  :malformed? (api/malformed-params? fch/FractalListForm params)
+  :handle-ok
+  (s/fn :- fch/PublishedFractalsList [_]
+    {:total-items (fdb/fractal-count db)
+     :items       (fdb/get-fractals db params)}))
 
 (def routes
   ["/api/fractals" {["/" :id] fractal

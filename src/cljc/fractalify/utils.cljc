@@ -19,8 +19,8 @@
                [reagent.core :as r]
                [re-frame.core :as f]])))
 
-(defn ensure-vec [x]
-  (if (vector? x) x [x]))
+(defn ensure-seq [x]
+  (if (sequential? x) x [x]))
 
 (defn p [& args]
   "Like print, but returns last arg. For debugging purposes"
@@ -32,7 +32,7 @@
   (last args))
 
 (defn pk [msg ks x]
-  (p msg (get-in x (ensure-vec ks)))
+  (p msg (get-in x (ensure-seq ks)))
   x)
 
 (defn pk-> [x msg ks]
@@ -224,6 +224,23 @@
 
 (defn valid-schema? [schema x]
   (nil? (s/check schema x)))
+
+(s/defn required-keys [schema :- (s/protocol s/Schema)]
+  (->> (keys schema)
+       (remove record?)))
+
+(s/defn select-req-keys [m schema]
+  (select-keys m (required-keys schema)))
+
+(s/defn schema-keys [schema :- (s/protocol s/Schema)]
+  (->> (keys schema)
+       (map #(if (instance? schema.core.OptionalKey %) (:k %) %))))
+
+(defn select-schema-keys [m schema]
+  (select-keys m (schema-keys schema)))
+
+(s/defn coerce-json [x schema :- (s/protocol s/Schema)]
+  ((coerce/coercer schema coerce/json-coercion-matcher) x))
 
 (defn without-ext [s]
   (str/join (butlast (str/split s #"\."))))

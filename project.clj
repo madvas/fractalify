@@ -51,7 +51,8 @@
                  [com.cemerick/friend "0.2.1"]
                  [org.clojure/core.cache "0.6.4"]
                  [io.forward/sendgrid-clj "1.0"]
-                 [selmer "0.9.2"]]
+                 [selmer "0.9.2"]
+                 [digest "1.4.4"]]
 
   :plugins [[lein-cljsbuild "1.1.0"]
             [lein-environ "1.0.0"]
@@ -90,7 +91,8 @@
                                       [figwheel-sidecar "0.3.7"]
                                       [com.cemerick/piggieback "0.1.5"]
                                       [weasel "0.6.0"]
-                                      [io.aviso/pretty "0.1.18"]]
+                                      [io.aviso/pretty "0.1.18"]
+                                      [midje "1.7.0"]]
 
                        :repl-options {:init-ns          fractalify.user
                                       :welcome          (println "Type (dev) to start")

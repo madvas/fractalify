@@ -31,7 +31,7 @@
 (def gravatar-size 300)
 
 (defn user-card []
-  (s/fn [user :- (s/maybe uch/User)]
+  (s/fn [user :- (s/maybe uch/UserDb)]
     [:div.row.center-xs.col-xs-12.col-lg-3.top-xs.text-left
      (when user
        (p/letk [[username gravatar bio] user]

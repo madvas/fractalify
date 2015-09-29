@@ -31,13 +31,13 @@
   c/Lifecycle
   (start [this]
     (p/letk [[db] (:db-server this)]
-      (mc/remove db udb/coll-name)
-      (let [admin (udb/add-user db (gen-user admin))]
-        (udb/add-admin-role db (:_id admin)))
-      (udb/add-user db (gen-user some-user))
+      (mc/remove db udb/coll)
+      (p/letk [[id] (udb/user-insert-and-return db (gen-user admin))]
+        (udb/add-admin-role db id))
+      (udb/user-insert-and-return db (gen-user some-user))
       (assoc this :users
                   (doall
-                    (take 10 (repeatedly #(udb/add-user db (gen-user))))))))
+                    (take 10 (repeatedly #(udb/user-insert-and-return db (gen-user))))))))
 
   (stop [this]
     (dissoc this :users)))

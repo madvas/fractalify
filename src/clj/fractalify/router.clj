@@ -34,7 +34,8 @@
                             (for [[ckey v] component]
                               (when (satisfies? b/RouteProvider v)
                                 (b/routes v)))))]))
-  (stop [this] (dissoc this :router))
+  (stop [this]
+    (dissoc this :router))
 
   b/RouteProvider
   (routes [this] (:router this))

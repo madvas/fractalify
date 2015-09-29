@@ -39,6 +39,7 @@
     <orderEntry type="library" name="Leiningen: com.stuartsierra/component:0.2.3" level="project" />
     <orderEntry type="library" name="Leiningen: compojure:1.4.0" level="project" />
     <orderEntry type="library" name="Leiningen: day8/re-frame-tracer:0.1.0-20150720.001938-1" level="project" />
+    <orderEntry type="library" name="Leiningen: digest:1.4.4" level="project" />
     <orderEntry type="library" name="Leiningen: enlive:1.1.6" level="project" />
     <orderEntry type="library" name="Leiningen: environ:1.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: figwheel-sidecar:0.3.7" level="project" />
@@ -53,6 +54,7 @@
     <orderEntry type="library" name="Leiningen: kibu/pushy:0.3.2" level="project" />
     <orderEntry type="library" name="Leiningen: liberator:0.13" level="project" />
     <orderEntry type="library" name="Leiningen: me.raynes/conch:0.8.0" level="project" />
+    <orderEntry type="library" name="Leiningen: midje:1.7.0" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojars.stumitchell/clairvoyant:0.1.0-20150715.050527-4" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/clojure:1.7.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Leiningen: org.clojure/clojurescript:1.7.48" level="project" />
@@ -128,7 +130,6 @@
     <orderEntry type="library" name="Leiningen: cljsbuild:1.0.5" level="project" />
     <orderEntry type="library" name="Leiningen: clojurescript-build:0.1.7" level="project" />
     <orderEntry type="library" name="Leiningen: com.cemerick/pomegranate:0.3.0" level="project" />
-    <orderEntry type="library" name="Leiningen: digest:1.4.4" level="project" />
     <orderEntry type="library" name="Leiningen: ring-cors:0.1.7" level="project" />
     <orderEntry type="library" name="Leiningen: watchtower:0.1.1" level="project" />
     <orderEntry type="library" name="Leiningen: fs:1.1.2" level="project" />
@@ -141,7 +142,6 @@
     <orderEntry type="library" name="Leiningen: org.sonatype.aether/aether-connector-wagon:1.13.1" level="project" />
     <orderEntry type="library" name="Leiningen: org.sonatype.aether/aether-impl:1.13.1" level="project" />
     <orderEntry type="library" name="Leiningen: org.sonatype.aether/aether-util:1.13.1" level="project" />
-    <orderEntry type="library" name="Leiningen: org.tcrawley/dynapath:0.2.3" level="project" />
     <orderEntry type="library" name="Leiningen: org.apache.maven.wagon/wagon-http-shared4:2.2" level="project" />
     <orderEntry type="library" name="Leiningen: org.apache.maven/maven-model-builder:3.0.4" level="project" />
     <orderEntry type="library" name="Leiningen: org.apache.maven/maven-model:3.0.4" level="project" />
@@ -163,6 +163,16 @@
     <orderEntry type="library" name="Leiningen: hiccup:1.0.3" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/data.csv:0.1.2" level="project" />
     <orderEntry type="library" name="Leiningen: org.flatland/useful:0.10.6" level="project" />
+    <orderEntry type="library" name="Leiningen: colorize:0.1.1" level="project" />
+    <orderEntry type="library" name="Leiningen: dynapath:0.2.0" level="project" />
+    <orderEntry type="library" name="Leiningen: flare:0.2.8" level="project" />
+    <orderEntry type="library" name="Leiningen: ordered:1.2.0" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojure/core.unify:0.5.2" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojure/math.combinatorics:0.1.1" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojure/tools.namespace:0.2.7" level="project" />
+    <orderEntry type="library" name="Leiningen: org.tcrawley/dynapath:0.2.3" level="project" />
+    <orderEntry type="library" name="Leiningen: swiss-arrows:1.0.0" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojars.brenton/google-diff-match-patch:0.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Leiningen: com.google.javascript/closure-compiler:v20150729" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/data.json:0.2.6" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Leiningen: org.clojure/google-closure-library:0.0-20150805-acd8b553" level="project" />
@@ -188,7 +198,6 @@
     <orderEntry type="library" name="Leiningen: ring/ring-servlet:1.4.0" level="project" />
     <orderEntry type="library" name="Leiningen: ns-tracker:0.3.0" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/java.classpath:0.2.2" level="project" />
-    <orderEntry type="library" name="Leiningen: org.clojure/tools.namespace:0.2.10" level="project" />
     <orderEntry type="library" name="Leiningen: org.eclipse.jetty/jetty-server:9.2.10.v20150310" level="project" />
     <orderEntry type="library" name="Leiningen: javax.servlet/javax.servlet-api:3.1.0" level="project" />
     <orderEntry type="library" name="Leiningen: org.eclipse.jetty/jetty-http:9.2.10.v20150310" level="project" />

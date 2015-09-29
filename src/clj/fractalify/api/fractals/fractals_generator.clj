@@ -16,10 +16,10 @@
   (start [this]
     (p/letk [[db] (:db-server this)
              [users] (:users-generator this)]
-      (mc/remove db fdb/coll-name)
+      (mc/remove db fdb/coll)
       (assoc this
         :fractals
-        (doall (take 30 (repeatedly #(fdb/add-fractal db (gen-fractal) (rand-nth users))))))))
+        (doall (take 30 (repeatedly #(fdb/fractal-insert-and-return db (gen-fractal) (rand-nth users))))))))
 
   (stop [this]
     (dissoc this :fractals))

@@ -11,23 +11,19 @@
     [monger.operators :refer :all]
     [clj-time.core :as m]
     [fractalify.users.schemas :as uch]
-    [schema.coerce :as coerce]
-    [fractalify.api.api :as api])
+    [fractalify.api.api :as api]
+    [digest]))
 
-  (:import [org.bson.types ObjectId]))
-
-(def coll-name "users")
-(def private-fields {:password 0 :salt 0 :reset-password-expire 0 :reset-password-token 0})
-(def public-fields (merge {:email 0} private-fields))
+(def coll "users")
 
 (defrecord UsersDb []
   c/Lifecycle
   (start [this]
     (p/letk [[db] (:db-server this)]
-      (when-not (mc/exists? db coll-name)
-        (mc/create db coll-name {}))
-      (mc/ensure-index db coll-name (array-map :username 1) {:unique true})
-      (assoc this :coll-name coll-name)))
+      (when-not (mc/exists? db coll)
+        (mc/create db coll {}))
+      (mc/ensure-index db coll (array-map :username 1) {:unique true})
+      (assoc this :coll-name coll)))
 
   (stop [this]
     (dissoc this :coll-name)))
@@ -35,58 +31,58 @@
 (defn new-users-db []
   (map->UsersDb {}))
 
-
-(defn user-db->cljs [user]
-  (-> user
-
-      api/_id->id))
-
 (defn gen-password [password]
   (let [salt (u/gen-str 16)
         pass-hash (u/hash-pass salt password)]
     {:salt salt :password pass-hash}))
 
-(s/defn add-user [db user]
-  (mc/insert-and-return db coll-name
-                        (merge user
-                               {:_id     (ObjectId.)
-                                :created (t/now)
-                                :roles   #{:user}}
-                               (gen-password (:password user)))))
-
-(s/defn get-user
+(defn get-user
   ([db where]
-    (get-user db where {}))
-  ([db where fields]
-    (mc/find-one-as-map db coll-name where fields)))
+   (get-user db where uch/UserDb))
+  ([db where schema]
+   (-> (mc/find-one-as-map db coll where (api/schema->fields schema))
+       u/p
+       (api/db->cljs schema))))
+
+(s/defn user-insert-and-return
+  ([db user] (user-insert-and-return db user uch/UserOther))
+  ([db user schema]
+    (api/insert-and-return db coll (merge user
+                                               {:created  (t/now)
+                                                :roles    [:user]
+                                                :gravatar (digest/md5 (:email user))}
+                                               (gen-password (:password user)))
+                           schema)))
 
 (defn update-user [db where what]
-  (mc/update db coll-name where {$set what}))
+  (let [fields (if-let [email (:email what)]
+                 (assoc what :gravatar (digest/md5 email))
+                 what)]
+    (mc/update db coll where {$set fields})))
 
 (defn get-user-by-acc
-  ([db username]
-   (get-user-by-acc db username username))
-  ([db username email]
+  ([db username schema]
+   (get-user-by-acc db username username schema))
+  ([db username email schema]
    (get-user db {$or [{:username username}
-                      {:email email}]})))
+                      {:email email}]} schema)))
 
-(def coerce-user
-  (coerce/coercer uch/UserSession coerce/json-coercion-matcher))
+
 
 (s/defn verify-credentials :- (s/maybe uch/UserSession)
   [db {:keys [username password]}]
-  (let [user (get-user-by-acc db username)
+  (let [user (get-user-by-acc db username uch/UserDb)
         submitted-pass password]
     (when user
       (p/letk [[password salt] user]
         (when (sc/verify (str salt submitted-pass) password)
-          (coerce-user (select-keys user [:_id :username :roles])))))))
+          (u/select-req-keys user uch/UserSession))))))
 
 (s/defn create-reset-token :- s/Str
   [db user-id]
   (let [token (u/gen-str 20)
         expire-date (m/plus (m/now) (m/weeks 1))]
-    (mc/update-by-id db coll-name user-id {$set
+    (mc/update-by-id db coll user-id {$set
                                            {:reset-password-token  token
                                             :reset-password-expire expire-date}})
     token))
@@ -95,7 +91,7 @@
   [db username token]
   (get-user db {$and [{:username username}
                       {:reset-password-token token}
-                      {:reset-password-expire {$gte (m/now)}}]} public-fields))
+                      {:reset-password-expire {$gte (m/now)}}]} uch/UserMe))
 
 (defn set-new-password
   [db username new-pass]
@@ -104,5 +100,5 @@
                                                :reset-password-expire nil})))
 
 (defn add-admin-role [db user-id]
-  (mc/update-by-id db coll-name user-id {$addToSet
+  (mc/update-by-id db coll user-id {$addToSet
                                          {:roles :admin}}))
