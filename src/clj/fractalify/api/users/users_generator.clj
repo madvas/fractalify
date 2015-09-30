@@ -32,7 +32,7 @@
   (start [this]
     (p/letk [[db] (:db-server this)]
       (mc/remove db udb/coll)
-      (p/letk [[id] (udb/user-insert-and-return db (gen-user admin))]
+      (p/when-letk [[id] (udb/user-insert-and-return db (gen-user admin))]
         (udb/add-admin-role db id))
       (udb/user-insert-and-return db (gen-user some-user))
       (assoc this :users

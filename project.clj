@@ -10,8 +10,8 @@
 
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.48" :scope "provided"]
-                 [ring "1.4.0"]
-                 [ring/ring-defaults "0.1.5"]
+                 [ring "1.4.0" :exclusions [org.clojure/tools.namespace hiccup]]
+                 [ring/ring-defaults "0.1.5" :exclusions [hiccup]]
                  [compojure "1.4.0"]
                  [enlive "1.1.6"]
                  [environ "1.0.0"]
@@ -23,7 +23,7 @@
                  ;[reagent "0.5.1"]
                  [re-frame "0.4.1"]
                  [cljs-ajax "0.3.14"]
-                 [day8/re-frame-tracer "0.1.0-SNAPSHOT"]
+                 [day8/re-frame-tracer "0.1.0-SNAPSHOT" :exclusions [org.clojars.stumitchell/clairvoyant]]
                  [org.clojars.stumitchell/clairvoyant "0.1.0-SNAPSHOT"]
                  [binaryage/devtools "0.3.0"]
                  [prismatic/schema "1.0.0"]
@@ -31,7 +31,7 @@
                  [rm-hull/monet "0.2.1"]
                  [bidi "1.21.0"]
                  [prismatic/plumbing "0.4.4"]
-                 [instar "1.0.10"]
+                 [instar "1.0.10" :exclusions [org.clojure/clojure]]
                  [camel-snake-kebab "0.3.2"]
                  [org.clojure/test.check "0.8.1"]
                  [com.andrewmcveigh/cljs-time "0.3.13"]
@@ -48,11 +48,15 @@
                  [org.clojure/tools.logging "0.3.1"]
                  [clj-logging-config "1.9.12"]
                  [org.slf4j/slf4j-nop "1.7.12"]
-                 [com.cemerick/friend "0.2.1"]
                  [org.clojure/core.cache "0.6.4"]
-                 [io.forward/sendgrid-clj "1.0"]
-                 [selmer "0.9.2"]
-                 [digest "1.4.4"]]
+                 [io.forward/sendgrid-clj "1.0" :exclusions [commons-codec
+                                                             org.apache.httpcomponents/httpclient
+                                                             slingshot]]
+                 [clj-http "2.0.0"]
+                 [com.cemerick/friend "0.2.1" :exclusions [org.apache.httpcomponents/httpclient]]
+                 [selmer "0.9.2" :exclusions [commons-codec hiccup]]
+                 [digest "1.4.4"]
+                 [midje "1.7.0" :exclusions [slingshot commons-codec]]]
 
   :plugins [[lein-cljsbuild "1.1.0"]
             [lein-environ "1.0.0"]
@@ -88,18 +92,18 @@
                        :test-paths   ["test/clj"]
 
                        :dependencies [[figwheel "0.3.7"]
-                                      [figwheel-sidecar "0.3.7"]
+                                      [figwheel-sidecar "0.3.7" :exclusions [org.codehaus.plexus/plexus-utils]]
                                       [com.cemerick/piggieback "0.1.5"]
                                       [weasel "0.6.0"]
-                                      [io.aviso/pretty "0.1.18"]
-                                      [midje "1.7.0"]]
+                                      [io.aviso/pretty "0.1.18"]]
 
                        :repl-options {:init-ns          fractalify.user
                                       :welcome          (println "Type (dev) to start")
                                       :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl
                                                          io.aviso.nrepl/pretty-middleware]}
 
-                       :plugins      [[lein-figwheel "0.3.7"]]
+                       :plugins      [[lein-figwheel "0.3.7" :exclusions [org.clojure/clojure
+                                                                          org.codehaus.plexus/plexus-utils]]]
 
                        :figwheel     {:http-server-root "public"
                                       :server-port      3449

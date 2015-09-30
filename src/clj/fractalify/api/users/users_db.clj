@@ -4,6 +4,7 @@
     [com.stuartsierra.component :as c]
     [plumbing.core :as p]
     [fractalify.utils :as u]
+    [monger.json]
     [monger.joda-time]
     [clj-time.core :as t]
     [schema.core :as s]
@@ -12,7 +13,8 @@
     [clj-time.core :as m]
     [fractalify.users.schemas :as uch]
     [fractalify.api.api :as api]
-    [digest]))
+    [digest])
+  (:import (org.bson.types ObjectId)))
 
 (def coll "users")
 
@@ -41,17 +43,16 @@
    (get-user db where uch/UserDb))
   ([db where schema]
    (-> (mc/find-one-as-map db coll where (api/schema->fields schema))
-       u/p
        (api/db->cljs schema))))
 
 (s/defn user-insert-and-return
   ([db user] (user-insert-and-return db user uch/UserOther))
   ([db user schema]
     (api/insert-and-return db coll (merge user
-                                               {:created  (t/now)
-                                                :roles    [:user]
-                                                :gravatar (digest/md5 (:email user))}
-                                               (gen-password (:password user)))
+                                          {:created  (t/now)
+                                           :roles    [:user]
+                                           :gravatar (digest/md5 (:email user))}
+                                          (gen-password (:password user)))
                            schema)))
 
 (defn update-user [db where what]
@@ -66,8 +67,6 @@
   ([db username email schema]
    (get-user db {$or [{:username username}
                       {:email email}]} schema)))
-
-
 
 (s/defn verify-credentials :- (s/maybe uch/UserSession)
   [db {:keys [username password]}]
@@ -100,5 +99,5 @@
                                                :reset-password-expire nil})))
 
 (defn add-admin-role [db user-id]
-  (mc/update-by-id db coll user-id {$addToSet
-                                         {:roles :admin}}))
+  (mc/update-by-id db coll (ObjectId. user-id) {$addToSet
+                                                {:roles :admin}}))

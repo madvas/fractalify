@@ -2,6 +2,7 @@
   "Components and their dependency relationships"
   (:refer-clojure :exclude (read))
   (:require
+    [fractalify.readers]
     [com.stuartsierra.component :as c]
     [fractalify.config :as cfg]
     [fractalify.api.main.routes :as mr]

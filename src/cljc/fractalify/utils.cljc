@@ -146,6 +146,9 @@
   (instance? #?(:clj  clojure.lang.PersistentArrayMap
                 :cljs cljs.core/PersistentArrayMap) x))
 
+(defn submap? [a b]
+  (= a (select-keys b (keys a))))
+
 (defn str-class? [x]
   (= x #?(:clj  java.lang.String
           :cljs js/String)))

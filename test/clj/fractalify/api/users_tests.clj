@@ -1,17 +1,141 @@
 (ns fractalify.api.users-tests
   (:require
-    [fractalify.test-utils :as tu])
+    [fractalify.api :as a]
+    [fractalify.api.users.users-generator :as ug]
+    [fractalify.users.schemas :as uch]
+    [fractalify.utils :as u]
+    [fractalify.api.users.routes :as ur]
+    [plumbing.core :as p]
+    [fractalify.api.users.users-db :as udb]
+    [bidi.bidi :as b])
   (:use midje.sweet))
 
+(def admin-login (select-keys ug/admin [:username :password]))
+(def some-user-login (select-keys ug/some-user [:username :password]))
 
-(tu/init-test-system)
+(def new-user
+  {:username     "someuser"
+   :email        "some@gmail.com"
+   :password     "111111"
+   :confirm-pass "111111"
+   :bio          ""})
 
+(def new-user-created?
+  (every-checker a/created
+                 (a/response-schema uch/UserMe)
+                 (a/resp-has-map? (u/select-key new-user :username))))
+
+(def path-for (partial b/path-for ur/routes))
+
+(defn put-new-user
+  ([] (put-new-user new-user))
+  ([user]
+   (a/put (path-for ur/join) user)))
+
+(defn login [user]
+  (a/post (path-for ur/login) user))
+
+(defn user-response?
+  ([user] (user-response? user uch/UserMe))
+  ([user schema]
+   (every-checker (a/response-schema schema)
+                  (a/resp-has-map? (u/select-key user :username)))))
+
+(defn forgot-pass [user]
+  (a/post (path-for ur/forgot-pass)
+          (u/select-key user :email)))
+
+(def logged-user #(a/get (path-for ur/logged-user)))
+
+(defn user-path-for [route user]
+  (path-for route :username (:username user)))
+
+(defn get-user [user]
+  (a/get (user-path-for ur/user user)))
+
+(def new-profile
+  {:email "new-email@email.com"
+   :bio   "new bio"})
+
+(def logout (partial a/post (path-for ur/logout) {}))
+
+(defn edit-profle [user]
+  (a/post (user-path-for ur/edit-profile user) new-profile))
+
+(defn change-pass [user]
+  (a/post (user-path-for ur/change-pass user)
+          {:current-pass     (:password user)
+           :new-pass         "somepass"
+           :confirm-new-pass "somepass"}))
+
+(a/init-test-system)
 (with-state-changes
-  [(before :facts (tu/start-system))
-   (after :facts (tu/stop-system))]
+  [(before :facts (a/start-system))
+   (after :facts (a/stop-system))]
 
-  (fact "it normally returns the first element"
-        (conj [1 2] 3) => [1 2 3])
+  (fact "it doesn't login with bad credentials"
+        (login {}) => a/forbidden
+        (login {:username "baduser" :password "badpass"}) => a/forbidden)
 
-  (fact "asdas"
-        (conj [1 2] 4) => [1 2 4]))
+  (fact "it logs in with good credentials"
+        (login admin-login) => (user-response? ug/admin))
+
+  (fact "it gets logged user"
+        (login some-user-login) => (user-response? ug/some-user)
+        ;(logged-user) => (user-response? ug/some-user)
+        )
+
+  (fact "it doesnt create invalid new user"
+        (put-new-user (dissoc new-user :email)) => a/bad-request)
+
+  (fact "it creates new user"
+        (put-new-user) => new-user-created?)
+
+  (fact "it disallows to create same user twice"
+        (put-new-user) => new-user-created?
+        (put-new-user) => a/conflict)
+
+  (fact "it sends new pass in case of forgetting"
+        (forgot-pass ug/some-user) => a/created)
+
+  (fact "it returns not found when reseting unexisting account"
+        (forgot-pass {:email "non-existent@email.com"}) => a/not-found)
+
+  (fact "it loads some user"
+        (get-user ug/some-user) => (user-response? ug/some-user uch/UserOther))
+
+  (fact "it disallows to edit profile to unauthenticated"
+        (edit-profle ug/some-user) => a/unauthorized)
+
+  (fact "it edits profile to user"
+        (login ug/some-user) => (user-response? ug/some-user)
+        (edit-profle ug/some-user) => a/created
+        (get-user ug/some-user) => (a/resp-has-map? new-profile))
+
+  (fact "it allows admin to edit some user's profile"
+        (login ug/admin) => (user-response? ug/admin)
+        (edit-profle ug/some-user) => a/created
+        (get-user ug/some-user) => (a/resp-has-map? new-profile))
+
+  (fact "it disallows to change password to unauthenticated"
+        (change-pass ug/some-user) => a/unauthorized)
+
+  (fact "it changes password to user"
+        (login ug/some-user) => (user-response? ug/some-user)
+        (change-pass ug/some-user) => a/created)
+
+  (fact "it allows admin to change some user's password"
+        (login ug/admin) => (user-response? ug/admin)
+        (change-pass ug/some-user) => a/created)
+
+  (fact "it logs out user"
+        (login ug/admin) => (user-response? ug/admin)
+        (logout) => a/status-ok)
+  )
+
+
+
+
+
+
+

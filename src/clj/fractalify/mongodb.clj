@@ -1,6 +1,8 @@
 (ns fractalify.mongodb
   (:require
     [monger.core :as m]
+    [monger.json]
+    [monger.joda-time]
     [com.stuartsierra.component :as c]))
 
 (defrecord MongoDb [uri host port db-name]

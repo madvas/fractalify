@@ -14,7 +14,7 @@
 (def base-resource
   {:available-media-types ["application/edn"]})
 
-(defn admin? [_]
+(defn admin? [& _]
   (p/when-letk [[roles] (frd/current-authentication)]
     (contains? (set roles) :admin)))
 

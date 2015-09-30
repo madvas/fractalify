@@ -32,7 +32,7 @@
 
 (defn debug-handler [handler]
   (fn [req]
-    ;(pprint req)
+    (pprint req)
     (handler req)))
 
 (defn friend-handler
@@ -53,8 +53,8 @@
                        (friend-handler db)
                        (p/?> u/is-dev? (ld/wrap-trace :header :ui))
                        (p/?> u/is-dev? reload/wrap-reload)
-                       debug-handler
                        wrap-edn-params
+                       ;debug-handler
                        (defaults/wrap-defaults ring-defaults))]
     (fn [req]
       (let [handler (if (= "/repl" (:uri req))

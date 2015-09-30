@@ -4,7 +4,7 @@
     [bidi.bidi :refer (path-for RouteProvider)]
     [liberator.core :refer [defresource]]
     [fractalify.utils :as u]
-    [fractalify.api.api :as api]
+    [fractalify.api.api :as a]
     [bidi.bidi :as b]
     [cemerick.friend :as frd]
     [fractalify.api.users.users-db :as udb]
@@ -18,46 +18,36 @@
 (declare routes)
 
 (defn me? [params]
-  (fn [_]
+  (fn [& _]
     (when-let [user (frd/current-authentication)]
       (u/eq-in-key? :username params user))))
 
 (defn get-user-fn [db params]
-  (s/fn get-user :- (s/cond-pre uch/UserMe uch/UserOther) [_]
-    (let [schema (if (me? params) uch/UserMe uch/UserOther)]
-      (udb/get-user db (u/select-key params :username) schema))))
+  (let [me (or ((me? params)) (a/admin?))]
+    (s/fn get-user :- (s/maybe (s/conditional (constantly me)
+                                              uch/UserMe
+                                              :else uch/UserOther)) [_]
+      (let [schema (if me uch/UserMe uch/UserOther)]
+        (udb/get-user db (u/select-key params :username) schema)))))
+
 
 (defresource
   logged-user [{:keys [db params]}]
-  api/base-resource
+  a/base-resource
   :exists? (fn [_] (frd/current-authentication))
   :handle-ok
-  (fn [_]
-    (get-user-fn db (u/select-key (frd/current-authentication) :username))))
+  (get-user-fn db (u/select-key (frd/current-authentication) :username)))
 
 (defresource
   user [{:keys [db params]}]
-  api/base-resource
+  a/base-resource
   :handle-ok (get-user-fn db params))
 
 (defresource
-  login [{:keys [db params]}]
-  api/base-resource
-  :allowed-methods [:post :get]
-  :malformed? (api/malformed-params? uch/LoginForm params)
-  :allowed?
-  (fn [_]
-    (frd/current-authentication))
-  :post-redirect?
-  (fn [_]
-    {:location
-     (b/path-for routes user :username (:username (frd/current-authentication)))}))
-
-(defresource
   join [{:keys [db params]}]
-  api/base-resource
+  a/base-resource
   :allowed-methods [:put]
-  :malformed? (api/malformed-params? uch/JoinForm params)
+  :malformed? (a/malformed-params? uch/JoinForm params)
   :conflict?
   (fn [_]
     (udb/get-user-by-acc db (:username params) (:email params) uch/UserId))
@@ -69,10 +59,23 @@
     (::user ctx)))
 
 (defresource
+  login [{:keys [db params]}]
+  a/base-resource
+  :allowed-methods [:post :get]
+  :allowed?
+  (fn [ctx]
+    (-> ctx :request :request-method)
+    (frd/current-authentication))
+  :post-redirect?
+  (fn [_]
+    {:location
+     (b/path-for routes user :username (:username (frd/current-authentication)))}))
+
+(defresource
   forgot-pass [{:keys [db params mailer]}]
-  api/base-resource
+  a/base-resource
   :allowed-methods [:post]
-  :malformed? (api/malformed-params? uch/ForgotPassForm params)
+  :malformed? (a/malformed-params? uch/ForgotPassForm params)
   :can-post-to-missing? false
   :exists?
   (fn [_]
@@ -95,14 +98,14 @@
 
 (defresource
   reset-pass [{:keys [db params]}]
-  api/base-resource
+  a/base-resource
   :allowed-methods [:post]
   :malformed?
-  (api/malformed-params?
+  (a/malformed-params?
     (merge uch/ResetPassForm uch/UsernameField) params)
   :authorized?
   (u/or-fn
-    api/admin?
+    a/admin?
     (fn valid-reset-token? [_]
       (p/letk [[username token] params]
         (udb/get-user-by-reset-token db username token))))
@@ -110,14 +113,14 @@
 
 (defresource
   change-pass [{:keys [db params]}]
-  api/base-resource
+  a/base-resource
   :allowed-methods [:post]
   :malformed?
-  (api/malformed-params?
+  (a/malformed-params?
     (merge uch/ChangePassForm uch/UsernameField) params)
   :authorized?
   (u/or-fn
-    api/admin?
+    a/admin?
     (u/and-fn
       (me? params)
       (fn current-pass-matches? [_]
@@ -128,12 +131,12 @@
 
 (defresource
   edit-profile [{:keys [db params]}]
-  api/base-resource
+  a/base-resource
   :allowed-methods [:post]
   :malformed?
-  (api/malformed-params?
+  (a/malformed-params?
     (merge uch/EditProfileForm uch/UsernameField) params)
-  :authorized? (u/or-fn api/admin? (me? params))
+  :authorized? (u/or-fn a/admin? (me? params))
   :post!
   (fn [_]
     (let [[username-entry other-entries] (u/split-map params :username)]
