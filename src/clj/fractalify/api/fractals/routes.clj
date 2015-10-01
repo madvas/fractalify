@@ -8,13 +8,16 @@
     [schema.core :as s]
     [fractalify.fractals.schemas :as fch]))
 
+(defn fractal-exists-fn [db params]
+  (fn [_]
+    (when-let [fractal (fdb/fractal-get-by-id db (:id params))]
+      {::fractal fractal})))
+
 (defresource
   fractal [{:keys [db params]}]
   api/base-resource
-  :exists?
-  (fn [_]
-    (when-let [fractal (fdb/fractal-get-by-id db (:id params))]
-      {::fractal fractal}))
+  :allowed-methods [:get :delete :put]
+  :exists? (fractal-exists-fn db params)
   :handle-ok
   (s/fn :- fch/PublishedFractal [ctx]
     (::fractal ctx)))
@@ -28,8 +31,19 @@
     {:total-items (fdb/fractal-count db)
      :items       (fdb/get-fractals db params)}))
 
+(defresource
+  fractal-star [{:keys [db params]}]
+  api/base-resource
+  :exists? (fractal-exists-fn db params)
+  :handle-ok
+  (s/fn :- fch/PublishedFractalsList [_]
+    {:total-items (fdb/fractal-count db)
+     :items       (fdb/get-fractals db params)}))
+
 (def routes
-  ["/api/fractals" {["/" :id] fractal
+  ["/api/fractals" {["/" :id] [["/star" fractal-star
+                                "/comments" fractal-comments
+                                "" fractal]]
                     ""        fractals}])
 
 (defrecord FractalRoutes []
