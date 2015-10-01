@@ -137,6 +137,7 @@
             (defn hash-pass [salt password]
               (sc/encrypt (str salt password) 16384 8 1))]))
 
+(def base64-png-prefix "data:image/png;base64,")
 
 (defn error [err]
   #?(:clj  (Error. err)
@@ -245,6 +246,9 @@
 (s/defn coerce-json [x schema :- (s/protocol s/Schema)]
   ((coerce/coercer schema coerce/json-coercion-matcher) x))
 
+(s/defn coerce-str [x schema :- (s/protocol s/Schema)]
+  ((coerce/coercer schema coerce/string-coercion-matcher) x))
+
 (defn without-ext [s]
   (str/join (butlast (str/split s #"\."))))
 
@@ -255,9 +259,6 @@
     (apply str
            (take n
                  (repeatedly #(rand-nth charseq))))))
-
-(defn create-str-coercer [schema]
-  (coerce/coercer schema coerce/string-coercion-matcher))
 
 (s/defn validate-until-error-fn
   ([fns] (validate-until-error-fn nil fns))

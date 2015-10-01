@@ -10,6 +10,7 @@
             [schema.core :as s]))
 
 (declare gen-fractal)
+(def total-items-generated 30)
 
 (defrecord FractalsGenerator []
   c/Lifecycle
@@ -17,9 +18,14 @@
     (p/letk [[db] (:db-server this)
              [users] (:users-generator this)]
       (mc/remove db fdb/coll)
+      (mc/remove db fdb/coll-comments)
       (assoc this
         :fractals
-        (doall (take 30 (repeatedly #(fdb/fractal-insert-and-return db (gen-fractal) (rand-nth users))))))))
+        (doall
+          (take total-items-generated
+                (repeatedly
+                  #(fdb/fractal-insert-and-return db (gen-fractal)
+                                                  (rand-nth users))))))))
 
   (stop [this]
     (dissoc this :fractals))
@@ -43,7 +49,7 @@
                             2 ["+" :left]
                             3 ["-" :right]
                             4 ["[" :push]
-                            5  ["]" :pop]}}
+                            5 ["]" :pop]}}
    :canvas   {:bg-color   ["#FFF" 100]
               :size       600
               :color      ["#000" 100]

@@ -9,10 +9,22 @@
   (:import [org.bson.types ObjectId]))
 
 (defn malformed-params? [schema params]
-  (fn [_] (s/check schema params)))
+  (fn [_] (s/check schema
+                   (try
+                     (u/coerce-str params schema)
+                     (catch Exception _ params)))))
 
 (def base-resource
   {:available-media-types ["application/edn"]})
+
+(def base-put
+  (merge base-resource {:allowed-methods [:put]}))
+
+(def base-delete
+  (merge base-resource {:allowed-methods [:delete]}))
+
+(def base-post
+  (merge base-resource {:allowed-methods [:post]}))
 
 (defn admin? [& _]
   (p/when-letk [[roles] (frd/current-authentication)]

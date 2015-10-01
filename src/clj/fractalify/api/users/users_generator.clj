@@ -27,6 +27,11 @@
    :email    "somemai@gmail.com"
    :password "111111"})
 
+(def some-other-user
+  {:username "someotheruser"
+   :email    "someotheruser@email.com"
+   :password "111111"})
+
 (defrecord UsersGenerator []
   c/Lifecycle
   (start [this]
@@ -34,7 +39,8 @@
       (mc/remove db udb/coll)
       (p/when-letk [[id] (udb/user-insert-and-return db (gen-user admin))]
         (udb/add-admin-role db id))
-      (udb/user-insert-and-return db (gen-user some-user))
+      (doseq [user [some-user some-other-user]]
+        (udb/user-insert-and-return db (gen-user user)))
       (assoc this :users
                   (doall
                     (take 10 (repeatedly #(udb/user-insert-and-return db (gen-user))))))))

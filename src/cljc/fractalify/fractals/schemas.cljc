@@ -2,7 +2,8 @@
   (:require [schema.core :as s]
             [fractalify.workers.schemas :as wch]
             [fractalify.users.schemas :as uch]
-            [fractalify.main.schemas :as mch]))
+            [fractalify.main.schemas :as mch]
+            [fractalify.utils :as u]))
 
 (def o s/optional-key)
 
@@ -16,13 +17,21 @@
                     (s/one s/Num "alpha")]
                    ["#000" 0]))
 
-(def Base64Png (s/pred (partial re-matches #"^data:image/png;base64,.*")))
+(def Base64Png (s/pred (partial re-matches
+                                (re-pattern (str "^" u/base64-png-prefix ".*")))))
 
 (def operation-type (s/enum :cmds :rules))
 
 (do
   #?@(:cljs [(def CanvasElement (s/pred (partial instance? js/HTMLCanvasElement)))
              (def CanvasContext (s/pred (partial instance? js/CanvasRenderingContext2D)))]))
+
+(def FractalIdField
+  {:id s/Str})
+
+(def FractalPublishForm
+  {:title FractalTitle
+   :desc  FractalDesc})
 
 (def Canvas
   {:color      Color
@@ -31,13 +40,14 @@
    :size       s/Num
    (o :lines)  wch/Lines})
 
-(def FractalForms
-  {:l-system wch/LSystem
-   :canvas   Canvas
-   :info     {:title FractalTitle
-              :desc  FractalDesc}})
+(def PutFractalForm
+  (merge
+    FractalPublishForm
+    {:l-system wch/LSystem
+     :canvas   (dissoc Canvas (o :lines))
+     :data-url Base64Png}))
 
-(def FractalOrderTypes (wch/with-coerce (s/enum :best :recent) :best))
+(def FractalOrderTypes (s/enum :best :recent))
 
 (def FractalListForm
   {(o :page)     s/Int
@@ -49,10 +59,13 @@
 (def CommentForm {:text CommentText})
 
 (def Comment
-  {:id      s/Int
+  {:id      s/Str
    :text    CommentText
-   :author  uch/UserDb
+   :author  uch/UserOther
+   :fractal s/Str
    :created mch/Date})
+
+(def CommentList (mch/list-response Comment))
 
 (def PublishedFractal
   {:id            s/Str
@@ -65,15 +78,16 @@
    :star-count    s/Int
    :starred-by-me s/Bool
    :created       mch/Date
-   (o :comments)  [Comment]})
+   (o :comments)  (s/maybe CommentList)})
 
 (def PublishedFractalsList (mch/list-response PublishedFractal))
 
 (def FractalsForms
-  (merge
-    FractalForms
-    {:comment CommentForm
-     :sidebar FractalListForm}))
+  {:info     FractalPublishForm
+   :l-system wch/LSystem
+   :canvas   Canvas
+   :comment  CommentForm
+   :sidebar  FractalListForm})
 
 (def FractalsSchema
   {:forms                   FractalsForms

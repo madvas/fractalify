@@ -70,8 +70,10 @@
    (request path (merge {:method :put
                          :body   body} opts))))
 
-(defn delete [path opts]
-  (request path (merge {:method :delete} opts)))
+(defn delete
+  ([path] (delete path {}))
+  ([path opts]
+   (request path (merge {:method :delete} opts))))
 
 (defn status-checker [expected-status]
   (p/fnk [status & _]
@@ -85,10 +87,26 @@
   (p/fnk resp-has-map [body & _]
     (u/submap? m body)))
 
+(def get-list-items (p/fn-> :body :items))
+
+(defn list-resp-has-map? [m]
+  (fn resp-has-map [res]
+    (some #(u/submap? m %) (get-list-items res))))
+
+(defn list-resp-items-total? [n]
+  (p/fnk [[:body total-items] & _]
+    (= n total-items)))
+
+(defn list-resp-items-count? [n]
+  (fn [res]
+    (= n (count (get-list-items res)))))
+
+(def status-ok (status-checker 200))
+(def created (status-checker 201))
+(def accepted (status-checker 202))
+(def no-content (status-checker 204))
 (def bad-request (status-checker 400))
 (def unauthorized (status-checker 401))
 (def forbidden (status-checker 403))
 (def not-found (status-checker 404))
-(def created (status-checker 201))
-(def status-ok (status-checker 200))
 (def conflict (status-checker 409))

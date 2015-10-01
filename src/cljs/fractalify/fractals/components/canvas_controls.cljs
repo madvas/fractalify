@@ -30,7 +30,6 @@
         (p/letk [[l-system canvas] @fractal
                  [[:origin x y] start start-angle iterations angle line-length rules cmds] l-system
                  [size line-width color bg-color] canvas]
-          :- (s/cond-pre fch/PublishedFractal fch/FractalForms)
 
           [ui/paper
            [:div.row.mar-0.pos-rel.pad-ver-10

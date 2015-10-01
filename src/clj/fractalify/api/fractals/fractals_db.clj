@@ -13,10 +13,13 @@
     [fractalify.api.api :as api]
     [instar.core :as i]
     [fractalify.api.users.users-db :as udb]
-    [fractalify.users.schemas :as uch])
+    [fractalify.users.schemas :as uch]
+    [fractalify.api.api :as a]
+    [monger.operators :refer :all])
   (:import (org.bson.types ObjectId)))
 
 (def coll "fractals")
+(def coll-comments "fractals-comments")
 
 (defrecord FractalsDb []
   c/Lifecycle
@@ -25,6 +28,9 @@
       (when-not (mc/exists? db coll)
         (mc/create db coll {}))
       (mc/ensure-index db coll (array-map :star-count 1 :created 1))
+      (when-not (mc/exists? db coll-comments)
+        (mc/create db coll-comments {}))
+      (mc/ensure-index db coll-comments (array-map :fractal 1 :created 1))
       this))
 
   (stop [this]
@@ -61,22 +67,25 @@
                                         {:created    (t/now)
                                          :author     (:username author)
                                          :stars      []
-                                         :star-count 0
-                                         :comments   []})
+                                         :star-count 0})
                          fch/PublishedFractal
                          (p/fn->> (populate-author db)
                                   fractal-db->cljs)))
-
-(def parse-fractals-req
-  (u/create-str-coercer fch/FractalListForm))
 
 (defn fractal-count [db]
   (mc/count db coll))
 
 (s/defn fractal-get-by-id [db fractal-id]
-  (-> (mc/find-map-by-id db coll (ObjectId. fractal-id))
-      (->> (populate-author db))
-      fractal-db->cljs))
+  (when (ObjectId/isValid fractal-id)
+    (-> (mc/find-map-by-id db coll (ObjectId. fractal-id))
+        (->> (populate-author db))
+        fractal-db->cljs)))
+
+(defn fractal-delete-by-id [db fractal-id]
+  (when (ObjectId/isValid fractal-id)
+    (let [id (ObjectId. fractal-id)]
+      (mc/remove-by-id db coll id)
+      (mc/remove db coll-comments {:fractal id}))))
 
 (s/defn get-fractals
   [db params]
@@ -84,12 +93,55 @@
             {limit 10}
             {sort :created}
             {sort-dir -1}
-            {username nil}] (parse-fractals-req params)]
+            {username nil}] (u/coerce-str params fch/FractalListForm)]
     (->> (q/with-collection db coll
                             (q/find (when username {:author username}))
-                            (q/fields {:comments 0})
                             (q/sort (array-map sort sort-dir))
                             (q/paginate :page page :per-page limit))
          (populate-author db)
          (map fractal-db->cljs))))
 
+(defn star-fractal
+  ([db fractal-id user] (star-fractal db fractal-id user false))
+  ([db fractal-id user unstar?]
+   (when (ObjectId/isValid fractal-id)
+     (p/letk [[username] user
+              query (if unstar?
+                      {$pull {:stars username}}
+                      {$addToSet {:stars username}})]
+       (mc/update-by-id db coll (ObjectId. fractal-id) query)))))
+
+(s/defn comment-db->cljs [comment]
+  (when comment
+    (-> comment
+        (update :fractal str)
+        (api/db->cljs fch/Comment))))
+
+
+(defn get-comment-by-id [db comment-id]
+  (when (ObjectId/isValid comment-id)
+    (-> (mc/find-map-by-id db coll-comments (ObjectId. comment-id))
+        (->> (populate-author db))
+        comment-db->cljs)))
+
+(defn get-comments [db fractal-id]
+  (when (ObjectId/isValid fractal-id)
+    (->> (q/with-collection db coll-comments
+                            (q/find {:fractal (ObjectId. fractal-id)})
+                            (q/sort (array-map :created 1)))
+         (populate-author db)
+         (map comment-db->cljs))))
+
+(defn comment-insert-and-return [db comment fractal-id author]
+  (when (ObjectId/isValid fractal-id)
+    (api/insert-and-return db coll-comments (merge comment
+                                                   {:created (t/now)
+                                                    :author  (:username author)
+                                                    :fractal (ObjectId. fractal-id)})
+                           fch/Comment
+                           (p/fn->> (populate-author db)
+                                    comment-db->cljs))))
+
+(defn comment-delete-by-id [db comment-id]
+  (when (ObjectId/isValid comment-id)
+    (mc/remove-by-id db coll-comments (ObjectId. comment-id))))

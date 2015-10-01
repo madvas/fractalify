@@ -12,6 +12,7 @@
 
 (def admin-login (select-keys ug/admin [:username :password]))
 (def some-user-login (select-keys ug/some-user [:username :password]))
+(def some-other-user-login (select-keys ug/some-other-user [:username :password]))
 
 (def new-user
   {:username     "someuser"
