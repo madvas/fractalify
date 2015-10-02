@@ -4,10 +4,9 @@
     [fractalify.api.users.users-generator :as ug]
     [fractalify.users.schemas :as uch]
     [fractalify.utils :as u]
-    [fractalify.api.users.routes :as ur]
     [plumbing.core :as p]
-    [fractalify.api.users.users-db :as udb]
-    [bidi.bidi :as b])
+    [bidi.bidi :as b]
+    [fractalify.users.api-routes :as uar])
   (:use midje.sweet))
 
 (def admin-login (select-keys ug/admin [:username :password]))
@@ -26,15 +25,15 @@
                  (a/response-schema uch/UserMe)
                  (a/resp-has-map? (u/select-key new-user :username))))
 
-(def path-for (partial b/path-for ur/routes))
+(def path-for (partial b/path-for (uar/get-routes)))
 
 (defn put-new-user
   ([] (put-new-user new-user))
   ([user]
-   (a/put (path-for ur/join) user)))
+   (a/put (path-for :join) user)))
 
 (defn login [user]
-  (a/post (path-for ur/login) user))
+  (a/post (path-for :login) user))
 
 (defn user-response?
   ([user] (user-response? user uch/UserMe))
@@ -43,28 +42,28 @@
                   (a/resp-has-map? (u/select-key user :username)))))
 
 (defn forgot-pass [user]
-  (a/post (path-for ur/forgot-pass)
+  (a/post (path-for :forgot-pass)
           (u/select-key user :email)))
 
-(def logged-user #(a/get (path-for ur/logged-user)))
+(def logged-user #(a/get (path-for :logged-user)))
 
 (defn user-path-for [route user]
   (path-for route :username (:username user)))
 
 (defn get-user [user]
-  (a/get (user-path-for ur/user user)))
+  (a/get (user-path-for :user user)))
 
 (def new-profile
   {:email "new-email@email.com"
    :bio   "new bio"})
 
-(def logout (partial a/post (path-for ur/logout) {}))
+(def logout (partial a/post (path-for :logout) {}))
 
 (defn edit-profle [user]
-  (a/post (user-path-for ur/edit-profile user) new-profile))
+  (a/post (user-path-for :edit-profile user) new-profile))
 
 (defn change-pass [user]
-  (a/post (user-path-for ur/change-pass user)
+  (a/post (user-path-for :change-pass user)
           {:current-pass     (:password user)
            :new-pass         "somepass"
            :confirm-new-pass "somepass"}))

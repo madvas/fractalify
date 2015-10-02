@@ -120,7 +120,8 @@
 (def default-db
   {:forms (merge
             (mch/coerce-forms-with-defaults FractalsForms)
-            {:sidebar {:page  1
-                       :order :best
-                       :limit 10}}
+            {:sidebar {:page     1
+                       :sort     :best
+                       :sort-dir 1
+                       :limit    10}}
             dragon-curve)})

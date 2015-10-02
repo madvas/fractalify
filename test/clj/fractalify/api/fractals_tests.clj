@@ -3,12 +3,12 @@
     [fractalify.api :as a]
     [fractalify.fractals.schemas :as fch]
     [fractalify.utils :as u]
-    [fractalify.api.fractals.routes :as fr]
     [plumbing.core :as p]
     [bidi.bidi :as b]
     [fractalify.api.users-tests :as ut]
     [fractalify.api.users.users-generator :as ug]
-    [fractalify.api.fractals.fractals-generator :as fg])
+    [fractalify.api.fractals.fractals-generator :as fg]
+    [fractalify.fractals.api-routes :as far])
   (:use midje.sweet))
 
 (def some-fractal (-> (fg/gen-fractal)
@@ -18,7 +18,7 @@
 (def some-comment
   {:text "some comment"})
 
-(def path-for (partial b/path-for fr/routes))
+(def path-for (partial b/path-for (far/get-routes)))
 
 (defn path-for-fractal [route fractal]
   (path-for route :id (:id fractal)))
@@ -29,7 +29,7 @@
 (defn get-fractals
   ([] (get-fractals {}))
   ([query]
-   (a/get (path-for fr/fractals) {:query-params query})))
+   (a/get (path-for :fractals) {:query-params query})))
 
 (defn fractal-list?
   ([items-count] (fractal-list? items-count fg/total-items-generated))
@@ -58,7 +58,7 @@
                  (a/resp-has-map? comment)))
 
 (defn get-fractal-resp [fractal]
-  (a/get (path-for-fractal fr/fractal-get fractal)))
+  (a/get (path-for-fractal :fractal fractal)))
 
 (def get-fractal (comp :body get-fractal-resp))
 
@@ -68,28 +68,28 @@
 
 (def get-some-fractal (comp :body get-some-fractal-resp))
 
-(defn put-fractal [fractal]
-  (a/put (path-for-fractal fr/fractal-put fractal) fractal))
+(defn add-fractal [fractal]
+  (a/put (path-for-fractal :fractals fractal) fractal))
 
 (defn delete-fractal [fractal]
-  (a/delete (path-for-fractal fr/fractal-delete fractal)))
+  (a/delete (path-for-fractal :fractal fractal)))
 
 (defn get-fractal-comments [fractal]
-  (a/get (path-for-fractal fr/fractal-comments fractal)))
+  (a/get (path-for-fractal :fractal-comments fractal)))
 
-(defn put-new-comment [fractal comment]
-  (a/post (path-for-comment fr/fractal-comment-post fractal {}) comment))
+(defn add-new-comment [fractal comment]
+  (a/post (path-for-comment :fractal-comments fractal {}) comment))
 
-(defn put-new-comment-somewhere [comment]
-  (put-new-comment (get-some-fractal) comment))
+(defn add-new-comment-somewhere [comment]
+  (add-new-comment (get-some-fractal) comment))
 
-(defn delete-comment [fractal comment]
-  (a/delete (path-for-comment fr/fractal-comment-delete fractal comment)))
+(defn remove-comment [fractal comment]
+  (a/delete (path-for-comment :fractal-comment fractal comment)))
 
 (defn login-and-add-comment []
   (ut/login ut/some-user-login)
   (let [fractal (get-some-fractal)
-        comment (:body (put-new-comment fractal some-comment))]
+        comment (:body (add-new-comment fractal some-comment))]
     [fractal comment]))
 
 (defn login-and-get-some-fractal [login]
@@ -98,18 +98,20 @@
 
 (defn login-and-put-fractal [login fractal]
   (ut/login login)
-  (put-fractal fractal))
+  (add-fractal fractal))
 
 (def login-and-put-fractal-get (comp :body login-and-put-fractal))
 
-(defn put-star [fractal]
-  (a/post (path-for-fractal fr/fractal-star fractal) {}))
+(defn add-star [fractal]
+  (a/post (path-for-fractal :fractal-star fractal) {}))
 
-(defn delete-star [fractal]
-  (a/delete (path-for-fractal fr/fractal-star fractal)))
+(defn remove-star [fractal]
+  (a/delete (path-for-fractal :fractal-star fractal)))
 
-(defn starred-by-me? [val]
-  (p/fn-> :starred-by-me (= val)))
+(defn stars? [starred-by-me? star-count-expected]
+  (p/fnk [starred-by-me star-count]
+    (= starred-by-me? starred-by-me)
+    (= star-count star-count-expected)))
 
 (a/init-test-system)
 (with-state-changes
@@ -142,7 +144,7 @@
         => a/bad-request)
 
   (fact "disallows unauthenticated to put new fractal"
-        (put-fractal some-fractal) => a/unauthorized)
+        (add-fractal some-fractal) => a/unauthorized)
 
   (fact "allows user to delete his fractal"
         (let [fractal (login-and-put-fractal-get ut/some-user-login some-fractal)]
@@ -167,52 +169,65 @@
   (fact "puts new comment to fractal"
         (ut/login ut/some-user-login)
         (let [fractal (get-some-fractal)]
-          (put-new-comment fractal some-comment) => (new-comment? some-comment)
+          (add-new-comment fractal some-comment) => (new-comment? some-comment)
           (get-fractal-comments fractal) => (a/list-resp-has-map? some-comment)))
 
   (fact "doesn't allow to put comment to unauthenticated"
-        (put-new-comment-somewhere some-comment) => a/unauthorized)
+        (add-new-comment-somewhere some-comment) => a/unauthorized)
 
   (fact "returns not found for adding comment to non existent fractal"
         (ut/login ut/some-user-login) => (ut/user-response? ug/some-user)
-        (put-new-comment {:id "non-exist"} some-comment)
+        (add-new-comment {:id "non-exist"} some-comment)
         => a/not-found)
 
   (fact "allows user to delete his comment"
         (let [[fractal comment] (login-and-add-comment)]
-          (delete-comment fractal comment) => a/no-content
+          (remove-comment fractal comment) => a/no-content
           (get-fractal-comments fractal) => (a/list-resp-items-count? 0)))
 
   (fact "dissalows unauthenticated or unauthorized to delete a comment"
         (let [[fractal comment] (login-and-add-comment)]
           (ut/logout)
-          (delete-comment fractal comment) => a/unauthorized
+          (remove-comment fractal comment) => a/unauthorized
           (ut/login ut/some-other-user-login)
-          (delete-comment fractal comment) => a/unauthorized
+          (remove-comment fractal comment) => a/unauthorized
           (get-fractal-comments fractal) => (a/list-resp-items-count? 1)))
 
   (fact "allows admin to delete any comment"
         (let [[fractal comment] (login-and-add-comment)]
           (ut/login ut/admin-login)
-          (delete-comment fractal comment) => a/no-content
+          (remove-comment fractal comment) => a/no-content
           (get-fractal-comments fractal) => (a/list-resp-items-count? 0)))
 
   (fact "allows user to star fractal"
         (let [fractal (login-and-get-some-fractal ut/some-user-login)]
-          (put-star fractal) => a/created
-          (get-fractal fractal) => (starred-by-me? true)))
+          (add-star fractal) => a/created
+          (get-fractal fractal) => (stars? true 1)))
 
   (fact "allows user to unstar fractal"
         (let [fractal (login-and-get-some-fractal ut/some-user-login)]
-          (put-star fractal) => a/created
-          (delete-star fractal) => a/no-content
-          (get-fractal fractal) => (starred-by-me? false)))
+          (add-star fractal) => a/created
+          (remove-star fractal) => a/no-content
+          (get-fractal fractal) => (stars? false 0)))
 
   (fact "disallows unauthenticated to star fractal"
-        (put-star (get-some-fractal)) => a/unauthorized)
+        (add-star (get-some-fractal)) => a/unauthorized)
 
   (fact "disallows unauthenticated to unstar fractal"
-        (delete-star (get-some-fractal)) => a/unauthorized))
+        (remove-star (get-some-fractal)) => a/unauthorized)
+
+  (fact "disallows user to star fractal multiple times"
+        (let [fractal (login-and-get-some-fractal ut/some-user-login)]
+          (add-star fractal)
+          (add-star fractal)
+          (get-fractal fractal) => (stars? true 1)))
+
+  (fact "disallows user to unstar fractal multiple times"
+        (let [fractal (login-and-get-some-fractal ut/some-user-login)]
+          (add-star fractal)
+          (remove-star fractal)
+          (remove-star fractal)
+          (get-fractal fractal) => (stars? false 0))))
 
 
 

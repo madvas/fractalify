@@ -10,11 +10,10 @@
     [schema.core :as s]
     [fractalify.fractals.schemas :as fch]
     [cemerick.friend :as frd]
-    [fractalify.api.api :as api]
+    [fractalify.api.api :as a]
     [instar.core :as i]
     [fractalify.api.users.users-db :as udb]
     [fractalify.users.schemas :as uch]
-    [fractalify.api.api :as a]
     [monger.operators :refer :all])
   (:import (org.bson.types ObjectId)))
 
@@ -51,7 +50,7 @@
     false))
 
 (defn populate-author [db fractals]
-  (api/populate db udb/coll :author :username uch/UserOther fractals))
+  (a/populate db udb/coll :author :username uch/UserOther fractals))
 
 (s/defn fractal-db->cljs [fractal]
   (when fractal
@@ -60,10 +59,10 @@
         (i/transform [:l-system :cmds * 1] keyword)
         (assoc :starred-by-me (starred-by-me? (:stars fractal)))
         (dissoc :stars)
-        (api/db->cljs fch/PublishedFractal))))
+        (a/db->cljs fch/PublishedFractal))))
 
 (s/defn fractal-insert-and-return [db fractal author]
-  (api/insert-and-return db coll (merge (fractal-cljs->db fractal)
+  (a/insert-and-return db coll (merge (fractal-cljs->db fractal)
                                         {:created    (t/now)
                                          :author     (:username author)
                                          :stars      []
@@ -105,17 +104,20 @@
   ([db fractal-id user] (star-fractal db fractal-id user false))
   ([db fractal-id user unstar?]
    (when (ObjectId/isValid fractal-id)
-     (p/letk [[username] user
-              query (if unstar?
-                      {$pull {:stars username}}
-                      {$addToSet {:stars username}})]
-       (mc/update-by-id db coll (ObjectId. fractal-id) query)))))
+     (let [fractal-id (ObjectId. fractal-id)
+           op (if unstar? $pull $addToSet)]
+       (let [fractal (mc/find-and-modify db coll {:_id fractal-id}
+                                         {op {:stars (:username user)}}
+                                         {:return-new true :fields [:stars]})]
+         (mc/update-by-id db coll fractal-id
+                          {$set {:star-count (count (:stars fractal))}}))))))
+
 
 (s/defn comment-db->cljs [comment]
   (when comment
     (-> comment
         (update :fractal str)
-        (api/db->cljs fch/Comment))))
+        (a/db->cljs fch/Comment))))
 
 
 (defn get-comment-by-id [db comment-id]
@@ -134,7 +136,7 @@
 
 (defn comment-insert-and-return [db comment fractal-id author]
   (when (ObjectId/isValid fractal-id)
-    (api/insert-and-return db coll-comments (merge comment
+    (a/insert-and-return db coll-comments (merge comment
                                                    {:created (t/now)
                                                     :author  (:username author)
                                                     :fractal (ObjectId. fractal-id)})

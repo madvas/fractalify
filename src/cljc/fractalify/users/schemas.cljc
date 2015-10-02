@@ -79,14 +79,16 @@
    })
 
 (def UsersSchema
-  {(o :logged-user) UserDb
+  {(o :logged-user) (s/maybe UserMe)
    :forms           UserForms
    (o :user-detail) UserDb})
 
 
 (def default-db
-  {:logged-user {:id       "123"
+  {
+   #_ :logged-user #_ {:id       "123"
                  :username "madvas"
+                 :roles []
                  :email    "some@email.com"
                  :bio      "I am good"
                  :gravatar "http://www.gravatar.com/avatar/bfdb252fe9d0ab9759f41e3c26d7700e.jpg?s=50"}

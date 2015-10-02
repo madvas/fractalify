@@ -46,7 +46,7 @@
    :action-focus "cancel"
    :content      [:div (str "Once you delete " (:title fractal) ", it's gone forever!")]
    :actions      [{:text "Cancel" :ref "cancel"}
-                  {:text "Delete" :onTouchTap #(f/dispatch [:fractal-delete fractal])}]})
+                  {:text "Delete" :onTouchTap #(f/dispatch [:fractal-remove fractal])}]})
 
 (defn remove-fractal-btn []
   (s/fn [fractal :- fch/PublishedFractal]

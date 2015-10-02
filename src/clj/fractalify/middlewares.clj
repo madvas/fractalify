@@ -13,7 +13,7 @@
     [ring.middleware.basic-authentication :refer [wrap-basic-authentication]]
     [ring.middleware.edn :refer [wrap-edn-params]]
     [fractalify.utils :as u]
-    [fractalify.api.users.routes :as ur]
+    [fractalify.api.users.resources :as ur]
     [liberator.dev :as ld]
     [cemerick.friend :as friend]
     (cemerick.friend [workflows :as workflows])

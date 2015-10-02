@@ -1,4 +1,4 @@
-(ns fractalify.api.users.routes
+(ns fractalify.api.users.resources
   (:require
     [modular.ring :refer (WebRequestHandler)]
     [bidi.bidi :refer (path-for RouteProvider)]
@@ -11,11 +11,12 @@
     [schema.core :as s]
     [fractalify.users.schemas :as uch]
     [plumbing.core :as p]
-    [fractalify.mailers.mailer :as mm]))
+    [fractalify.mailers.mailer :as mm]
+    [fractalify.users.api-routes :as uar]))
 
 (def auth-base "/api/auth")
 (def login-url (str auth-base "/login"))
-(declare routes)
+
 
 (defn me? [params]
   (fn [& _]
@@ -34,7 +35,8 @@
 (defresource
   logged-user [{:keys [db params]}]
   a/base-resource
-  :exists? (fn [_] (frd/current-authentication))
+  :exists? (fn [_]
+             (u/p "here:" (frd/current-authentication)))
   :handle-ok
   (get-user-fn db (u/select-key (frd/current-authentication) :username)))
 
@@ -63,13 +65,11 @@
   a/base-resource
   :allowed-methods [:post :get]
   :allowed?
-  (fn [ctx]
-    (-> ctx :request :request-method)
-    (frd/current-authentication))
+  (fn [_] (frd/current-authentication))
   :post-redirect?
   (fn [_]
     {:location
-     (b/path-for routes user :username (:username (frd/current-authentication)))}))
+     (b/path-for (uar/get-routes) :user :username (:username (frd/current-authentication)))}))
 
 (defresource
   forgot-pass [{:keys [db params mailer]}]
@@ -146,23 +146,25 @@
   (fn [res]
     (frd/logout* res)))
 
-(def routes
-  ["/api/" {"users" {["/" :username] [["/reset-pass" reset-pass]
-                                      ["/change-pass" change-pass]
-                                      ["/edit-profile" edit-profile]
-                                      ["" user]]}
-            "auth/" [["logged-user" logged-user]
-                     ["login" login]
-                     ["logout" logout]
-                     ["join" join]
-                     ["forgot-pass" forgot-pass]]}])
-
-
+(def routes->resources
+  {:reset-pass   reset-pass
+   :change-pass  change-pass
+   :edit-profile edit-profile
+   :user         user
+   :logged-user  logged-user
+   :login        login
+   :logout       logout
+   :join         join
+   :forgot-pass  forgot-pass})
 
 (defrecord UserRoutes []
   RouteProvider
   (routes [_]
-    routes))
+    (uar/get-routes))
+
+  a/RouteResource
+  (route->resource [_]
+    routes->resources))
 
 (defn new-user-routes []
   (->UserRoutes))

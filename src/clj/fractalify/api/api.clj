@@ -61,8 +61,11 @@
         (u/select-schema-keys schema)
         transformation)))
 
+(defprotocol RouteResource
+  (route->resource [route-resource]))
 
-(defn populate "Populates the given docs sequence by looking up the 'foreign key' as an :_id in `foreign-coll`.
+(defn populate
+  "Populates the given docs sequence by looking up the 'foreign key' as an :_id in `foreign-coll`.
 `foreign-path` can be either a single key or a sequence of keys (as in get-in)
 Assumes the foreign keys are ObjectIds or coercable to objectIds.
 Returns a seq of the docs where the foreign keys have been updated to be the foreign documents, in the same order.

@@ -13,7 +13,7 @@
             [fractalify.utils :as u]
             [clojure.edn :as edn]
             [fractalify.readers :as r]
-            [fractalify.api.users.routes :as ur]
+            [fractalify.api.users.resources :as ur]
             [bidi.bidi :as b])
   (:use midje.sweet))
 

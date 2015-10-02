@@ -6,19 +6,38 @@
     [bidi.bidi :as b]
     [bidi.ring :as br]
     [plumbing.core :as p]
-    [fractalify.api.main.routes]))
+    [fractalify.api.main.resources]
+    [fractalify.api.api :as a]
+    [fractalify.utils :as u]))
 
-(defn dispatch-route [db mailer resource]
-#_   (println "resolved: " (type resource))
-  (fn [res]
-    ((resource {:db     db
-                :params (:params res)
-                :mailer mailer}) res)))
+(s/defn match-route->resource
+  [route :- s/Keyword
+   route-providers :- [(s/protocol a/RouteResource)]]
+  (let [routes-map (->> route-providers
+                        (map a/route->resource)
+                        (reduce merge {}))]
+    (route routes-map)))
 
-(defn as-request-handler
+(defn satisfies-route? [x]
+  (and (satisfies? b/RouteProvider x)
+       (satisfies? a/RouteResource x)))
+
+(defn get-route-providers [router]
+  (->> router
+       (map val)
+       (filter satisfies-route?)))
+
+(s/defn dispatch-route
+  [router db mailer matched-route :- s/Keyword]
+  (let [resource (match-route->resource matched-route (get-route-providers router))]
+    (fn [res]
+      ((resource {:db     db
+                  :params (:params res)
+                  :mailer mailer}) res))))
+
+(s/defn as-request-handler
   "Convert a RouteProvider component into Ring handler."
-  [service handler-fn]
-  (assert (satisfies? b/RouteProvider service))
+  [service :- (s/protocol b/RouteProvider) handler-fn]
   (some-fn
     (br/make-handler
       (cond
@@ -27,13 +46,12 @@
 
 (defrecord Router []
   c/Lifecycle
-  (start [component]
-    (assoc component
-      :router ["" (vec
-                    (remove nil?
-                            (for [[ckey v] component]
-                              (when (satisfies? b/RouteProvider v)
-                                (b/routes v)))))]))
+  (start [this]
+    (assoc this
+      :router ["" (->> (get-route-providers this)
+                       (map b/routes)
+                       (remove nil?)
+                       vec)]))
   (stop [this]
     (dissoc this :router))
 
@@ -45,7 +63,7 @@
     (p/letk [[db] (:db-server this)
              [mailer] this
              [middlewares] (:middlewares this)]
-      (middlewares (as-request-handler this (partial dispatch-route db mailer))))))
+      (middlewares (as-request-handler this (partial dispatch-route this db mailer))))))
 
 (defn new-router []
   (map->Router {}))

@@ -1,4 +1,4 @@
-(ns fractalify.api.main.routes
+(ns fractalify.api.main.resources
   (:require
     [net.cgrand.enlive-html :refer [deftemplate]]
     [net.cgrand.enlive-html :refer [set-attr prepend append html]]
@@ -7,7 +7,9 @@
     [liberator.core :as l :refer [defresource]]
     [fractalify.utils :as u]
     [clojure.string :as str]
-    [clojure.java.io :as io]))
+    [clojure.java.io :as io]
+    [fractalify.api.api :as a]
+    [fractalify.main.api-routes :as mar]))
 
 (def inject-devmode-html
   (comp
@@ -53,15 +55,18 @@
              :available-media-types ["text/html" "text/plain"]
              :handle-ok page-html)
 
-(def routes
-  ["/" [["public/" [[true static-routes]]]
-        [true main-routes]
-        ]])
+(def routes->resources
+  {:static static-routes
+   :main   main-routes})
 
 (defrecord MainRoutes []
   RouteProvider
   (routes [_]
-    routes))
+    (mar/get-routes))
+
+  a/RouteResource
+  (route->resource [_]
+    routes->resources))
 
 (defn new-main-routes []
   (->MainRoutes))

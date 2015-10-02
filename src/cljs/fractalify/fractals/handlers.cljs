@@ -161,12 +161,12 @@
       (update-in db [:fractals :forms] #(merge % (select-keys fractal [:l-system :canvas])))))
 
   (f/register-handler
-    :fractal-delete
+    :fractal-remove
     [m/standard-middlewares (f/undoable "fractal-delete")]
     (s/fn [db [fractal :- fch/PublishedFractal]]
       (let [id (u/select-key fractal :id)]
         (dialog/hide-dialog!)
-        (f/dispatch [:api-send :fractal-delete id :fractal-comment-add-resp])
+        (f/dispatch [:api-send :fractal-remove id :fractal-comment-add-resp])
         (u/remove-first-in db [:fractals :fractals-user :items] id))))
   )
 

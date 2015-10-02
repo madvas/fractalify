@@ -1,4 +1,4 @@
-(ns fractalify.api.fractals.routes
+(ns fractalify.api.fractals.resources
   (:require
     [bidi.bidi :as b]
     [liberator.core :refer [defresource]]
@@ -8,7 +8,8 @@
     [fractalify.fractals.schemas :as fch]
     [plumbing.core :as p]
     [cemerick.friend :as frd]
-    [fractalify.api.api :as a]))
+    [fractalify.api.api :as a]
+    [fractalify.fractals.api-routes :as far]))
 
 (defn fractal-exists-fn [db params]
   (fn [& _]
@@ -19,7 +20,7 @@
   (u/eq-in-key? :username author (frd/current-authentication)))
 
 (defresource
-  fractal-get [{:keys [db params]}]
+  fractal [{:keys [db params]}]
   a/base-resource
   :exists? (fractal-exists-fn db params)
   :handle-ok
@@ -117,20 +118,24 @@
   (fn [_]
     (fdb/comment-delete-by-id db (:comment-id params))))
 
-(def routes
-  ["/api/fractals" {["/" :id] [["/star" fractal-star]
-                               ["/comments" [[["/" :comment-id] {:delete fractal-comment-delete}]
-                                             ["" {:post fractal-comment-post
-                                                  :get  fractal-comments}]]]
-                               ["" {:get    fractal-get
-                                    :delete fractal-delete}]]
-                    ""        {:put fractal-put
-                               :get fractals}}])
+(def routes->resources
+  {:fractal                fractal
+   :fractal-add            fractal-put
+   :fractal-remove         fractal-delete
+   :fractals               fractals
+   :fractal-comments       fractal-comments
+   :fractal-comment-add    fractal-comment-post
+   :fractal-comment-remove fractal-comment-delete
+   :fractal-star           fractal-star})
 
 (defrecord FractalRoutes []
   b/RouteProvider
   (routes [_]
-    routes))
+    (far/get-routes true))
+
+  a/RouteResource
+  (route->resource [_]
+    routes->resources))
 
 (defn new-fractal-routes []
   (->FractalRoutes))
