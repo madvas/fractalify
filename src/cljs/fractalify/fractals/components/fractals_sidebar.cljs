@@ -14,20 +14,20 @@
 
 (def fractals-api-wrap
   (api-wrap/create-api-wrap
-    {:endpoint-key     :fractals
+    {:api-route        :fractals
      :path             [:fractals :fractals-sidebar]
      :value-sub        :fractals-sidebar
      :query-params-sub :fractals-sidebar-query-params}))
 
-(def order-items
+(def sort-items
   [{:payload :best :text "Top Rated"}
    {:payload :recent :text "Most Recent"}])
 
 (defn list-order-select []
   [form/form :fractals :sidebar
    (fn [vals]
-     [form-select/form-select (:order vals) "Order by" [:fractals :sidebar :order]
-      {:menu-items order-items}])])
+     [form-select/form-select (:sort vals) "Order by" [:fractals :sidebar :sort]
+      {:menu-items sort-items}])])
 
 (defn fractal-list []
   (fn [fractals loading?]

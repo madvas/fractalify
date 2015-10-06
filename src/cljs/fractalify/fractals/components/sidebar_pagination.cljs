@@ -22,7 +22,7 @@
   (let [query-params (f/subscribe [:fractals-sidebar-query-params])]
     (fn [fractals _]
       (when fractals
-        (p/letk [[page limit order] @query-params
+        (p/letk [[page limit] @query-params
                  [total-items] fractals
                  total-pages (u/ceil (/ total-items limit))
                  page-buffer (atom page)]

@@ -1,4 +1,5 @@
-(ns fractalify.components.gravatar)
+(ns fractalify.components.gravatar
+  (:require [fractalify.utils :as u]))
 
-(defn gravatar [url size]
-  [:img {:src (str url "?s=" size)}])
+(defn gravatar [md5 size]
+  [:img {:src (u/gravatar-url md5 size)}])

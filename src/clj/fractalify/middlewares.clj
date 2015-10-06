@@ -12,6 +12,7 @@
     [ring.middleware.keyword-params :as keyword-params]
     [ring.middleware.basic-authentication :refer [wrap-basic-authentication]]
     [ring.middleware.edn :refer [wrap-edn-params]]
+    [ring.middleware.format :refer [wrap-restful-format]]
     [fractalify.utils :as u]
     [fractalify.api.users.resources :as ur]
     [liberator.dev :as ld]
@@ -53,12 +54,13 @@
                        (friend-handler db)
                        (p/?> u/is-dev? (ld/wrap-trace :header :ui))
                        (p/?> u/is-dev? reload/wrap-reload)
-                       wrap-edn-params
-                       ;debug-handler
+                       #_(wrap-restful-format :formats [:transit+json])
+                       #_debug-handler
                        (defaults/wrap-defaults ring-defaults))]
     (fn [req]
-      (let [handler (if (= "/repl" (:uri req))
-                      (wrap-basic-authentication drawbridge-handler authenticated?)
+      (let [handler (condp = (:uri req)
+                      "/repl" (wrap-basic-authentication drawbridge-handler authenticated?)
+                      ur/login-url middewares
                       middewares)]
         (handler req)))))
 

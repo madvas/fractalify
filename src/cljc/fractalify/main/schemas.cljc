@@ -2,7 +2,6 @@
   (:require [schema.core :as s]
             [schema.coerce :as coerce]
             [fractalify.utils :as u]
-          #_   [fractalify.workers.schemas :as wch]
     #?@(:clj  [
             [clj-time.core :as m]]
         :cljs [[cljs-time.core :as m]
@@ -17,7 +16,16 @@
 (def FormErros
   {(o :errors) {s/Keyword s/Any}})
 
-(def Date (s/pred #(satisfies? m/DateTimeProtocol %)))
+(def Date #?(:clj  (s/pred #(satisfies? m/DateTimeProtocol %))
+             :cljs (s/pred #(instance? js/Date %))))
+
+(s/defschema ApiSendOpts
+  {:api-route        s/Keyword
+   (o :route-params) {s/Keyword s/Any}
+   :params           {s/Keyword s/Any}
+   :handler          s/Any
+   :method           s/Keyword
+   :error-handler    s/Any})
 
 (defn list-response [item-type]
   {:items       [item-type]

@@ -11,7 +11,7 @@
 
 (s/defn create-home-api [type :- fch/FractalOrderTypes]
   (api-wrap/create-api-wrap
-    {:endpoint-key     :fractals
+    {:api-route        :fractals
      :path             [:fractals :fractals-home type]
      :value-sub        [:fractals-home type]
      :query-params-sub [:fractals-home-query-params type]

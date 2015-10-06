@@ -121,7 +121,15 @@
            (concat-vec [form] params [(r/merge-props default-props props)])))
 
        (s/defn create-dispatch [key :- s/Keyword]
-         #(f/dispatch (into [key] %&)))]))
+         #(f/dispatch (into [key] %&)))
+
+       (s/defn create-calback
+         ([x] (create-calback x identity))
+         ([x callback]
+           (cond (keyword? x) (create-dispatch x)
+                 (list? x) x
+                 :else callback)))
+       ]))
 
 (do
   #?@(:clj [(def is-dev? (env :is-dev?))
@@ -299,6 +307,9 @@
    (fn [& args] (apply f (concat args (concat [arg1 arg2 arg3] more))))))
 
 (def trim-base64-prefix (partial-right str/replace-first #"^data:image/\w+;base64," ""))
+
+(defn gravatar-url [md5 size]
+  (str "http://www.gravatar.com/avatar/" md5 "?s=" size))
 
 (defn dissoc-in
   "Dissociates an entry from a nested associative structure returning a new

@@ -70,8 +70,8 @@
 
 (s/defn verify-credentials :- (s/maybe uch/UserSession)
   [db {:keys [username password]}]
-  (let [user (get-user-by-acc db username uch/UserDb)
-        submitted-pass password]
+  (let [user (get-user-by-acc db (u/p "username:" username) uch/UserDb)
+        submitted-pass (u/p "passok" password)]
     (when user
       (p/letk [[password salt] user]
         (when (sc/verify (str salt submitted-pass) password)

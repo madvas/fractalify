@@ -31,7 +31,7 @@
        [:div.row.center-xs
         [:a.col-xs-2.mar-bot-10.default-color
          {:href (t/url :user-detail :username username)}
-         [ui/avatar {:src gravatar}]
+         [ui/avatar {:src (u/gravatar-url gravatar 50)}]
          [:h6.mar-top-5 username]]
         [:div.col-xs.text-left
          [:h5.mar-bot-5 (u/time-ago created)]
@@ -69,10 +69,11 @@
 
 (def fractal-api-wrap
   (api-wrap/create-api-wrap
-    {:endpoint-key     :fractal
-     :path             [:fractals :fractal-detail]
-     :value-sub        :fractal-detail
-     :query-params-sub :route-params}))
+    {:api-route         :fractal
+     :path              [:fractals :fractal-detail]
+     :value-sub         :fractal-detail
+     :query-params-sub  :route-params
+     :route-param-names [:id]}))
 
 (defn fractal-detail []
   [fractal-api-wrap

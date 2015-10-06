@@ -29,7 +29,7 @@
     <orderEntry type="library" name="Leiningen: clj-http:2.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: clj-logging-config:1.9.12" level="project" />
     <orderEntry type="library" name="Leiningen: clj-time:0.11.0" level="project" />
-    <orderEntry type="library" name="Leiningen: cljs-ajax:0.3.14" level="project" />
+    <orderEntry type="library" name="Leiningen: cljs-ajax:0.5.0" level="project" />
     <orderEntry type="library" name="Leiningen: clojure-complete:0.2.3" level="project" />
     <orderEntry type="library" name="Leiningen: clojurewerkz/scrypt:1.2.0" level="project" />
     <orderEntry type="library" name="Leiningen: com.andrewmcveigh/cljs-time:0.3.13" level="project" />
@@ -49,6 +49,7 @@
     <orderEntry type="library" name="Leiningen: http-kit:2.1.19" level="project" />
     <orderEntry type="library" name="Leiningen: instar:1.0.10" level="project" />
     <orderEntry type="library" name="Leiningen: io.aviso/pretty:0.1.18" level="project" />
+    <orderEntry type="library" name="Leiningen: io.clojure/liberator-transit:0.3.0" level="project" />
     <orderEntry type="library" name="Leiningen: io.forward/sendgrid-clj:1.0" level="project" />
     <orderEntry type="library" name="Leiningen: juxt.modular/bidi:0.9.4" level="project" />
     <orderEntry type="library" name="Leiningen: juxt.modular/http-kit:0.5.4" level="project" />
@@ -69,6 +70,7 @@
     <orderEntry type="library" name="Leiningen: re-frame:0.4.1" level="project" />
     <orderEntry type="library" name="Leiningen: reagent:0.5.1" level="project" />
     <orderEntry type="library" name="Leiningen: ring-basic-authentication:1.0.5" level="project" />
+    <orderEntry type="library" name="Leiningen: ring-middleware-format:0.6.0" level="project" />
     <orderEntry type="library" name="Leiningen: ring/ring-defaults:0.1.5" level="project" />
     <orderEntry type="library" name="Leiningen: ring:1.4.0" level="project" />
     <orderEntry type="library" name="Leiningen: rm-hull/monet:0.2.1" level="project" />
@@ -83,17 +85,18 @@
     <orderEntry type="library" name="Leiningen: tigris:0.1.1" level="project" />
     <orderEntry type="library" name="Leiningen: commons-io:2.4" level="project" />
     <orderEntry type="library" name="Leiningen: org.apache.httpcomponents/httpclient:4.5" level="project" />
-    <orderEntry type="library" name="Leiningen: org.apache.httpcomponents/httpcore:4.4.1" level="project" />
     <orderEntry type="library" name="Leiningen: org.apache.httpcomponents/httpmime:4.5" level="project" />
     <orderEntry type="library" name="Leiningen: potemkin:0.4.1" level="project" />
     <orderEntry type="library" name="Leiningen: clj-tuple:0.2.2" level="project" />
     <orderEntry type="library" name="Leiningen: riddley:0.1.10" level="project" />
     <orderEntry type="library" name="Leiningen: log4j:1.2.16" level="project" />
     <orderEntry type="library" name="Leiningen: joda-time:2.8.2" level="project" />
-    <orderEntry type="library" name="Leiningen: com.cognitect/transit-cljs:0.8.220" level="project" />
-    <orderEntry type="library" name="Leiningen: net.colourcoding/poppea:0.2.0" level="project" />
+    <orderEntry type="library" name="Leiningen: com.cognitect/transit-cljs:0.8.225" level="project" />
+    <orderEntry type="library" name="Leiningen: net.colourcoding/poppea:0.2.1" level="project" />
+    <orderEntry type="library" name="Leiningen: org.apache.httpcomponents/httpasyncclient:4.1" level="project" />
+    <orderEntry type="library" name="Leiningen: org.apache.httpcomponents/httpcore:4.4.3" level="project" />
     <orderEntry type="library" name="Leiningen: com.cognitect/transit-js:0.8.755" level="project" />
-    <orderEntry type="library" name="Leiningen: spyscope:0.1.3" level="project" />
+    <orderEntry type="library" name="Leiningen: org.apache.httpcomponents/httpcore-nio:4.4.1" level="project" />
     <orderEntry type="library" name="Leiningen: com.lambdaworks/scrypt:1.4.0" level="project" />
     <orderEntry type="library" name="Leiningen: com.google.inject/guice:2.0" level="project" />
     <orderEntry type="library" name="Leiningen: commons-codec:1.6" level="project" />
@@ -153,7 +156,6 @@
     <orderEntry type="library" name="Leiningen: org.sonatype.sisu/sisu-guice:3.0.3" level="project" />
     <orderEntry type="library" name="Leiningen: org.sonatype.aether/aether-spi:1.13.1" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.analyzer.jvm:0.1.0-beta12" level="project" />
-    <orderEntry type="library" name="Leiningen: org.clojure/core.memoize:0.5.6" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.analyzer:0.1.0-beta12" level="project" />
     <orderEntry type="library" name="Leiningen: org.ow2.asm/asm-all:4.1" level="project" />
     <orderEntry type="library" name="Leiningen: com.keminglabs/cljx:0.4.0" level="project" />
@@ -161,6 +163,16 @@
     <orderEntry type="library" name="Leiningen: org.clojure/core.match:0.2.0" level="project" />
     <orderEntry type="library" name="Leiningen: net.cgrand/parsley:0.9.1" level="project" />
     <orderEntry type="library" name="Leiningen: net.cgrand/regex:1.1.0" level="project" />
+    <orderEntry type="library" name="Leiningen: com.cognitect/transit-clj:0.8.247" level="project" />
+    <orderEntry type="library" name="Leiningen: com.cognitect/transit-java:0.8.257" level="project" />
+    <orderEntry type="library" name="Leiningen: com.fasterxml.jackson.datatype/jackson-datatype-json-org:2.3.2" level="project" />
+    <orderEntry type="library" name="Leiningen: org.apache.directory.studio/org.apache.commons.codec:1.8" level="project" />
+    <orderEntry type="library" name="Leiningen: org.msgpack/msgpack:0.6.10" level="project" />
+    <orderEntry type="library" name="Leiningen: com.fasterxml.jackson.core/jackson-databind:2.3.2" level="project" />
+    <orderEntry type="library" name="Leiningen: org.json/json:20090211" level="project" />
+    <orderEntry type="library" name="Leiningen: com.fasterxml.jackson.core/jackson-annotations:2.3.0" level="project" />
+    <orderEntry type="library" name="Leiningen: com.googlecode.json-simple/json-simple:1.1.1" level="project" />
+    <orderEntry type="library" name="Leiningen: org.javassist/javassist:3.18.1-GA" level="project" />
     <orderEntry type="library" name="Leiningen: juxt.modular/ring:0.5.3" level="project" />
     <orderEntry type="library" name="Leiningen: hiccup:1.0.3" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/data.csv:0.1.2" level="project" />
@@ -191,6 +203,10 @@
     <orderEntry type="library" name="Leiningen: org.slf4j/slf4j-api:1.7.12" level="project" />
     <orderEntry type="library" name="Leiningen: de.kotka/lazymap:3.1.0" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/data.codec:0.1.0" level="project" />
+    <orderEntry type="library" name="Leiningen: clj-yaml:0.4.0" level="project" />
+    <orderEntry type="library" name="Leiningen: com.ibm.icu/icu4j:54.1" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojure/core.memoize:0.5.7" level="project" />
+    <orderEntry type="library" name="Leiningen: org.yaml/snakeyaml:1.5" level="project" />
     <orderEntry type="library" name="Leiningen: javax.servlet/servlet-api:2.5" level="project" />
     <orderEntry type="library" name="Leiningen: ring/ring-anti-forgery:1.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: ring/ring-headers:0.1.3" level="project" />

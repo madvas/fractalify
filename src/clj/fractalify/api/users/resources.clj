@@ -64,10 +64,12 @@
   login [{:keys [db params]}]
   a/base-resource
   :allowed-methods [:post :get]
-  :allowed?
-  (fn [_] (frd/current-authentication))
-  :post-redirect?
-  (fn [_]
+  :allowed? (fn [_] (frd/current-authentication))
+  ;:post!
+  ;(fn [ctx]
+  ;  (println ctx))
+  :post-redirect? false
+  #_ (fn [_]
     {:location
      (b/path-for (uar/get-routes) :user :username (:username (frd/current-authentication)))}))
 

@@ -6,32 +6,40 @@
             [re-frame.core :as f]
             [fractalify.router :as t]
             [fractalify.tracer]
-            [fractalify.utils :as u]))
+            [fractalify.utils :as u]
+            [plumbing.core :as p]
+            ))
 
 (trace-handlers
   (r/register-handler
     :login
     m/standard-middlewares
     (fn [db _]
-      (f/dispatch [:api-send
-                   :login
-                   (d/get-form-data db :users :login)
-                   :login-resp
-                   :login-err])
-      db))
+      (f/dispatch
+        [:api-post
+         {:api-route     :login
+          :params        (d/get-form-data db :users :login)
+          :handler       :login-resp
+          :error-handler :login-err}]
+        db)))
 
   (r/register-handler
     :login-resp
     m/standard-middlewares
     (fn [db [user]]
-      (assoc-in db [:users :logged-user] user)))
+      (println "login resp" user)
+      db
+      #_(assoc-in db [:users :logged-user] user)))
 
   (r/register-handler
     :login-err
     m/standard-middlewares
-    (fn [db [user]]
-      ;TODO
-      db))
+    (fn [db [error]]
+      (p/letk [[status] error]
+        (if (= status 403)
+          (f/dispatch [:show-snackbar "Sorry, these are wrong credentials"])
+          )
+        db)))
 
   (r/register-handler
     :join

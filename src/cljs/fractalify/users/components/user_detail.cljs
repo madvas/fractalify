@@ -15,14 +15,15 @@
 
 (def user-api-wrap
   (api-wrap/create-api-wrap
-    {:endpoint-key     :user
-     :path             [:users :user-detail]
-     :value-sub        :user-detail
-     :query-params-sub :route-params}))
+    {:api-route         :user
+     :path              [:users :user-detail]
+     :value-sub         :user-detail
+     :query-params-sub  :route-params
+     :route-param-names [:username]}))
 
 (def user-fractals-api-wrap
   (api-wrap/create-api-wrap
-    {:endpoint-key     :fractals
+    {:api-route        :fractals
      :path             [:fractals :fractals-user]
      :value-sub        :fractals-user
      :query-params-sub :fractals-user-query-params
@@ -31,7 +32,7 @@
 (def gravatar-size 300)
 
 (defn user-card []
-  (s/fn [user :- (s/maybe uch/UserDb)]
+  (s/fn [user :- (s/maybe uch/UserOther)]
     [:div.row.center-xs.col-xs-12.col-lg-3.top-xs.text-left
      (when user
        (p/letk [[username gravatar bio] user]

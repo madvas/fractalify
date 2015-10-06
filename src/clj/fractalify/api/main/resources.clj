@@ -9,7 +9,8 @@
     [clojure.string :as str]
     [clojure.java.io :as io]
     [fractalify.api.api :as a]
-    [fractalify.main.api-routes :as mar]))
+    [fractalify.main.api-routes :as mar]
+    [io.clojure.liberator-transit]))
 
 (def inject-devmode-html
   (comp
@@ -48,8 +49,6 @@
              :last-modified
              (fn [ctx]
                (.lastModified (::file ctx))))
-
-
 
 (defresource main-routes [_]
              :available-media-types ["text/html" "text/plain"]

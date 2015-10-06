@@ -9,37 +9,36 @@
             [plumbing.core :as p]))
 
 
-(defn- dispatch [endpoint-key path query-params force-reload]
-  (f/dispatch [:api-fetch endpoint-key path query-params force-reload]))
-
 (defn ^:private api-wrap
-  [endpoint-key path value-sub force-reload]
+  [api-route path value-sub route-param-names force-reload]
   (let [val (f/subscribe (u/ensure-seq value-sub))
-        loading? (f/subscribe [:loading? path])]
+        loading? (f/subscribe [:loading? path])
+        dispatch #(f/dispatch [:api-fetch api-route path % route-param-names force-reload])]
     (r/create-class
       {:component-will-mount
        (fn [this]
-         (dispatch endpoint-key path (r/props this) force-reload))
+         (dispatch (r/props this)))
        :component-will-receive-props
        (fn [_ new-argv]
-         (dispatch endpoint-key path (ru/extract-props new-argv) force-reload))
+         (dispatch (ru/extract-props new-argv)))
        :reagent-render
        (fn [_ child]
          (conj child @val @loading?))})))
 
-(p/defnk ^:private api-query-params-wrap [endpoint-key path value-sub query-params-sub :as config]
-  (let [query-params (f/subscribe (u/ensure-seq query-params-sub))
-        f (partial api-wrap endpoint-key path value-sub (:force-reload config))]
+(def ApiWrapConfig
+  {:api-route                          s/Keyword
+   :path                               mch/DbPath
+   :value-sub                          (s/cond-pre s/Keyword [s/Keyword])
+   :query-params-sub                   (s/cond-pre s/Keyword [s/Keyword])
+   (s/optional-key :route-param-names) [s/Keyword]
+   (s/optional-key :force-reload)      s/Bool})
+
+(s/defn ^:private api-query-params-wrap [config :- ApiWrapConfig]
+  (p/letk [[api-route path value-sub query-params-sub {route-param-names []} {force-reload nil}] config
+           query-params (f/subscribe (u/ensure-seq query-params-sub))
+           f (partial api-wrap api-route path value-sub route-param-names force-reload)]
     (fn [child]
       [f @query-params child])))
 
-(def ApiWrapConfig
-  {:endpoint-key                  s/Keyword
-   :path                          mch/DbPath
-   :value-sub                     (s/cond-pre s/Keyword [s/Keyword])
-   :query-params-sub              (s/cond-pre s/Keyword [s/Keyword])
-   (s/optional-key :force-reload) s/Bool})
-
-(p/defnk create-api-wrap
-  [endpoint-key path value-sub query-params-sub :as config] :- ApiWrapConfig
+(s/defn create-api-wrap [config :- ApiWrapConfig]
   (partial api-query-params-wrap config))

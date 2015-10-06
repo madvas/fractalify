@@ -5,17 +5,39 @@
             [plumbing.core :as p]
             [clojure.set :as set]
             [monger.collection :as mc]
-            [monger.operators :as mop])
-  (:import [org.bson.types ObjectId]))
+            [monger.operators :as mop]
+            [io.clojure.liberator-transit :as lt]
+            [liberator.representation :as lr]
+            [cognitect.transit :as transit])
+  (:import [org.bson.types ObjectId]
+           (org.joda.time ReadableInstant)))
 
 (defn malformed-params? [schema params]
   (fn [_] (s/check schema
                    (try
                      (u/coerce-str params schema)
-                     (catch Exception _ params)))))
+                     (catch Exception e
+                       #_(println "except" (u/coerce-str params schema))
+                       params)))))
+
+(def joda-time-writer
+  (transit/write-handler
+    (constantly "m")
+    (fn [v] (-> ^ReadableInstant v .getMillis))
+    (fn [v] (-> ^ReadableInstant v .getMillis .toString))))
+
+(defn as-transit-response
+  ([] (as-transit-response lr/as-response))
+  ([f]
+   (lt/as-response
+     {:handlers            {org.joda.time.DateTime joda-time-writer}
+      :allow-json-verbose? false}
+     f)))
+
 
 (def base-resource
-  {:available-media-types ["application/edn"]})
+  {:available-media-types ["application/transit+json"]
+   :as-response           (as-transit-response)})
 
 (def base-put
   (merge base-resource {:allowed-methods [:put]}))

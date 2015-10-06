@@ -6,15 +6,11 @@
             [fractalify.mailers.mock-mail-sender :as mms]
             [fractalify.config :as cfg]
             [clj-http.client :as client]
-            [clj-http.core :as http]
             [plumbing.core :as p]
-    #_[midje.checking.checkers.defining :as]
             [schema.core :as s]
             [fractalify.utils :as u]
             [clojure.edn :as edn]
-            [fractalify.readers :as r]
-            [fractalify.api.users.resources :as ur]
-            [bidi.bidi :as b])
+            [fractalify.readers :as r])
   (:use midje.sweet))
 
 (def server-port 10556)
@@ -43,11 +39,12 @@
 (defn request [path opts]
   (-> (client/request (merge {:url              (str server-url path)
                               ;         "http://requestb.in/1cxotfm1"
-                              :headers          {"Content-type" "application/edn"
-                                                 "Accept"       "application/edn"}
+                              ;:headers          {"Content-type" "application/edn"
+                              ;                   "Accept"       "application/edn"}
+                              :content-type     :transit+json
                               :force-redirects  true
                               :throw-exceptions false
-                              :as               :text
+                              ;:as               :text
                               :cookie-store     *cookies*}
                              (-> opts
                                  (p/update-in-when [:body] str))))
@@ -103,7 +100,6 @@
 
 (def status-ok (status-checker 200))
 (def created (status-checker 201))
-(def accepted (status-checker 202))
 (def no-content (status-checker 204))
 (def bad-request (status-checker 400))
 (def unauthorized (status-checker 401))

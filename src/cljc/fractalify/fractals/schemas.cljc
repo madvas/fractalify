@@ -7,67 +7,67 @@
 
 (def o s/optional-key)
 
-(def hex-color? (partial re-matches #"^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"))
+(s/defschema hex-color? (partial re-matches #"^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"))
 (def FractalTitle s/Str)
 (def FractalDesc s/Str)
 (def CommentText s/Str)
 
-(def Color
+(s/defschema Color
   (wch/with-coerce [(s/one (s/pred hex-color?) "hex-color")
                     (s/one s/Num "alpha")]
                    ["#000" 0]))
 
-(def Base64Png (s/pred (partial re-matches
+(s/defschema Base64Png (s/pred (partial re-matches
                                 (re-pattern (str "^" u/base64-png-prefix ".*")))))
 
-(def operation-type (s/enum :cmds :rules))
+(s/defschema operation-type (s/enum :cmds :rules))
 
 (do
-  #?@(:cljs [(def CanvasElement (s/pred (partial instance? js/HTMLCanvasElement)))
-             (def CanvasContext (s/pred (partial instance? js/CanvasRenderingContext2D)))]))
+  #?@(:cljs [(s/defschema CanvasElement (s/pred (partial instance? js/HTMLCanvasElement)))
+             (s/defschema CanvasContext (s/pred (partial instance? js/CanvasRenderingContext2D)))]))
 
-(def FractalIdField
+(s/defschema FractalIdField
   {:id s/Str})
 
-(def FractalPublishForm
+(s/defschema FractalPublishForm
   {:title FractalTitle
    :desc  FractalDesc})
 
-(def Canvas
+(s/defschema Canvas
   {:color      Color
    :bg-color   Color
    :line-width s/Num
    :size       s/Num
    (o :lines)  wch/Lines})
 
-(def PutFractalForm
+(s/defschema PutFractalForm
   (merge
     FractalPublishForm
     {:l-system wch/LSystem
      :canvas   (dissoc Canvas (o :lines))
      :data-url Base64Png}))
 
-(def FractalOrderTypes (s/enum :best :recent))
+(s/defschema FractalOrderTypes (s/enum :best :recent))
 
-(def FractalListForm
+(s/defschema FractalListForm
   {(o :page)     s/Int
    (o :limit)    s/Int
    (o :sort)     FractalOrderTypes
    (o :sort-dir) s/Int
    (o :username) s/Str})
 
-(def CommentForm {:text CommentText})
+(s/defschema CommentForm {:text CommentText})
 
-(def Comment
+(s/defschema Comment
   {:id      s/Str
    :text    CommentText
    :author  uch/UserOther
    :fractal s/Str
    :created mch/Date})
 
-(def CommentList (mch/list-response Comment))
+(s/defschema CommentList (mch/list-response Comment))
 
-(def PublishedFractal
+(s/defschema PublishedFractal
   {:id            s/Str
    :title         FractalTitle
    :desc          FractalDesc
@@ -80,16 +80,16 @@
    :created       mch/Date
    (o :comments)  (s/maybe CommentList)})
 
-(def PublishedFractalsList (mch/list-response PublishedFractal))
+(s/defschema PublishedFractalsList (mch/list-response PublishedFractal))
 
-(def FractalsForms
+(s/defschema FractalsForms
   {:info     FractalPublishForm
    :l-system wch/LSystem
    :canvas   Canvas
    :comment  CommentForm
    :sidebar  FractalListForm})
 
-(def FractalsSchema
+(s/defschema FractalsSchema
   {:forms                   FractalsForms
    (o :fractal-detail)      PublishedFractal
    (o :fractals-sidebar)    PublishedFractalsList

@@ -81,18 +81,19 @@
 (def UsersSchema
   {(o :logged-user) (s/maybe UserMe)
    :forms           UserForms
-   (o :user-detail) UserDb})
+   (o :user-detail) UserOther})
 
 
 (def default-db
   {
-   #_ :logged-user #_ {:id       "123"
-                 :username "madvas"
-                 :roles []
-                 :email    "some@email.com"
-                 :bio      "I am good"
-                 :gravatar "http://www.gravatar.com/avatar/bfdb252fe9d0ab9759f41e3c26d7700e.jpg?s=50"}
+   #_:logged-user #_{:id       "123"
+                     :username "madvas"
+                     :roles    []
+                     :email    "some@email.com"
+                     :bio      "I am good"
+                     :gravatar "http://www.gravatar.com/avatar/bfdb252fe9d0ab9759f41e3c26d7700e.jpg?s=50"}
 
-   :forms       (merge
-                  (mch/coerce-forms-with-defaults UserForms)
-                  {:login {:username "HEHE" :password "abcdef"}})})
+   :forms (merge
+            (mch/coerce-forms-with-defaults UserForms)
+            #?(:cljs
+               (when goog.DEBUG {:login {:username "admin" :password "111111"}})))})

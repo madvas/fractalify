@@ -50,7 +50,7 @@
   (f/register-sub
     :fractals-home-query-params
     (s/fn [_ [_ type :- fch/FractalOrderTypes]]
-      (reaction {:order-by type :limit 10})))
+      (reaction {:sort type :limit 10})))
 
   (f/register-sub
     :fractals-sidebar

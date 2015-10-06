@@ -10,7 +10,6 @@
             [fractalify.permissons :as p]
             [fractalify.tracer :refer [tracer]]
             [clojure.set :as set]
-            [instar.core :as i]
             [fractalify.components.dialog :as dialog]
             [fractalify.api :as api]
             [re-frame.core :as f]
@@ -18,13 +17,21 @@
             [schema.core :as s :include-macros true]
             [fractalify.main.schemas :as ch]))
 
-(defn default-send-err-handler [err]
-  (f/dispatch [:undo])
-  (f/dispatch [:show-snackbar "Oops, something went awfully wrong :("]))
+(defn default-send-err-handler
+  ([err] (default-send-err-handler err true))
+  ([err undo?]
+   (when undo?
+     (f/dispatch [:undo]))
+   (f/dispatch [:show-snackbar "Oops, something went awfully wrong :("])))
+
+(defn api-send! [params]
+  (-> params
+      (update :handler u/create-calback)
+      (update :error-handler (u/partial-right u/create-calback default-send-err-handler))
+      api/send!))
 
 (trace-handlers
   #_{:tracer (fractalify.tracef/tracer :color "green")}
-
 
   (f/register-handler
     :initialize-db
@@ -91,18 +98,18 @@
   (f/register-handler
     :api-fetch
     m/standard-middlewares
-    (fn [db [endpoint-key path query-params force-reload]]
+    (fn [db [api-route path query-params route-param-names force-reload]]
       (if (or force-reload
               (not= (d/path-query-params db path) query-params))
         (do (u/mwarn "fetching " path query-params)
-            (api/fetch! endpoint-key query-params
-                        #(f/dispatch [:process-fetch-response path query-params %])
-                        #(f/dispatch [:process-fetch-response-err path query-params %]))
+            (api/fetch! api-route query-params route-param-names
+                        #(f/dispatch [:process-fetch-resp path query-params %])
+                        #(f/dispatch [:process-fetch-resp-err path query-params %]))
             (d/assoc-query-loading db path true))
         db)))
 
   (f/register-handler
-    :process-fetch-response
+    :process-fetch-resp
     m/standard-middlewares
     (fn [db [path query-params val]]
       (-> db
@@ -110,16 +117,23 @@
           (d/assoc-path-query-params path query-params))))
 
   (f/register-handler
-    :api-send
+    :api-put
     m/standard-middlewares
-    (fn [db [endpoint-key body-params on-succes on-err]]
-      (let [on-succes (if (keyword? on-succes) (u/create-dispatch on-succes) on-succes)
-            on-err (if (keyword? on-err) (u/create-dispatch on-err) on-err)]
-        (u/mwarn "posting " endpoint-key body-params)
-        (api/send! endpoint-key body-params
-                   (or on-succes identity)
-                   (or on-err default-send-err-handler)))
+    (fn [db [opts]]
+      (api-send! (merge opts {:method :put}))
       db))
 
-  )
+  (f/register-handler
+    :api-post
+    m/standard-middlewares
+    (fn [db [opts]]
+      (api-send! (merge opts {:method :post}))
+      db))
+
+  (f/register-handler
+    :api-delete
+    m/standard-middlewares
+    (fn [db [opts]]
+      (api-send! (merge opts {:method :delete :params {}}))
+      db)))
 
