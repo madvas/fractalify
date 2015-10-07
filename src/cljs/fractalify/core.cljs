@@ -28,7 +28,7 @@
 (fractalify.fractals.routes/define-routes!)
 (fractalify.main.routes/define-routes!)
 (router/start!)
-(f/dispatch-sync [:initialize-db])
+(f/dispatch-sync [:initialize])
 
 (defn ^:export init []
   (mount-root))

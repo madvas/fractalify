@@ -7,7 +7,7 @@
             [fractalify.components.snackbar :as snackbar]
             [fractalify.router :as t]
             [fractalify.main.components.sidenav :as sidenav]
-            [fractalify.permissons :as p]
+            [fractalify.permissons :as per]
             [fractalify.tracer :refer [tracer]]
             [clojure.set :as set]
             [fractalify.components.dialog :as dialog]
@@ -15,7 +15,8 @@
             [re-frame.core :as f]
             [fractalify.db-utils :as d]
             [schema.core :as s :include-macros true]
-            [fractalify.main.schemas :as ch]))
+            [fractalify.main.schemas :as ch]
+            [plumbing.core :as p]))
 
 (defn default-send-err-handler
   ([err] (default-send-err-handler err true))
@@ -31,12 +32,13 @@
       api/send!))
 
 (trace-handlers
-  #_{:tracer (fractalify.tracef/tracer :color "green")}
-
   (f/register-handler
-    :initialize-db
+    :initialize
     m/standard-no-debug
     (fn [_]
+      (f/dispatch [:api-fetch {:api-route     :logged-user
+                               :path          [:users :logged-user]
+                               :error-handler :logged-user-resp-err}])
       db/default-db))
 
   (f/register-handler
@@ -44,7 +46,7 @@
     m/standard-middlewares
     (fn [db [active-panel permissions route-params]]
       (sidenav/close-sidenav!)
-      (if-let [error (p/validate-permissions db permissions)]
+      (if-let [error (per/validate-permissions db permissions)]
         (do (f/dispatch [:show-snackbar (:message error)])
             (t/go! (:redirect error))
             db)
@@ -98,42 +100,66 @@
   (f/register-handler
     :api-fetch
     m/standard-middlewares
-    (fn [db [api-route path query-params route-param-names force-reload]]
-      (if (or force-reload
-              (not= (d/path-query-params db path) query-params))
-        (do (u/mwarn "fetching " path query-params)
-            (api/fetch! api-route query-params route-param-names
-                        #(f/dispatch [:process-fetch-resp path query-params %])
-                        #(f/dispatch [:process-fetch-resp-err path query-params %]))
-            (d/assoc-query-loading db path true))
-        db)))
+    (fn [db [opts]]
+      (p/letk [[api-route
+                path
+                {query-params {}}
+                {route-param-names []}
+                {force-reload false}
+                {handler #(f/dispatch [:default-fetch-resp path query-params %])}
+                {error-handler :default-fetch-resp-err}
+                ] opts]
+        (println (list? handler))
+        (if (or force-reload
+                (not= (d/path-query-params db path) query-params))
+          (do (u/mwarn "fetching " path query-params)
+              (api/fetch! api-route query-params route-param-names
+                          {:handler       (u/create-calback handler)
+                           :error-handler (u/create-calback error-handler)})
+              (d/assoc-query-loading db path true))
+          db))))
 
   (f/register-handler
-    :process-fetch-resp
+    :default-fetch-resp
     m/standard-middlewares
     (fn [db [path query-params val]]
       (-> db
-          (assoc-in path val)
+          (assoc-in path (u/p "here:" val))
           (d/assoc-path-query-params path query-params))))
+
+  (f/register-handler
+    :default-fetch-resp-err
+    m/standard-middlewares
+    (fn [db [path query-params err]]
+      (u/merror "Error while fetching " path query-params err)
+      db))
 
   (f/register-handler
     :api-put
     m/standard-middlewares
     (fn [db [opts]]
-      (api-send! (merge opts {:method :put}))
+      (api-send! (merge {:method :put} opts))
       db))
 
   (f/register-handler
     :api-post
     m/standard-middlewares
     (fn [db [opts]]
-      (api-send! (merge opts {:method :post}))
+      (api-send! (merge {:method :post :params {}} opts))
       db))
 
   (f/register-handler
     :api-delete
     m/standard-middlewares
     (fn [db [opts]]
-      (api-send! (merge opts {:method :delete :params {}}))
+      (api-send! (merge {:method :delete :params {}} opts))
+      db))
+
+  (f/register-handler
+    :logged-user-resp-err
+    m/standard-middlewares
+    (fn [db [err]]
+      (println err)
       db)))
+
 

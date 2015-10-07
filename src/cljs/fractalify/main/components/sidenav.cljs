@@ -27,6 +27,10 @@
                           (fn []
                             [ui/left-nav {:ref       "sidenav"
                                           :docked    false
+                                          :on-change (fn [_ _ menu-item]
+                                                       (when (= "Logout" (:text (js->clj menu-item
+                                                                                         :keywordize-keys true)))
+                                                         (f/dispatch [:logout])))
                                           :menuItems [{:text    "Create Fractal"
                                                        :payload (t/url :fractal-create)
                                                        :type    ui/menu-item-link-type}
@@ -36,6 +40,4 @@
                                                       {:text    "Edit profile"
                                                        :payload (t/url :edit-profile)
                                                        :type    ui/menu-item-link-type}
-                                                      {:text    "Logout"
-                                                       :payload (t/url :logout)
-                                                       :type    ui/menu-item-link-type}]}])}))
+                                                      {:text "Logout"}]}])}))

@@ -20,16 +20,15 @@
          {:api-route     :login
           :params        (d/get-form-data db :users :login)
           :handler       :login-resp
-          :error-handler :login-err}]
-        db)))
+          :error-handler :login-err}])
+      db))
 
   (r/register-handler
     :login-resp
     m/standard-middlewares
     (fn [db [user]]
-      (println "login resp" user)
-      db
-      #_(assoc-in db [:users :logged-user] user)))
+      (t/go! :home)
+      (assoc-in db [:users :logged-user] user)))
 
   (r/register-handler
     :login-err
@@ -63,10 +62,9 @@
     :logout
     [m/standard-middlewares (f/undoable "logout")]
     (fn [db _]
-      (f/dispatch [:api-send
-                   :logout
-                   {}
-                   :logout-resp])
+      (println "here")
+      (f/dispatch [:api-post
+                   {:api-route :logout}])
       (t/go! :home)
       (u/dissoc-in db [:users :logged-user])))
 

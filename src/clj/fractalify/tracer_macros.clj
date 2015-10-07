@@ -126,7 +126,7 @@
          (dissoc db key)))
 
      (r/register-handler
-       :initialize-db
+       :initialize
        m/standard-without-debug
        (fn [_]
          db/default-db))

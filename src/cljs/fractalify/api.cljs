@@ -2,7 +2,7 @@
   (:require [fractalify.utils :as u]
             [schema.core :as s :include-macros true]
             [fractalify.main.schemas :as ch]
-            [ajax.core :as aj :refer [GET POST PUT DELETE]]
+            [ajax.core :refer [GET POST PUT DELETE]]
             [fractalify.users.api-routes :as uar]
             [fractalify.main.api-routes :as mar]
             [fractalify.fractals.api-routes :as far]
@@ -18,29 +18,30 @@
    route-params :- {s/Keyword s/Any}]
   (apply b/path-for all-routes route (flatten (seq route-params))))
 
+(def default-opts
+  {:headers {:Accept ["application/transit+json"]}
+   :format  :transit})
+
 (s/defn fetch!
   [api-route :- s/Keyword
    query-params :- ch/QueryParams
    route-param-names :- [s/Keyword]
-   handler
-   error-handler]
+   opts]
   (let [url (path-for api-route (select-keys query-params route-param-names))]
-    (GET (u/p "url:" url) {:params        (-> query-params clj->js js->clj)
-                           :format        :transit
-                           :headers       {:Accept ["application/transit+json"]}
-                           :handler       handler
-                           :error-handler error-handler})))
+    (GET url (merge default-opts
+                    opts
+                    {:params (-> query-params clj->js js->clj)}))))
 
 
 (s/defn send! [opts :- mch/ApiSendOpts]
-  (p/letk [[api-route {route-params {}} handler error-handler] opts
+  (p/letk [[api-route {route-params {}}] opts
            url (path-for api-route route-params)]
-    (aj/ajax-request (merge opts
-                            {:uri             url
-                             :format          :transit
-                             :response-format :transit
-                             :headers         {:Accept ["application/transit+json"]}
-                             :handler         (fn [[ok result]]
-                                                (if ok
-                                                  (handler result)
-                                                  (error-handler result)))}))))
+    (let [f (condp = (:method opts)
+              :put PUT
+              :post POST
+              :delete DELETE)]
+      (f url (merge default-opts
+                    opts
+                    {:format          :transit
+                     :response-format :transit
+                     :headers         {:Accept ["application/transit+json"]}})))))

@@ -16,7 +16,7 @@
     [fractalify.utils :as u]
     [fractalify.api.users.resources :as ur]
     [liberator.dev :as ld]
-    [cemerick.friend :as friend]
+    [cemerick.friend :as frd]
     (cemerick.friend [workflows :as workflows])
     [fractalify.api.users.users-db :as udb]))
 
@@ -32,30 +32,21 @@
       (session/wrap-session)))
 
 (defn debug-handler [handler]
+  (println "handler iss: " (type handler))
   (fn [req]
-    (pprint req)
+    #_(pprint req)
     (handler req)))
-
-(defn friend-handler
-  "Returns a middleware that enables authentication via Friend."
-  [handler db]
-  (let [friend-m {:credential-fn (partial udb/verify-credentials db)
-                  :workflows     [(workflows/interactive-form :login-uri ur/login-url
-                                                              :redirect-on-auth? false
-                                                              )]}]
-    (-> handler
-        (friend/authenticate friend-m))))
 
 (def ring-defaults (-> defaults/site-defaults
                        (u/dissoc-in [:security :anti-forgery])))
 
-(defn get-middlewares [handler db]
+(defn get-middlewares [handler]
   (let [middewares (-> handler
-                       (friend-handler db)
+                       (frd/authenticate nil)
                        (p/?> u/is-dev? (ld/wrap-trace :header :ui))
                        (p/?> u/is-dev? reload/wrap-reload)
-                       #_(wrap-restful-format :formats [:transit+json])
-                       #_debug-handler
+                       (wrap-restful-format :formats [:transit-json])
+                       debug-handler
                        (defaults/wrap-defaults ring-defaults))]
     (fn [req]
       (let [handler (condp = (:uri req)
@@ -68,7 +59,7 @@
   c/Lifecycle
   (start [this]
     (p/letk [[db] (:db-server this)]
-      (assoc this :middlewares (u/partial-right get-middlewares db))))
+      (assoc this :middlewares get-middlewares)))
 
   (stop [this] (dissoc this :middlewares)))
 

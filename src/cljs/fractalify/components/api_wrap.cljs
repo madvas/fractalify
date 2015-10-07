@@ -13,7 +13,12 @@
   [api-route path value-sub route-param-names force-reload]
   (let [val (f/subscribe (u/ensure-seq value-sub))
         loading? (f/subscribe [:loading? path])
-        dispatch #(f/dispatch [:api-fetch api-route path % route-param-names force-reload])]
+        dispatch #(f/dispatch [:api-fetch
+                               {:api-route         api-route
+                                :path              path
+                                :query-params      %
+                                :route-param-names route-param-names
+                                :force-reload      force-reload}])]
     (r/create-class
       {:component-will-mount
        (fn [this]

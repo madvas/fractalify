@@ -12,11 +12,23 @@
     [fractalify.users.schemas :as uch]
     [plumbing.core :as p]
     [fractalify.mailers.mailer :as mm]
-    [fractalify.users.api-routes :as uar]))
+    [fractalify.users.api-routes :as uar]
+    [fractalify.api.api :as api]
+    [cemerick.friend.workflows :as workflows]
+    [liberator.representation :as lr]))
 
 (def auth-base "/api/auth")
 (def login-url (str auth-base "/login"))
 
+(defn auth-workflow [db]
+  {:credential-fn (partial udb/verify-credentials db)
+   :workflows     [(workflows/interactive-form :login-uri login-url
+                                               :redirect-on-auth? false)]})
+
+(defn authenticate [db request]
+  (let [ring-response ((frd/authenticate identity (auth-workflow db)) request)]
+    (when-not (= 302 (:status ring-response))
+      ring-response)))
 
 (defn me? [params]
   (fn [& _]
@@ -35,8 +47,7 @@
 (defresource
   logged-user [{:keys [db params]}]
   a/base-resource
-  :exists? (fn [_]
-             (u/p "here:" (frd/current-authentication)))
+  :exists? (fn [_] (frd/current-authentication))
   :handle-ok
   (get-user-fn db (u/select-key (frd/current-authentication) :username)))
 
@@ -63,15 +74,21 @@
 (defresource
   login [{:keys [db params]}]
   a/base-resource
-  :allowed-methods [:post :get]
-  :allowed? (fn [_] (frd/current-authentication))
-  ;:post!
-  ;(fn [ctx]
-  ;  (println ctx))
+  :allowed-methods [:post]
+  :post!
+  (p/fnk [request]
+    (when-let [ring-response (authenticate db request)]
+      {::ring-response ring-response}))
   :post-redirect? false
-  #_ (fn [_]
-    {:location
-     (b/path-for (uar/get-routes) :user :username (:username (frd/current-authentication)))}))
+  :handle-created
+  (fn [ctx]
+    (apply
+      lr/ring-response
+      (if-let [ring-response (::ring-response ctx)]
+        (let [user-session (frd/current-authentication ring-response)]
+          [(udb/get-user db (u/select-key user-session :username) uch/UserMe)
+           (dissoc ring-response :body)])
+        [{:status 403}]))))
 
 (defresource
   forgot-pass [{:keys [db params mailer]}]
@@ -146,6 +163,7 @@
 
 (defn logout [_]
   (fn [res]
+    (println "logging out")
     (frd/logout* res)))
 
 (def routes->resources
