@@ -16,7 +16,8 @@
 (def FormErros
   {(o :errors) {s/Keyword s/Any}})
 
-(def Date #?(:clj  (s/pred #(satisfies? m/DateTimeProtocol %))
+(def Date #?(:clj  (s/pred #(or (satisfies? m/DateTimeProtocol %)
+                                (instance? java.util.Date %)))
              :cljs (s/pred #(instance? js/Date %))))
 
 (s/defschema ApiSendOpts

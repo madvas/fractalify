@@ -18,7 +18,8 @@
 (defn canvas-section [_]
   (p/fnk [src] :- ch/PublishedFractal
     [:img {:src   src
-           :style y/w-100}]))
+           :style (merge y/w-100
+                         {:min-height (:height y/canvas-size)})}]))
 
 (defn btn-section [_]
   (p/fnk
@@ -64,7 +65,7 @@
      (when-not (empty? fractal)
        [:div
         [btn-section fractal]
-        [comments/comments]])
+        [comments/comments fractal]])
      [sidebar-section]]))
 
 (def fractal-api-wrap

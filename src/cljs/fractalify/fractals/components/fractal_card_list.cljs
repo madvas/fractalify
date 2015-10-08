@@ -24,8 +24,7 @@
          (p/letk [[id src title star-count created] fractal]
            ^{:key id}
            [:div
-            (r/merge-props {:class "col-xs-6 col-sm-4 col-md-3 col-lg-3 mar-bot-20"}
-                           props)
+            (r/merge-props {:class "col-xs-6 col-sm-4 col-md-3 col-lg-3 mar-bot-20"} props)
             [ui/card
              [frac-link id
               [ui/card-media

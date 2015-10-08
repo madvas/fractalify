@@ -36,7 +36,9 @@
     <orderEntry type="library" name="Leiningen: com.cemerick/drawbridge:0.0.6" level="project" />
     <orderEntry type="library" name="Leiningen: com.cemerick/friend:0.2.1" level="project" />
     <orderEntry type="library" name="Leiningen: com.cemerick/piggieback:0.1.5" level="project" />
+    <orderEntry type="library" name="Leiningen: com.cognitect/transit-clj:0.8.281" level="project" />
     <orderEntry type="library" name="Leiningen: com.novemberain/monger:3.0.0-rc2" level="project" />
+    <orderEntry type="library" name="Leiningen: com.rpl/specter:0.7.1" level="project" />
     <orderEntry type="library" name="Leiningen: com.stuartsierra/component:0.2.3" level="project" />
     <orderEntry type="library" name="Leiningen: compojure:1.4.0" level="project" />
     <orderEntry type="library" name="Leiningen: day8/re-frame-tracer:0.1.0-20150720.001938-1" level="project" />
@@ -111,6 +113,15 @@
     <orderEntry type="library" name="Leiningen: xml-apis:1.3.03" level="project" />
     <orderEntry type="library" name="Leiningen: commons-logging:1.1.1" level="project" />
     <orderEntry type="library" name="Leiningen: net.jcip/jcip-annotations:1.0" level="project" />
+    <orderEntry type="library" name="Leiningen: com.cognitect/transit-java:0.8.304" level="project" />
+    <orderEntry type="library" name="Leiningen: com.fasterxml.jackson.datatype/jackson-datatype-json-org:2.3.2" level="project" />
+    <orderEntry type="library" name="Leiningen: org.apache.directory.studio/org.apache.commons.codec:1.8" level="project" />
+    <orderEntry type="library" name="Leiningen: org.msgpack/msgpack:0.6.10" level="project" />
+    <orderEntry type="library" name="Leiningen: com.fasterxml.jackson.core/jackson-databind:2.3.2" level="project" />
+    <orderEntry type="library" name="Leiningen: org.json/json:20090211" level="project" />
+    <orderEntry type="library" name="Leiningen: com.fasterxml.jackson.core/jackson-annotations:2.3.0" level="project" />
+    <orderEntry type="library" name="Leiningen: com.googlecode.json-simple/json-simple:1.1.1" level="project" />
+    <orderEntry type="library" name="Leiningen: org.javassist/javassist:3.18.1-GA" level="project" />
     <orderEntry type="library" name="Leiningen: clojurewerkz/support:1.1.0" level="project" />
     <orderEntry type="library" name="Leiningen: org.mongodb/mongodb-driver:3.0.2" level="project" />
     <orderEntry type="library" name="Leiningen: org.mongodb/bson:3.0.2" level="project" />
@@ -163,16 +174,6 @@
     <orderEntry type="library" name="Leiningen: org.clojure/core.match:0.2.0" level="project" />
     <orderEntry type="library" name="Leiningen: net.cgrand/parsley:0.9.1" level="project" />
     <orderEntry type="library" name="Leiningen: net.cgrand/regex:1.1.0" level="project" />
-    <orderEntry type="library" name="Leiningen: com.cognitect/transit-clj:0.8.247" level="project" />
-    <orderEntry type="library" name="Leiningen: com.cognitect/transit-java:0.8.257" level="project" />
-    <orderEntry type="library" name="Leiningen: com.fasterxml.jackson.datatype/jackson-datatype-json-org:2.3.2" level="project" />
-    <orderEntry type="library" name="Leiningen: org.apache.directory.studio/org.apache.commons.codec:1.8" level="project" />
-    <orderEntry type="library" name="Leiningen: org.msgpack/msgpack:0.6.10" level="project" />
-    <orderEntry type="library" name="Leiningen: com.fasterxml.jackson.core/jackson-databind:2.3.2" level="project" />
-    <orderEntry type="library" name="Leiningen: org.json/json:20090211" level="project" />
-    <orderEntry type="library" name="Leiningen: com.fasterxml.jackson.core/jackson-annotations:2.3.0" level="project" />
-    <orderEntry type="library" name="Leiningen: com.googlecode.json-simple/json-simple:1.1.1" level="project" />
-    <orderEntry type="library" name="Leiningen: org.javassist/javassist:3.18.1-GA" level="project" />
     <orderEntry type="library" name="Leiningen: juxt.modular/ring:0.5.3" level="project" />
     <orderEntry type="library" name="Leiningen: hiccup:1.0.3" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/data.csv:0.1.2" level="project" />

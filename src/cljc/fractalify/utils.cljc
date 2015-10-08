@@ -127,7 +127,7 @@
          ([x] (create-calback x identity))
          ([x callback]
            (cond (keyword? x) (create-dispatch x)
-                 (list? x) x
+                 (= js/Function (type x)) x
                  :else callback)))
        ]))
 
@@ -259,6 +259,14 @@
 
 (defn without-ext [s]
   (str/join (butlast (str/split s #"\."))))
+
+(defn http-status-ok [status]
+  (and (< status 300)
+       (>= status 200)))
+
+(defn first-filter
+  [f coll]
+  (first (filter f coll)))
 
 (defn gen-str [n]
   (let [charseq (map char (concat

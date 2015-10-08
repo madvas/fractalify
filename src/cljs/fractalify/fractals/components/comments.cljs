@@ -22,7 +22,7 @@
      :route-param-names [:id]}))
 
 (defn add-comment [_]
-  (fn [logged-user]
+  (fn [logged-user fractal]
     (when logged-user
       [form/form :fractals :comment
        (fn [vals has-err?]
@@ -34,10 +34,10 @@
           [:div.col-xs-3
            [ui/flat-button
             {:label        "Send"
-             :on-touch-tap #(f/dispatch [:fractal-comment-add])
+             :on-touch-tap #(f/dispatch [:fractal-comment-add (:id fractal)])
              :disabled     has-err?}]]])])))
 
-(defn comment-list [logged-user comments-list loading?]
+(defn comment-list [logged-user fractal comments-list loading?]
   (let [comments (:items comments-list)]
     [ui/list
      {:style     y/mar-top-10
@@ -47,24 +47,27 @@
        (u/empty-seq? comments) [ui/list-item {:disabled true} "No comments were added yet"]
        :else
        (doall
-         (for [comment (:items comments)]
+         (for [comment comments]
            (p/letk [[id text created [:author gravatar username]] comment]
              ^{:key id}
              [ui/list-item
               {:left-avatar       (r/as-element [:a {:href (t/url :user-detail :username username)}
-                                                 [ui/avatar {:src gravatar}]])
+                                                 [ui/avatar {:src (u/gravatar-url gravatar 50)}]])
                :disabled          true
                :right-icon-button (when (= (:username logged-user) username)
                                     (r/as-element (icon-button-remove/icon-button-remove
                                                     {:on-touch-tap
-                                                     #(f/dispatch [:fractal-comment-remove comment])})))
+                                                     #(f/dispatch
+                                                       [:fractal-comment-remove
+                                                        (:id fractal)
+                                                        (:id comment)])})))
                :secondary-text    (u/time-ago created)}
               [:p text]]))))]))
 
 (defn comments []
   (let [logged-user (f/subscribe [:logged-user])]
-    (fn []
+    (fn [fractal]
       [ui/paper {:style y/comments-wrap}
-       [add-comment @logged-user]
+       [add-comment @logged-user fractal]
        [comments-api-wrap
-        [comment-list @logged-user]]])))
+        [comment-list @logged-user fractal]]])))

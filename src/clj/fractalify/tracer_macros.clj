@@ -96,7 +96,7 @@
 #_(macroexpand-1
     '(trace-subs
        (r/register-sub
-         :form-item
+         :set-form-item
          (fn [db [_ form item index]]
            (reaction (let [form-item (get-in @db [:forms form item])]
                        (if (and (vector? form-item) index)
@@ -142,7 +142,7 @@
            (assoc db :active-panel active-panel))))
 
      (r/register-handler
-       :form-item
+       :set-form-item
        m/standard-middlewares
        (fn [db params]
          (let [value (last params)

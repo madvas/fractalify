@@ -8,18 +8,27 @@
             [fractalify.utils :as u]
             [workers.core :as w]
             [fractalify.tracer]
-            [instar.core :as i]
             [schema.core :as s :include-macros true]
             [fractalify.fractals.schemas :as fch]
             [fractalify.router :as t]
             [fractalify.db-utils :as d]
-            [fractalify.components.dialog :as dialog]))
+            [fractalify.components.dialog :as dialog]
+            [plumbing.core :as p]
+            [com.rpl.specter :as e]))
 
 
 (def turtle-worker (new js/Worker "/public/js/turtle-worker.js"))
 
 (def fractal-detail (u/partial-right get-in [:fractals :fractal-detail]))
 (def starred-by-me? (u/partial-right get-in [:fractals :fractal-detail :starred-by-me]))
+
+(s/defn assoc-fractal-detail [db fractal :- fch/PublishedFractal]
+  (d/assoc-with-query-params db [:fractals :fractal-detail]
+                             fractal (u/select-key fractal :id)))
+
+(s/defn update-sidebar-fractal [db fractal :- fch/PublishedFractal]
+  (e/transform [:fractals :fractals-sidebar :items e/ALL #(u/eq-in-key? :id % fractal)]
+               (constantly fractal) db))
 
 (trace-handlers
   (f/register-handler
@@ -69,35 +78,35 @@
             val (condp = type
                   :cmds ["" :default]
                   :rules ["" ""])]
-        (f/dispatch [:form-item :fractals :l-system type (inc last-id) val]))
+        (f/dispatch [:set-form-item :fractals :l-system type (inc last-id) val]))
       db))
 
   (f/register-handler
     :fractal-publish
     m/standard-middlewares
     (fn [db _]
-      (let [src (renderer/get-data-url)
-            id (rand-int 9999)
-            #_new-db #_(d/assoc-with-query-params
-                         db
-                         [:fractals (i/%% :forms) :fractal-detail]
-                         (fn [forms]
-                           (assoc forms :id id
-                                        :src src
-                                        :author (d/logged-user db)
-                                        :star-count 0
-                                        :starred-by-me false))
-                         {:id id})]
+      (let [data-url (renderer/get-data-url)
+            info (d/get-form-data db :fractals :info)
+            l-system (d/get-form-data db :fractals :l-system)
+            canvas (-> (d/get-form-data db :fractals :canvas)
+                       (dissoc :lines))]
+        (f/dispatch [:api-put
+                     {:api-route :fractals
+                      :params    (merge
+                                   info
+                                   {:l-system l-system
+                                    :canvas   canvas
+                                    :data-url data-url})
+                      :handler   :fractal-publish-res}])
         (dialog/hide-dialog!)
-        (u/set-timeout (t/go! :fractal-detail :id id) 1000)
         db)))
 
   (f/register-handler
-    :fractal-publish-response
+    :fractal-publish-res
     m/standard-middlewares
-    (fn [db []]
-      ; TODO implement
-      ))
+    (fn [db [fractal]]
+      (t/go! :fractal-detail :id (:id fractal))
+      (assoc-fractal-detail db fractal)))
 
   (f/register-handler
     :fractal-toggle-star
@@ -109,35 +118,41 @@
           (t/go! :login)
           db)
         (let [path [:fractals :fractal-detail]
-              f (if (starred-by-me? db) dec inc)]
-          (f/dispatch [:api-send :fractal-toggle-star {:id id}])
+              [f dispatch] (if (starred-by-me? db) [dec :api-delete]
+                                                   [inc :api-post])]
+          (f/dispatch [dispatch
+                       {:api-route    :fractal-star
+                        :route-params {:id id}}])
           (-> db
               (update-in (into path [:star-count]) f)
-              (update-in (into path [:starred-by-me]) not))))))
-
-  (f/register-handler
-    :fractal-comment-remove
-    [m/standard-middlewares (f/undoable "comment-remove")]
-    (fn [db [comment :- fch/Comment]]
-      (let [id (u/select-key comment :id)]
-        (f/dispatch [:api-send :fractal-comment-remove id :fractal-comment-remove-resp])
-        (u/remove-first-in db [:fractals :fractal-detail :comments] id))))
+              (update-in (into path [:starred-by-me]) not)
+              (#(update-sidebar-fractal % (get-in % path))))))))
 
   (f/register-handler
     :fractal-comment-add
     [m/standard-middlewares]
-    (fn [db [_]]
-      (f/dispatch [:api-send
-                   :fractal-comment-add
-                   (d/get-form-data db :fractals :comment)
-                   :fractal-comment-add-resp])
+    (fn [db [id]]
+      (f/dispatch [:api-post
+                   {:api-route    :fractal-comments
+                    :params       (d/get-form-data db :fractals :comment)
+                    :route-params {:id id}
+                    :handler      :fractal-comment-add-resp}])
       (assoc-in db [:fractals :forms :comment :text] "")))
+
+  (f/register-handler
+    :fractal-comment-remove
+    [m/standard-middlewares (f/undoable "comment-remove")]
+    (fn [db [fractal-id comment-id]]
+      (f/dispatch [:api-delete
+                   {:api-route    :fractal-comment
+                    :route-params {:id fractal-id :comment-id comment-id}}])
+      (u/remove-first-in db [:fractals :fractal-detail :comments :items] {:id comment-id})))
 
   (f/register-handler
     :fractal-comment-add-resp
     [m/standard-middlewares]
     (fn [db [comment]]
-      (update-in db [:fractals :fractal-detail :comments] #(u/concat-vec [comment] %))))
+      (update-in db [:fractals :fractal-detail :comments :items] #(u/concat-vec [comment] %))))
 
   (f/register-handler
     :fractals-sidebar-select
@@ -146,11 +161,7 @@
       (if-not (= (:id (fractal-detail db)) (:id fractal))
         (do
           (t/go! :fractal-detail :id (:id fractal))
-          (d/assoc-with-query-params
-            db
-            [:fractals :fractal-detail]
-            fractal
-            (u/select-key fractal :id)))
+          (assoc-fractal-detail db fractal))
         db)))
 
   (f/register-handler
@@ -164,10 +175,12 @@
     :fractal-remove
     [m/standard-middlewares (f/undoable "fractal-delete")]
     (s/fn [db [fractal :- fch/PublishedFractal]]
-      (let [id (u/select-key fractal :id)]
+      (let [id-entry (u/select-key fractal :id)]
         (dialog/hide-dialog!)
-        (f/dispatch [:api-send :fractal-remove id :fractal-comment-add-resp])
-        (u/remove-first-in db [:fractals :fractals-user :items] id))))
+        (f/dispatch [:api-delete
+                     {:api-route    :fractal
+                      :route-params id-entry}])
+        (u/remove-first-in db [:fractals :fractals-user :items] id-entry))))
   )
 
 

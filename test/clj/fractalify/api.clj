@@ -8,9 +8,7 @@
             [clj-http.client :as client]
             [plumbing.core :as p]
             [schema.core :as s]
-            [fractalify.utils :as u]
-            [clojure.edn :as edn]
-            [fractalify.readers :as r])
+            [fractalify.utils :as u])
   (:use midje.sweet))
 
 (def server-port 10556)
@@ -31,24 +29,16 @@
 (defn clear-cookies []
   (alter-var-root #'*cookies* (constantly (clj-http.cookies/cookie-store))))
 
-(defn parse-edn-response [res]
-  (p/update-in-when res [:body]
-                    (partial edn/read-string {:readers (r/get-readers)
-                                              :eof     nil})))
-
 (defn request [path opts]
-  (-> (client/request (merge {:url              (str server-url path)
-                              ;         "http://requestb.in/1cxotfm1"
-                              ;:headers          {"Content-type" "application/edn"
-                              ;                   "Accept"       "application/edn"}
-                              :content-type     :transit+json
-                              :force-redirects  true
-                              :throw-exceptions false
-                              ;:as               :text
-                              :cookie-store     *cookies*}
-                             (-> opts
-                                 (p/update-in-when [:body] str))))
-      parse-edn-response))
+  (client/request (merge {:url              (str server-url path)
+                          #_"http://requestb.in/xsd0u1xs"
+                          :headers          {"Accept" "application/transit+json"}
+                          :content-type     :application/transit+json
+                          :force-redirects  true
+                          :throw-exceptions false
+                          :as               :transit+json
+                          :cookie-store     *cookies*}
+                         opts)))
 
 (defn get
   ([path] (get path {}))
@@ -58,14 +48,14 @@
 (defn post
   ([path body] (post path body {}))
   ([path body opts]
-   (request path (merge {:method :post
-                         :body   body} opts))))
+   (request path (merge {:method      :post
+                         :form-params body} opts))))
 
 (defn put
   ([path body] (put path body {}))
   ([path body opts]
-   (request path (merge {:method :put
-                         :body   body} opts))))
+   (request path (merge {:method      :put
+                         :form-params body} opts))))
 
 (defn delete
   ([path] (delete path {}))

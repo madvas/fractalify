@@ -15,7 +15,7 @@
 (def change-page
   (u/debounce
     (fn [page]
-      (f/dispatch [:form-item :fractals :sidebar :page page]))
+      (f/dispatch [:set-form-item :fractals :sidebar :page page]))
     600 true))
 
 (defn sidebar-pagination [_]

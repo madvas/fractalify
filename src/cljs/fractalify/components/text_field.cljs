@@ -30,8 +30,8 @@
 (defn- dirty? [this]
   (:dirty? (r/state this)))
 
-(defn- set-dirty! [this]
-  (r/set-state this {:dirty? true}))
+(defn- set-dirty! [this value]
+  (r/set-state this {:dirty? value}))
 
 (defn on-change [dispatch val]
   (f/dispatch (conj dispatch val)))
@@ -65,6 +65,6 @@
              (when path
                {:on-change (fn [evt]
                              (let [val (parse-val evt (:type props))]
-                               (set-dirty! this)
+                               (set-dirty! this true)
                                (debounced-change val)))})
              props)])))))

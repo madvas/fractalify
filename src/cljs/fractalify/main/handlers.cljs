@@ -15,7 +15,6 @@
             [re-frame.core :as f]
             [fractalify.db-utils :as d]
             [schema.core :as s :include-macros true]
-            [fractalify.main.schemas :as ch]
             [plumbing.core :as p]))
 
 (defn default-send-err-handler
@@ -36,9 +35,9 @@
     :initialize
     m/standard-no-debug
     (fn [_]
-      (f/dispatch [:api-fetch {:api-route     :logged-user
-                               :path          [:users :logged-user]
-                               :error-handler :logged-user-resp-err}])
+      (f/dispatch [:api-fetch
+                   {:api-route :logged-user
+                    :path      [:users :logged-user]}])
       db/default-db))
 
   (f/register-handler
@@ -54,14 +53,18 @@
                   :route-params route-params))))
 
   (f/register-handler
-    :form-item
+    :set-form-item
     m/standard-middlewares
     (fn [db [module & params]]
       (let [value (last params)
             path (vec (butlast params))]
-        (if-let [key (:key (last path))]
-          (update-in db (into [module :forms] (butlast path)) set/rename-keys {key value})
-          (assoc-in db (into [module :forms] path) value)))))
+        (assoc-in db (into [module :forms] path) value))))
+
+  (f/register-handler
+    :set-form
+    m/standard-middlewares
+    (fn [db [module form value]]
+      (assoc-in db [module :forms form] value)))
 
   (f/register-handler
     :dissoc-form-item
@@ -124,14 +127,16 @@
     m/standard-middlewares
     (fn [db [path query-params val]]
       (-> db
-          (assoc-in path (u/p "here:" val))
+          (assoc-in path val)
           (d/assoc-path-query-params path query-params))))
 
   (f/register-handler
     :default-fetch-resp-err
     m/standard-middlewares
-    (fn [db [path query-params err]]
-      (u/merror "Error while fetching " path query-params err)
+    (fn [db [err]]
+      (if (= 404 (:status err))
+        (f/dispatch [:show-snackbar "Sorry, but this page was not found..."])
+        (u/merror "Error while fetching " err))
       db))
 
   (f/register-handler
@@ -153,13 +158,6 @@
     m/standard-middlewares
     (fn [db [opts]]
       (api-send! (merge {:method :delete :params {}} opts))
-      db))
-
-  (f/register-handler
-    :logged-user-resp-err
-    m/standard-middlewares
-    (fn [db [err]]
-      (println err)
       db)))
 
 

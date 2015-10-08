@@ -61,7 +61,7 @@
                ^{:key k}
                [:div.col-xs-4.col-md-2
                 [color-picker/color-picker clr
-                 [:form-item :fractals :canvas :color]
+                 [:set-form-item :fractals :canvas :color]
                  {:debounce      300
                   :trigger-props {:tooltip         tooltip
                                   :icon-class-name (str "mdi mdi-" icon)}}]])]

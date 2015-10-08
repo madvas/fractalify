@@ -24,7 +24,7 @@
   a/base-resource
   :exists? (fractal-exists-fn db params)
   :handle-ok
-  (s/fn :- fch/PublishedFractal [ctx]
+  (s/fn :- (s/maybe fch/PublishedFractal) [ctx]
     (::fractal ctx)))
 
 (defresource

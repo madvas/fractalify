@@ -31,7 +31,6 @@
                  [rm-hull/monet "0.2.1"]
                  [bidi "1.21.0"]
                  [prismatic/plumbing "0.4.4"]
-                 [instar "1.0.10" :exclusions [org.clojure/clojure]]
                  [camel-snake-kebab "0.3.2"]
                  [org.clojure/test.check "0.8.1"]
                  [com.andrewmcveigh/cljs-time "0.3.13"]
@@ -58,7 +57,9 @@
                  [digest "1.4.4"]
                  [midje "1.7.0" :exclusions [slingshot commons-codec]]
                  [io.clojure/liberator-transit "0.3.0"]
-                 [ring-middleware-format "0.6.0"]]
+                 [ring-middleware-format "0.6.0"]
+                 [com.cognitect/transit-clj "0.8.281"]
+                 [com.rpl/specter "0.7.1"]]
 
   :plugins [[lein-cljsbuild "1.1.0"]
             [lein-environ "1.0.0"]

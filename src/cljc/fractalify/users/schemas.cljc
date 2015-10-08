@@ -69,7 +69,7 @@
 
 (s/defschema EditProfileForm
   {:email s/Str
-   :bio   s/Str})
+   :bio   UserBio})
 
 (s/defschema UserForms
   {:login           LoginForm
@@ -81,7 +81,7 @@
 (s/defschema UsersSchema
   {(o :logged-user) (s/maybe UserMe)
    :forms           UserForms
-   (o :user-detail) (s/conditional (complement s/check) UserOther :else UserMe)})
+   (o :user-detail) (s/conditional (complement (partial s/check UserOther)) UserOther :else UserMe)})
 
 
 (def default-db
@@ -96,4 +96,13 @@
    :forms (merge
             (mch/coerce-forms-with-defaults UserForms)
             #?(:cljs
-               (when goog.DEBUG {:login {:username "admin" :password "111111"}})))})
+               (when goog.DEBUG {:login           {:username "admin" :password "111111"}
+                                 :join            {:username     "newuser"
+                                                   :email        "some@email.com"
+                                                   :password     "111111"
+                                                   :confirm-pass "111111"
+                                                   :bio          ""}
+                                 :forgot-password {:email "matus.lestan@gmail.com"}
+                                 :change-password {:current-pass     "111111"
+                                                   :new-pass         "111111"
+                                                   :confirm-new-pass "111111"}})))})

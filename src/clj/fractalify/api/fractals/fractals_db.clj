@@ -63,22 +63,23 @@
 
 (s/defn fractal-insert-and-return [db fractal author]
   (a/insert-and-return db coll (merge (fractal-cljs->db fractal)
-                                        {:created    (t/now)
-                                         :author     (:username author)
-                                         :stars      []
-                                         :star-count 0})
-                         fch/PublishedFractal
-                         (p/fn->> (populate-author db)
-                                  fractal-db->cljs)))
+                                      {:created    (t/now)
+                                       :author     (:username author)
+                                       :stars      []
+                                       :star-count 0})
+                       fch/PublishedFractal
+                       (p/fn->> (populate-author db)
+                                fractal-db->cljs)))
 
 (defn fractal-count [db]
   (mc/count db coll))
 
 (s/defn fractal-get-by-id [db fractal-id]
   (when (ObjectId/isValid fractal-id)
-    (-> (mc/find-map-by-id db coll (ObjectId. fractal-id))
-        (->> (populate-author db))
-        fractal-db->cljs)))
+    (when-let [fractal (mc/find-map-by-id db coll (ObjectId. fractal-id))]
+      (-> fractal
+          (->> (populate-author db))
+          fractal-db->cljs))))
 
 (defn fractal-delete-by-id [db fractal-id]
   (when (ObjectId/isValid fractal-id)
@@ -122,9 +123,10 @@
 
 (defn get-comment-by-id [db comment-id]
   (when (ObjectId/isValid comment-id)
-    (-> (mc/find-map-by-id db coll-comments (ObjectId. comment-id))
-        (->> (populate-author db))
-        comment-db->cljs)))
+    (when-let [comment (mc/find-map-by-id db coll-comments (ObjectId. comment-id))]
+      (-> comment
+          (->> (populate-author db))
+          comment-db->cljs))))
 
 (defn get-comments [db fractal-id]
   (when (ObjectId/isValid fractal-id)
@@ -137,12 +139,12 @@
 (defn comment-insert-and-return [db comment fractal-id author]
   (when (ObjectId/isValid fractal-id)
     (a/insert-and-return db coll-comments (merge comment
-                                                   {:created (t/now)
-                                                    :author  (:username author)
-                                                    :fractal (ObjectId. fractal-id)})
-                           fch/Comment
-                           (p/fn->> (populate-author db)
-                                    comment-db->cljs))))
+                                                 {:created (t/now)
+                                                  :author  (:username author)
+                                                  :fractal (ObjectId. fractal-id)})
+                         fch/Comment
+                         (p/fn->> (populate-author db)
+                                  comment-db->cljs))))
 
 (defn comment-delete-by-id [db comment-id]
   (when (ObjectId/isValid comment-id)

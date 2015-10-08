@@ -48,9 +48,12 @@
    template-vals :- {s/Keyword s/Any}
    email :- {s/Keyword s/Str}]
   (p/letk [[templates default-from site mail-sender] mailer
-           body (-> templates template (sel/render (merge site template-vals)))]
+           body (-> templates
+                    template
+                    (sel/render (merge site template-vals)))]
     (s/validate (s/protocol mp/MailSender) mail-sender)
     (->> email
          (merge {:from default-from :html body})
          (s/validate EmailMessage)
          (mp/send-email! mail-sender))))
+

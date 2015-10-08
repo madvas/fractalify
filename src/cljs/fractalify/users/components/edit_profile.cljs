@@ -11,6 +11,7 @@
 
 (defn edit-profile []
   (let [user (f/subscribe [:logged-user])]
+    (f/dispatch-sync [:set-form :users :edit-profile (select-keys @user [:email :bio])])
     (fn []
       [form/form :users :edit-profile
        (fn [vals has-err?]

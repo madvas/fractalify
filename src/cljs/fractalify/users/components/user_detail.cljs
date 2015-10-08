@@ -1,7 +1,6 @@
 (ns fractalify.users.components.user-detail
   (:require [fractalify.components.api-wrap :as api-wrap]
             [plumbing.core :as p]
-            [fractalify.users.schemas :as uch]
             [schema.core :as s :include-macros true]
             [material-ui.core :as ui]
             [fractalify.components.gravatar :as gravatar]
@@ -69,6 +68,7 @@
          [:div.row.col-xs-12.text-left.pad-hor-20.center-xs
           [fractal-card-list/fractal-card-list fractals
            (when @my-user-detail? {:actions [remove-fractal-btn]})]])])))
+
 
 (defn user-detail []
   [:div.row.center-xs

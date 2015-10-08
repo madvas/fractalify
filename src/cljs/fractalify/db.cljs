@@ -4,7 +4,7 @@
             [fractalify.fractals.schemas :as fch]
             [fractalify.users.schemas :as uch]
             [fractalify.main.schemas :as mch]
-            [instar.core :as i]))
+            [com.rpl.specter :as e]))
 
 (enable-console-print!)
 (def o s/optional-key)
@@ -26,7 +26,8 @@
                                      (o :error)        s/Any}}})
 
 (defn assoc-form-errors [db-schema]
-  (i/transform db-schema [* :forms *] #(merge % mch/FormErros)))
+  (reduce #(e/transform [%2 :forms e/ALL e/LAST]
+                        (partial merge mch/FormErros) %1) db-schema [:users :fractals]))
 
 (def db-schema
   (-> db-schema-base

@@ -1,13 +1,12 @@
 (ns fractalify.db-utils
   (:require [fractalify.utils :as u]
-            [re-frame.core :as f]
             [plumbing.core :as p]
             [cljs.core]
             [schema.core :as s :include-macros true]
-            [fractalify.main.schemas :as ch]
-            [instar.core :as i]))
+            [fractalify.main.schemas :as ch]))
 
-(def logged-user (u/partial-right get-in [:users :logged-user]))
+(defn logged-user [db]
+  (get-in db [:users :logged-user]))
 
 (defn get-form-data [db module form]
   (-> db
@@ -36,9 +35,7 @@
     path :- ch/DbPath
     val
     query-params :- ch/QueryParams]
-    (assoc-with-query-params db path val query-params path))
-  ([db instar-path val query-params path]
     (-> db
-        (i/transform instar-path val)
+        (assoc-in path val)
         (assoc-path-query-params path query-params))))
 

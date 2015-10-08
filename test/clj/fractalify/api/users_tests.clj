@@ -6,7 +6,8 @@
     [fractalify.utils :as u]
     [plumbing.core :as p]
     [bidi.bidi :as b]
-    [fractalify.users.api-routes :as uar])
+    [fractalify.users.api-routes :as uar]
+    [schema.core :as s])
   (:use midje.sweet))
 
 (def admin-login (select-keys ug/admin [:username :password]))
@@ -42,7 +43,7 @@
                   (a/resp-has-map? (u/select-key user :username)))))
 
 (defn forgot-pass [user]
-  (a/post (path-for :forgot-pass)
+  (a/post (path-for :forgot-password)
           (u/select-key user :email)))
 
 (def logged-user #(a/get (path-for :logged-user)))
@@ -63,7 +64,7 @@
   (a/post (user-path-for :edit-profile user) new-profile))
 
 (defn change-pass [user]
-  (a/post (user-path-for :change-pass user)
+  (a/post (user-path-for :change-password user)
           {:current-pass     (:password user)
            :new-pass         "somepass"
            :confirm-new-pass "somepass"}))
@@ -82,14 +83,14 @@
 
   (fact "it gets logged user"
         (login some-user-login) => (user-response? ug/some-user)
-        ;(logged-user) => (user-response? ug/some-user)
-        )
+        (logged-user) => (user-response? ug/some-user))
 
   (fact "it doesnt create invalid new user"
         (put-new-user (dissoc new-user :email)) => a/bad-request)
 
-  (fact "it creates new user"
-        (put-new-user) => new-user-created?)
+  (fact "it creates and logs in new user"
+        (put-new-user) => new-user-created?
+        (logged-user) => (user-response? new-user))
 
   (fact "it disallows to create same user twice"
         (put-new-user) => new-user-created?

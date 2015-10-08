@@ -11,7 +11,7 @@
   [text-field/text-field
    value
    floating-label-text
-   (into [:form-item] path)
+   (into [:set-form-item] path)
    (into [:form-error] path)
    props])
 

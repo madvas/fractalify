@@ -32,8 +32,8 @@
    (lt/as-response
      {:handlers            {org.joda.time.DateTime joda-time-writer}
       :allow-json-verbose? false}
-     f)))
-
+     (fn [res ctx]
+       (f (when (u/http-status-ok (:status ctx)) res) ctx)))))
 
 (def base-resource
   {:available-media-types ["application/transit+json"]

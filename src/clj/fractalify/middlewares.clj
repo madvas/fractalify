@@ -32,9 +32,8 @@
       (session/wrap-session)))
 
 (defn debug-handler [handler]
-  (println "handler iss: " (type handler))
   (fn [req]
-    #_(pprint req)
+    (pprint req)
     (handler req)))
 
 (def ring-defaults (-> defaults/site-defaults
@@ -46,7 +45,7 @@
                        (p/?> u/is-dev? (ld/wrap-trace :header :ui))
                        (p/?> u/is-dev? reload/wrap-reload)
                        (wrap-restful-format :formats [:transit-json])
-                       debug-handler
+                       #_ debug-handler
                        (defaults/wrap-defaults ring-defaults))]
     (fn [req]
       (let [handler (condp = (:uri req)

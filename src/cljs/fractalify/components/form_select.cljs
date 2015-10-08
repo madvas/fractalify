@@ -5,10 +5,10 @@
     [schema.core :as s :include-macros true]
     [fractalify.utils :as u]
     [plumbing.core :as p]
-    [instar.core :as i]
     [clojure.walk :as w]
     [fractalify.main.schemas :as ch]
-    [reagent.core :as r]))
+    [reagent.core :as r]
+    [com.rpl.specter :as e]))
 
 (def default-val-member :payload)
 (def default-display-member :text)
@@ -19,9 +19,10 @@
 (s/defn parse-val [evt menu-items :- MenuItems val-member]
   "Hack to retrieve value types other than string, because e.target.value
   always returns string (no keywords)"
+  (println "va" val-member)
   (let [val (u/e-val evt)]
     (-> menu-items
-        (i/get-values-in-paths [* val-member])
+        (->> (e/select [e/ALL val-member]))
         (#(zipmap % (u/range-count %)))
         w/stringify-keys
         (#(nth menu-items (% val)))
@@ -50,7 +51,7 @@
             :style               style
             :on-change           #(f/dispatch
                                    (u/concat-vec
-                                     [:form-item]
+                                     [:set-form-item]
                                      path
                                      [(parse-val % (:menu-items props) val-member)]))}
            props)]))))

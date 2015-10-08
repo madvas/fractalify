@@ -20,13 +20,15 @@
 (def auth-base "/api/auth")
 (def login-url (str auth-base "/login"))
 
-(defn auth-workflow [db]
+(defn auth-workflow
+  [db uri]
   {:credential-fn (partial udb/verify-credentials db)
-   :workflows     [(workflows/interactive-form :login-uri login-url
+   :workflows     [(workflows/interactive-form :login-uri uri
                                                :redirect-on-auth? false)]})
 
 (defn authenticate [db request]
-  (let [ring-response ((frd/authenticate identity (auth-workflow db)) request)]
+  (let [request (assoc request :request-method :post)       ; bit hack, so authentication works with put when creating new acc
+        ring-response ((frd/authenticate identity (auth-workflow db (:uri request))) request)]
     (when-not (= 302 (:status ring-response))
       ring-response)))
 
@@ -47,9 +49,9 @@
 (defresource
   logged-user [{:keys [db params]}]
   a/base-resource
-  :exists? (fn [_] (frd/current-authentication))
   :handle-ok
-  (get-user-fn db (u/select-key (frd/current-authentication) :username)))
+  (when-let [user (frd/current-authentication)]
+    (get-user-fn db (u/select-key user :username))))
 
 (defresource
   user [{:keys [db params]}]
@@ -58,8 +60,7 @@
 
 (defresource
   join [{:keys [db params]}]
-  a/base-resource
-  :allowed-methods [:put]
+  a/base-put
   :malformed? (a/malformed-params? uch/JoinForm params)
   :conflict?
   (fn [_]
@@ -68,13 +69,15 @@
   (fn [_]
     {::user (udb/user-insert-and-return db (dissoc params :confirm-pass) uch/UserMe)})
   :handle-created
-  (s/fn :- uch/UserMe [ctx]
-    (::user ctx)))
+  (fn [ctx]
+    (lr/ring-response
+      (::user ctx)
+      (let [ring-response (authenticate db (:request ctx))]
+        (dissoc ring-response :body)))))
 
 (defresource
   login [{:keys [db params]}]
-  a/base-resource
-  :allowed-methods [:post]
+  a/base-post
   :post!
   (p/fnk [request]
     (when-let [ring-response (authenticate db request)]
@@ -92,8 +95,7 @@
 
 (defresource
   forgot-pass [{:keys [db params mailer]}]
-  a/base-resource
-  :allowed-methods [:post]
+  a/base-post
   :malformed? (a/malformed-params? uch/ForgotPassForm params)
   :can-post-to-missing? false
   :exists?
@@ -104,7 +106,7 @@
   (fn [ctx]
     (p/letk [[id username email] (::user ctx)
              token (udb/create-reset-token db id)]
-      (mm/send-email! mailer :forgot-pass
+      (mm/send-email! mailer :forgot-password
                       {:token    token
                        :username username}
                       {:to      email
@@ -117,8 +119,7 @@
 
 (defresource
   reset-pass [{:keys [db params]}]
-  a/base-resource
-  :allowed-methods [:post]
+  a/base-post
   :malformed?
   (a/malformed-params?
     (merge uch/ResetPassForm uch/UsernameField) params)
@@ -132,8 +133,7 @@
 
 (defresource
   change-pass [{:keys [db params]}]
-  a/base-resource
-  :allowed-methods [:post]
+  a/base-post
   :malformed?
   (a/malformed-params?
     (merge uch/ChangePassForm uch/UsernameField) params)
@@ -150,8 +150,7 @@
 
 (defresource
   edit-profile [{:keys [db params]}]
-  a/base-resource
-  :allowed-methods [:post]
+  a/base-post
   :malformed?
   (a/malformed-params?
     (merge uch/EditProfileForm uch/UsernameField) params)
@@ -163,19 +162,18 @@
 
 (defn logout [_]
   (fn [res]
-    (println "logging out")
     (frd/logout* res)))
 
 (def routes->resources
-  {:reset-pass   reset-pass
-   :change-pass  change-pass
-   :edit-profile edit-profile
-   :user         user
-   :logged-user  logged-user
-   :login        login
-   :logout       logout
-   :join         join
-   :forgot-pass  forgot-pass})
+  {:reset-pass      reset-pass
+   :change-password change-pass
+   :edit-profile    edit-profile
+   :user            user
+   :logged-user     logged-user
+   :login           login
+   :logout          logout
+   :join            join
+   :forgot-password forgot-pass})
 
 (defrecord UserRoutes []
   RouteProvider
