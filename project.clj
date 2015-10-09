@@ -61,7 +61,9 @@
                  [com.cognitect/transit-clj "0.8.281"]
                  [com.rpl/specter "0.7.1"]
                  [instar "1.0.10" :exclusions [org.clojure/clojure]]
-                 [com.cloudinary/cloudinary-http44 "1.2.1"]]
+                 [com.cloudinary/cloudinary-http44 "1.2.1"]
+                 [figwheel-sidecar "0.3.7" :exclusions [org.codehaus.plexus/plexus-utils]]
+                 [ring.middleware.conditional "0.2.0"]]
 
   :plugins [[lein-cljsbuild "1.1.0"]
             [lein-environ "1.0.0"]
@@ -73,19 +75,17 @@
 
   :cljsbuild {:builds {:app           {:source-paths ["src/cljs" "src/cljc"]
                                        :compiler     {:main          fractalify.core
-                                                      ;:preamble      ["resources/public/vendor/material-ui/material.js"]
                                                       :output-to     "resources/public/js/app.js"
                                                       :output-dir    "resources/public/js/out"
                                                       :source-map    "resources/public/js/out.js.map"
                                                       :optimizations :none
-                                                      ;:optimizations :advanced
                                                       :externs       ["src/externs.js"]
                                                       :pretty-priœnt  true}}
                        :turtle-worker {:source-paths ["src/cljs/workers" "src/cljc/fractalify/workers"]
                                        :compiler     {:main          fractalify.workers.turtle
                                                       :output-to     "resources/public/js/turtle-worker.js"
                                                       :output-dir    "resources/public/js/turtle-worker"
-                                                      :optimizations :simple
+                                                      :optimizations :none
                                                       :pretty-print  true
                                                       :externs       ["src/externs.js"]}}}}
 
@@ -97,7 +97,6 @@
                        :test-paths   ["test/clj"]
 
                        :dependencies [[figwheel "0.3.7"]
-                                      [figwheel-sidecar "0.3.7" :exclusions [org.codehaus.plexus/plexus-utils]]
                                       [com.cemerick/piggieback "0.1.5"]
                                       [weasel "0.6.0"]
                                       [io.aviso/pretty "0.1.18"]]
@@ -113,7 +112,6 @@
                        :figwheel     {:http-server-root "public"
                                       :server-port      3449
                                       :css-dirs         ["resources/public/css"]
-                                      :ring-handler     fractalify.server/http-handler
                                       :on-jsload        "fractalify.core/mount-root"}
 
                        :env          {:is-dev? true}
@@ -132,7 +130,7 @@
                        :env          {:production true}
                        :omit-source  true
                        :aot          :all
-                       :main         fractalify.system
+                       :main         fractalify.prod
                        :cljsbuild    {:builds {:app
                                                {:source-paths ["env/prod/cljs"]
                                                 :compiler

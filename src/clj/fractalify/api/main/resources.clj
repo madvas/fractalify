@@ -10,7 +10,8 @@
     [clojure.java.io :as io]
     [fractalify.api.api :as a]
     [fractalify.main.api-routes :as mar]
-    [io.clojure.liberator-transit]))
+    [io.clojure.liberator-transit]
+    [ring.middleware.resource :refer [wrap-resource]]))
 
 (def inject-devmode-html
   (comp
@@ -26,37 +27,16 @@
 (def page-html
   (str/join "" (page)))
 
-(defresource static-routes [_]
-             :available-media-types
-             (fn [ctx]
-               (let [file (get-in ctx [:request :uri])]
-                 (if-let [mime-type (mime/ext-mime-type file)]
-                   [mime-type]
-                   [])))
-
-             :exists?
-             (fn [ctx]
-               (let [file (-> (get-in ctx [:request :uri])
-                              (str/replace-first "/" "")
-                              io/resource
-                              io/file)]
-                 (if file
-                   [(.exists file) {::file file}]
-                   false)))
-
-             :handle-ok ::file
-
-             :last-modified
-             (fn [ctx]
-               (when-let [file (::file ctx)]
-                 (.lastModified file))))
-
 (defresource main-routes [_]
              :available-media-types ["text/html" "text/plain"]
              :handle-ok page-html)
 
+(defn static [_]
+  (let [resr (wrap-resource {} "")]
+    resr))
+
 (def routes->resources
-  {:static static-routes
+  {:static static
    :main   main-routes})
 
 (defrecord MainRoutes []

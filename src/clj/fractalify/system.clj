@@ -87,7 +87,6 @@
 (defn new-dependency-map []
   {:http-listener [:router]
    :router        [:db-server :fractal-routes :user-routes :main-routes :middlewares :mailer :img-cloud]
-   :middlewares   [:db-server]
    :users-db      [:db-server]
    :fractals-db   [:db-server]
    :mailer        [:mail-sender]})

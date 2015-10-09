@@ -7,7 +7,7 @@
             [clojure.reflect :refer (reflect)]
             [clojure.repl :refer (apropos dir doc find-doc pst source)]
             [clojure.tools.namespace.repl :as tools-repl]
-            [com.stuartsierra.component :as component]
+            [com.stuartsierra.component :as c]
             [fractalify.system :as sys]
             [clojure.java.io :as io]
             [fractalify.utils :as u]
@@ -29,7 +29,7 @@
         s-map (-> (sys/new-system-map config)
                   (sys/dev-system-map config))]
     (-> s-map
-        (component/system-using
+        (c/system-using
           (merge (sys/new-dependency-map)
                  (sys/dev-dependency-map)))
         )))
@@ -44,14 +44,14 @@
   []
   (alter-var-root
     #'system
-    component/start
+    c/start
     ))
 
 (defn stop
   "Shuts down and destroys the current development system."
   []
   (alter-var-root #'system
-                  (fn [s] (when s (component/stop s)))))
+                  (fn [s] (when s (c/stop s)))))
 
 (defn go
   "Initializes the current development system and starts it running."

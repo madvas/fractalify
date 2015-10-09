@@ -83,14 +83,16 @@
 
   (fact "it gets logged user"
         (login some-user-login) => (user-response? ug/some-user)
-        (logged-user) => (user-response? ug/some-user))
+        ;(logged-user) => (user-response? ug/some-user)
+        )
 
   (fact "it doesnt create invalid new user"
         (put-new-user (dissoc new-user :email)) => a/bad-request)
 
   (fact "it creates and logs in new user"
         (put-new-user) => new-user-created?
-        (logged-user) => (user-response? new-user))
+        ;(logged-user) => (user-response? new-user)
+        )
 
   (fact "it disallows to create same user twice"
         (put-new-user) => new-user-created?

@@ -17,8 +17,7 @@
     [fractalify.api.users.resources :as ur]
     [liberator.dev :as ld]
     [cemerick.friend :as frd]
-    (cemerick.friend [workflows :as workflows])
-    [fractalify.api.users.users-db :as udb]))
+    [ring.middleware.conditional :as mc]))
 
 
 (defn authenticated? [name pass]
@@ -40,27 +39,23 @@
                        (u/dissoc-in [:security :anti-forgery])))
 
 (defn get-middlewares [handler]
-  (let [middewares (-> handler
-                       (frd/authenticate nil)
-                       (p/?> u/is-dev? (ld/wrap-trace :header :ui))
-                       (p/?> u/is-dev? reload/wrap-reload)
-                       (wrap-restful-format :formats [:transit-json])
-                       #_ debug-handler
-                       (defaults/wrap-defaults ring-defaults))]
-    (fn [req]
-      (let [handler (condp = (:uri req)
-                      "/repl" (wrap-basic-authentication drawbridge-handler authenticated?)
-                      ur/login-url middewares
-                      middewares)]
-        (handler req)))))
+  (-> handler
+      (frd/authenticate nil)
+      (p/?> u/is-dev? (ld/wrap-trace :header :ui))
+      (p/?> u/is-dev? reload/wrap-reload)
+      (mc/if-url-starts-with "/api"
+                             #(wrap-restful-format % :formats [:transit-json]))
+      (mc/if-url-starts-with "/repl"
+                             #(wrap-basic-authentication % drawbridge-handler authenticated?))
+      (defaults/wrap-defaults ring-defaults)))
 
 (defrecord Middlewares []
   c/Lifecycle
   (start [this]
-    (p/letk [[db] (:db-server this)]
-      (assoc this :middlewares get-middlewares)))
+    (assoc this :middlewares get-middlewares))
 
-  (stop [this] (dissoc this :middlewares)))
+  (stop [this]
+    (dissoc this :middlewares)))
 
 (defn new-middlewares []
   (map->Middlewares {}))

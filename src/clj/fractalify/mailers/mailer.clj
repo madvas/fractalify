@@ -18,7 +18,8 @@
 (defrecord Mailer [default-from site]
   c/Lifecycle
   (start [this]
-    (let [files (-> templates-dir io/resource io/file file-seq)
+    this
+    #_ (let [files (-> templates-dir io/resource io/file file-seq)
           templates
           (into {} (for [f files
                          :when (not (.isDirectory f))]

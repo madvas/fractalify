@@ -25,5 +25,7 @@
   (delete [img-cloud filename]
     (.. (:cloudinary img-cloud) (uploader) (destroy filename (hash-map)))))
 
-(s/defn new-cloudinary [config :- CloudinaryConfig]
-  (map->CloudinaryComponent config))
+(defn new-cloudinary [config]
+  (->> config
+      (s/validate CloudinaryConfig)
+       (map->CloudinaryComponent)))

@@ -16,6 +16,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/cljs/workers" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test/cljs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test/clj" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/env/prod/clj" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/resources/public/js" />
       <excludeFolder url="file://$MODULE_DIR$/resources/public/vendor" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
