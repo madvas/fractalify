@@ -60,7 +60,8 @@
                  [ring-middleware-format "0.6.0"]
                  [com.cognitect/transit-clj "0.8.281"]
                  [com.rpl/specter "0.7.1"]
-                 [instar "1.0.10"]]
+                 [instar "1.0.10" :exclusions [org.clojure/clojure]]
+                 [com.cloudinary/cloudinary-http44 "1.2.1"]]
 
   :plugins [[lein-cljsbuild "1.1.0"]
             [lein-environ "1.0.0"]
@@ -79,7 +80,7 @@
                                                       :optimizations :none
                                                       ;:optimizations :advanced
                                                       :externs       ["src/externs.js"]
-                                                      :pretty-print  true}}
+                                                      :pretty-priœnt  true}}
                        :turtle-worker {:source-paths ["src/cljs/workers" "src/cljc/fractalify/workers"]
                                        :compiler     {:main          fractalify.workers.turtle
                                                       :output-to     "resources/public/js/turtle-worker.js"

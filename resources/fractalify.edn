@@ -8,4 +8,5 @@
  :figwheel             {}
  :mailer               {:default-from "fractalify.herokuapp.com"}
  :sendgrid-mail-sender {:auth {:api-user (System/getenv "MAILER_USER")
-                               :api-key  (System/getenv "MAILER_PASS")}}}
+                               :api-key  (System/getenv "MAILER_PASS")}}
+ :cloudinary           {:url (System/getenv "CLOUDINARY_URL")}}

@@ -20,7 +20,8 @@
     [fractalify.api.fractals.fractals-generator :as fg]
     [fractalify.middlewares :as mw]
     [fractalify.mailers.sendgrid :as sgm]
-    [fractalify.mailers.mailer :as mm]))
+    [fractalify.mailers.mailer :as mm]
+    [fractalify.img-cloud.cloudinary :as cloudinary]))
 
 
 (defn make [f config & ks]
@@ -62,6 +63,9 @@
       (assoc :users-generator (ug/new-users-generator))
       (assoc :fractals-generator (fg/new-fractals-generator))))
 
+(defn img-cloud-component [system config]
+  (assoc system :img-cloud (make cloudinary/new-cloudinary config :cloudinary)))
+
 (defn new-system-map
   [config]
   (apply c/system-map
@@ -70,8 +74,8 @@
                     (http-listener-components config)
                     (router-components config)
                     (db-components config)
-                    (mailer-components config)))))
-
+                    (mailer-components config)
+                    (img-cloud-component config)))))
 
 
 (defn dev-system-map [system-map config]
@@ -82,7 +86,7 @@
 
 (defn new-dependency-map []
   {:http-listener [:router]
-   :router        [:db-server :fractal-routes :user-routes :main-routes :middlewares :mailer]
+   :router        [:db-server :fractal-routes :user-routes :main-routes :middlewares :mailer :img-cloud]
    :middlewares   [:db-server]
    :users-db      [:db-server]
    :fractals-db   [:db-server]

@@ -7,7 +7,9 @@
 
 (def ThemeManager (new js/MaterialUI.Styles.ThemeManager))
 
-(def menu-item-link-type (aget js/MaterialUI "MenuItem" "Types" "LINK"))
+(def menu-item-types (aget js/MaterialUI "MenuItem" "Types"))
+(def MENU-ITEM-LINK (aget menu-item-types "LINK"))
+(def MENU-ITEM-SUBHEADER (aget menu-item-types "SUBHEADER"))
 
 (defn get-current-theme [] (js->clj (.getCurrentTheme ThemeManager)))
 (defn set-theme! [theme]
@@ -25,7 +27,8 @@
 (defn palette-color [color-type]
   ((get-palette) (c/->camelCase (name color-type))))
 
-(defn set-spacing! [spacing] (.setSpacing ThemeManager (clj->js spacing)))
+(defn set-spacing! [spacing]
+  (.setSpacing ThemeManager (clj->js spacing)))
 
 (def DARK-THEME (js->clj (aget ThemeManager "types" "DARK")))
 (def LIGHT-THEME (js->clj (aget ThemeManager "types" "LIGHT")))

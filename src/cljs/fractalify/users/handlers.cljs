@@ -62,17 +62,9 @@
       (f/dispatch [:api-post
                    {:api-route   :forgot-password
                     :params      (d/get-form-data db :users :forgot-password)
-                    :handler     :forgot-password-resp
+                    :handler     #(d/snack-n-go! "Password was reset. Please check your email." :home)
                     :error-undo? true}])
       (assoc-in db [:users :forms :forgot-password :email] "")
-      db))
-
-  (r/register-handler
-    :forgot-password-resp
-    m/standard-middlewares
-    (fn [db _]
-      (f/dispatch [:show-snackbar "Password was reset. Please check your email."])
-      (t/go! :home)
       db))
 
   (r/register-handler
@@ -84,16 +76,10 @@
                      {:api-route    :edit-profile
                       :route-params (u/select-key (d/logged-user db) :username)
                       :params       profile
-                      :handler      :edit-profile-resp
+                      :handler      #(d/show-snackbar "Your profile was successfully saved.")
                       :error-undo?  true}])
         (update-in db [:users :logged-user] (u/partial-right merge profile)))))
 
-  (r/register-handler
-    :edit-profile-resp
-    m/standard-middlewares
-    (fn [db _]
-      (f/dispatch [:show-snackbar "Your profile was successfully saved."])
-      db))
 
   (r/register-handler
     :change-password
@@ -107,13 +93,6 @@
       db))
 
   (r/register-handler
-    :change-password-resp
-    m/standard-middlewares
-    (fn [db _]
-      (f/dispatch [:show-snackbar "Your password has been successfully changed."])
-      db))
-
-  (r/register-handler
     :reset-password
     m/standard-middlewares
     (fn [db _]
@@ -122,16 +101,8 @@
                      {:api-route     :reset-password
                       :params        form-data
                       :route-params  (u/select-key form-data :username)
-                      :handler       :reset-password-resp
+                      :handler       #(d/snack-n-go! "Your password has been reset. You can login now" :login)
                       :error-handler {401 "Sorry, your token is invalid or expired"}}]))
-      db))
-
-  (r/register-handler
-    :reset-password-resp
-    m/standard-middlewares
-    (fn [db _]
-      (f/dispatch [:show-snackbar "Your password has been reset. You can login now"])
-      (t/go! :home)
       db)))
 
 

@@ -81,9 +81,9 @@
   [db user-id]
   (let [token (u/gen-str 20)
         expire-date (m/plus (m/now) (m/weeks 1))]
-    (mc/update-by-id db coll user-id {$set
-                                           {:reset-password-token  token
-                                            :reset-password-expire expire-date}})
+    (mc/update-by-id db coll (ObjectId. user-id) {$set
+                                                  {:reset-password-token  token
+                                                   :reset-password-expire expire-date}})
     token))
 
 (defn get-user-by-reset-token

@@ -67,7 +67,7 @@
     :dissoc-l-system-operation
     m/standard-middlewares
     (s/fn [db path :- [(s/one fch/operation-type "oper-type") s/Int]]
-      (f/dispatch (u/concat-vec [:dissoc-form-item :fractals :l-system] path))
+      (f/dispatch (u/concat-vec [:dissoc-form-item :fractals :l-system] (u/p "here:" path)))
       db))
 
   (f/register-handler
@@ -139,6 +139,12 @@
       (assoc-in db [:fractals :forms :comment :text] "")))
 
   (f/register-handler
+    :fractal-comment-add-resp
+    [m/standard-middlewares]
+    (fn [db [comment]]
+      (update-in db [:fractals :fractal-detail :comments :items] #(u/concat-vec [comment] %))))
+
+  (f/register-handler
     :fractal-comment-remove
     [m/standard-middlewares (f/undoable "comment-remove")]
     (fn [db [fractal-id comment-id]]
@@ -147,12 +153,6 @@
                     :route-params {:id fractal-id :comment-id comment-id}
                     :error-undo?  true}])
       (u/remove-first-in db [:fractals :fractal-detail :comments :items] {:id comment-id})))
-
-  (f/register-handler
-    :fractal-comment-add-resp
-    [m/standard-middlewares]
-    (fn [db [comment]]
-      (update-in db [:fractals :fractal-detail :comments :items] #(u/concat-vec [comment] %))))
 
   (f/register-handler
     :fractals-sidebar-select

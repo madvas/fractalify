@@ -13,7 +13,6 @@
     [plumbing.core :as p]
     [fractalify.mailers.mailer :as mm]
     [fractalify.users.api-routes :as uar]
-    [fractalify.api.api :as api]
     [cemerick.friend.workflows :as workflows]
     [liberator.representation :as lr]))
 
@@ -112,7 +111,7 @@
                       {:to      email
                        :subject "Forgotten password"}))))
 
-(defn set-new-pass [db params]
+(defn set-new-pass-fn [db params]
   (fn [_]
     (p/letk [[username new-pass] params]
       (udb/set-new-password db username new-pass))))
@@ -129,7 +128,7 @@
     (fn valid-reset-token? [_]
       (p/letk [[username token] params]
         (udb/get-user-by-reset-token db username token))))
-  :post! (set-new-pass db params))
+  :post! (set-new-pass-fn db params))
 
 (defresource
   change-pass [{:keys [db params]}]
@@ -146,7 +145,7 @@
         (p/letk [[username current-pass] params]
           (udb/verify-credentials db {:username username
                                       :password current-pass})))))
-  :post! (set-new-pass db params))
+  :post! (set-new-pass-fn db params))
 
 (defresource
   edit-profile [{:keys [db params]}]

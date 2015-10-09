@@ -4,6 +4,7 @@
             [com.stuartsierra.component :as c]
             [fractalify.system :as sys]
             [fractalify.mailers.mock-mail-sender :as mms]
+            [fractalify.img-cloud.mock-img-cloud :as mic]
             [fractalify.config :as cfg]
             [clj-http.client :as client]
             [plumbing.core :as p]
@@ -19,6 +20,7 @@
   (let [deps (merge sys/db-generators-dependencies (sys/new-dependency-map))]
     (-> (sys/new-system-map (merge (cfg/config) {:http-listener {:port server-port}}))
         (assoc :mail-sender (mms/new-mock-mail-sender))
+        (assoc :img-cloud (mic/new-mock-img-cloud))
         (sys/generator-components nil)
         (c/system-using deps)
         (dev/init))))

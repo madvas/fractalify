@@ -9,7 +9,9 @@
     [plumbing.core :as p]
     [cemerick.friend :as frd]
     [fractalify.api.api :as a]
-    [fractalify.fractals.api-routes :as far]))
+    [fractalify.fractals.api-routes :as far]
+    [fractalify.img-cloud.img-cloud :as ic])
+  (:import (org.bson.types ObjectId)))
 
 (defn fractal-exists-fn [db params]
   (fn [& _]
@@ -28,14 +30,17 @@
     (::fractal ctx)))
 
 (defresource
-  fractal-put [{:keys [db params]}]
+  fractal-put [{:keys [db params img-cloud]}]
   a/base-put
   :malformed? (a/malformed-params? fch/PutFractalForm params)
   :authorized? (constantly (frd/current-authentication))
   :put!
   (fn [_]
-    (let [fractal (-> params
-                      (assoc :src "")
+    (let [fractal (assoc params :_id (ObjectId.))
+          url (get (ic/upload img-cloud (str (:_id fractal)) (:data-url fractal)) "url")
+          src (if url url (:data-url fractal))
+          fractal (-> fractal
+                      (assoc :src src)
                       (dissoc :data-url))]
       {::fractal (fdb/fractal-insert-and-return db fractal (frd/current-authentication))}))
   :handle-created
@@ -43,7 +48,7 @@
     (::fractal ctx)))
 
 (defresource
-  fractal-delete [{:keys [db params]}]
+  fractal-delete [{:keys [db params img-cloud]}]
   a/base-delete
   :authorized?
   (fn [_]
@@ -52,7 +57,9 @@
         [allowed {::fractal fractal}])))
   :delete!
   (fn [ctx]
-    (fdb/fractal-delete-by-id db (get-in ctx [::fractal :id]))))
+    (let [id (get-in ctx [::fractal :id])]
+      (fdb/fractal-delete-by-id db id)
+      (ic/delete img-cloud id))))
 
 (defresource
   fractals [{:keys [db params]}]

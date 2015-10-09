@@ -1,6 +1,7 @@
 (ns fractalify.styles
   (:require [clojure.string :as s]
-            [fractalify.utils :as u]))
+            [fractalify.utils :as u]
+            [material-ui.core :as ui]))
 
 (def w-100 {:width "100%"})
 (def block {:display "block"})
@@ -57,18 +58,22 @@
   {:min-height 400})
 
 (def fractal-controls-shield
-  {:position :absolute
+  {:position         :absolute
    :background-color :white
-   :width "100%"
-   :height "100%"
-   :opacity 0.7
-   :z-index 99})
+   :width            "100%"
+   :height           "100%"
+   :opacity          0.7
+   :z-index          99})
 
 (def fork-btn-wrap
   {:position :absolute
-   :z-index 100
-   :width        "100%"
-   :height       "100%"})
+   :z-index  100
+   :width    "100%"
+   :height   "100%"})
+
+(def header-btn
+  {:background-color "transparent"
+   :color            (ui/color :grey100)})
 
 (def pad-0 {:padding 0})
 (def pad-5 {:padding 5})

@@ -20,24 +20,28 @@
     (.close (get-sidenav-ref))))
 
 (defn sidenav []
-  (r/create-class
-    {:component-did-mount (fn [this]
-                            (reset! *sidenav-parent* this))
-     :reagent-render
-                          (fn []
-                            [ui/left-nav {:ref       "sidenav"
-                                          :docked    false
-                                          :on-change (fn [_ _ menu-item]
-                                                       (when (= "Logout" (:text (js->clj menu-item
-                                                                                         :keywordize-keys true)))
-                                                         (f/dispatch [:logout])))
-                                          :menuItems [{:text    "Create Fractal"
-                                                       :payload (t/url :fractal-create)
-                                                       :type    ui/menu-item-link-type}
-                                                      {:text    "Change Password"
-                                                       :payload (t/url :change-password)
-                                                       :type    ui/menu-item-link-type}
-                                                      {:text    "Edit profile"
-                                                       :payload (t/url :edit-profile)
-                                                       :type    ui/menu-item-link-type}
-                                                      {:text "Logout"}]}])}))
+  (let [logged-user (f/subscribe [:logged-user])]
+    (r/create-class
+      {:component-did-mount
+       (fn [this]
+         (reset! *sidenav-parent* this))
+       :reagent-render
+       (fn []
+         [ui/left-nav
+          {:ref       "sidenav"
+           :docked    false
+           :on-change (fn [_ _ menu-item]
+                        (when (= "Logout" (:text (js->clj menu-item :keywordize-keys true)))
+                          (f/dispatch [:logout])))
+           :menuItems [{:text (:username @logged-user)
+                        :type ui/MENU-ITEM-SUBHEADER}
+                       {:text    "Create Fractal"
+                        :payload (t/url :fractal-create)
+                        :type    ui/MENU-ITEM-LINK}
+                       {:text    "Change Password"
+                        :payload (t/url :change-password)
+                        :type    ui/MENU-ITEM-LINK}
+                       {:text    "Edit profile"
+                        :payload (t/url :edit-profile)
+                        :type    ui/MENU-ITEM-LINK}
+                       {:text "Logout"}]}])})))

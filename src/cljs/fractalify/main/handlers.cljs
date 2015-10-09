@@ -57,7 +57,7 @@
   (f/register-handler
     :dissoc-form-item
     m/standard-middlewares
-    (fn [db module path]
+    (fn [db [module & path]]
       (u/dissoc-in db (into [module :forms] path))))
 
   (f/register-handler
@@ -100,11 +100,9 @@
                 {handler #(f/dispatch [:default-fetch-resp path query-params %])}
                 {error-handler :default-fetch-resp-err}
                 ] opts]
-        (println (list? handler))
         (if (or force-reload
                 (not= (d/path-query-params db path) query-params))
-          (do (u/mwarn "fetching " path query-params)
-              (api/fetch! api-route query-params route-param-names
+          (do (api/fetch! api-route query-params route-param-names
                           {:handler       (d/create-handler handler)
                            :error-handler (d/create-handler error-handler)})
               (d/assoc-query-loading db path true))

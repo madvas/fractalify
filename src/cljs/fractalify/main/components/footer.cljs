@@ -9,7 +9,5 @@
 (defn footer []
   [:footer
    [:div
-    [:a {:href (t/url :about)} "About"]
-    [:br]
-    [:a {:href (t/url :change-password)} "Change password"]]])
+    [:a {:href (t/url :about)} "About"]]])
 

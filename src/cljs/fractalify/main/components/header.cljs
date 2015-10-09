@@ -8,22 +8,36 @@
     [fractalify.styles :as y]
     [fractalify.utils :as u]))
 
-(defn- right-button [label href]
-  [ui/flat-button {:label      label
-                   :linkButton true
-                   :href       href}])
+(defn- right-button
+  ([label href] (right-button label href {}))
+  ([label href props] (right-button label href props ui/flat-button))
+  ([label href props btn-fn]
+   [btn-fn (r/merge-props
+             {:label      label
+              :linkButton true
+              :href       href
+              :style      y/header-btn} props)]))
 
 (defn header []
   (let [user (f/subscribe [:logged-user])]
     (fn []
       (let [right-btn (if @user
-                        (right-button (:username @user)
-                                      (t/url :user-detail :username (:username @user)))
+                        [:div.row.middle-xs.pad-top-5
+                         [:div.col-xs
+                          (right-button "Create"
+                                        (t/url :fractal-create)
+                                        {:primary true
+                                         }
+                                        ui/raised-button)]
+                         [:div.col-xs
+                          (right-button (:username @user)
+                                        (t/url :user-detail :username (:username @user)))]]
                         (right-button "Login / Join"
                                       (t/url :login)))]
         [ui/app-bar {
-                     :title                    (r/as-element [:h1 {:style y/page-title}
-                                                              [:a {:href (t/url :home) :class "no-dec"} "Fractalify"]])
+                     :title                    (r/as-element
+                                                 [:h1 {:style y/page-title}
+                                                  [:a {:href (t/url :home) :class "no-dec"} "Fractalify"]])
                      :iconElementRight         (r/as-element right-btn)
                      :showMenuIconButton       (not (empty? @user))
                      :onLeftIconButtonTouchTap #(sidenav/toggle-sidenav!)}]))))

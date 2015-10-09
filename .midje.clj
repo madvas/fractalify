@@ -1,1 +1,1 @@
-(change-defaults :fact-filter :not-existing)
+(change-defaults :check-after-creation false)

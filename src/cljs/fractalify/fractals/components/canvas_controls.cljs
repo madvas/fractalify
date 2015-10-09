@@ -23,6 +23,15 @@
       :primary      true
       :on-touch-tap #(f/dispatch [:fractal-fork fractal])}]]])
 
+(defn color-picker-btn [key color tooltip icon path]
+  ^{:key key}
+  [:div.col-xs-4.col-md-2
+   [color-picker/color-picker color
+    [:set-form-item :fractals :canvas path]
+    {:debounce      300
+     :trigger-props {:tooltip         tooltip
+                     :icon-class-name (str "mdi mdi-" icon)}}]])
+
 (s/defn canvas-controls [fractal-sub preview?]
   (let [fractal (f/subscribe fractal-sub)]
     (fn []
@@ -56,15 +65,8 @@
              [control-text/control-text start "Start" [:l-system :start]]]
 
             [:div.row.col-xs-6.center-xs.middle-xs.start-md
-             (for [[k clr tooltip icon] [[1 color "Choose Line Color" "brush"]
-                                         [2 bg-color "Choose Background Color" "format-paint"]]]
-               ^{:key k}
-               [:div.col-xs-4.col-md-2
-                [color-picker/color-picker clr
-                 [:set-form-item :fractals :canvas :color]
-                 {:debounce      300
-                  :trigger-props {:tooltip         tooltip
-                                  :icon-class-name (str "mdi mdi-" icon)}}]])]
+             (color-picker-btn 1 color "Choose Line Color" "brush" :color)
+             (color-picker-btn 2 bg-color "Choose Background Color" "format-paint" :bg-color)]
             [:div.col-xs-12.pad-0
              [ui/tabs {:style y/pad-bot-15}
               ^{:key 1} (tab/tab rules :rules rule/rule {:label "Rules"})
