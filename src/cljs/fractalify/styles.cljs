@@ -75,6 +75,14 @@
   {:background-color "transparent"
    :color            (ui/color :grey100)})
 
+(def main-body
+  {:background-color "#F2F2F2"
+   :padding-top      20
+   :display          :block
+   :position         :relative
+   :min-height       "90%"
+   })
+
 (def pad-0 {:padding 0})
 (def pad-5 {:padding 5})
 (def pad-10 {:padding 10})
@@ -116,8 +124,6 @@
 (def pad-ver-10 (merge pad-bot-10 pad-top-10))
 (def pad-ver-15 (merge pad-bot-15 pad-top-15))
 (def pad-ver-20 (merge pad-bot-20 pad-top-20))
-
-
 
 (def mar-0 {:margin 0})
 (def mar-5 {:margin 5})

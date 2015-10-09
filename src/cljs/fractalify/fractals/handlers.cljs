@@ -67,7 +67,7 @@
     :dissoc-l-system-operation
     m/standard-middlewares
     (s/fn [db path :- [(s/one fch/operation-type "oper-type") s/Int]]
-      (f/dispatch (u/concat-vec [:dissoc-form-item :fractals :l-system] (u/p "here:" path)))
+      (f/dispatch (u/concat-vec [:dissoc-form-item :fractals :l-system] path))
       db))
 
   (f/register-handler
