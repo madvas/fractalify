@@ -2,7 +2,6 @@
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
   (:require
     [schema.core :as s :include-macros true]
-    [instar.core :as i]
     [clojure.string :as str]
     [clojure.walk :as w]
     [clojure.test.check.generators :as gen]
@@ -120,16 +119,12 @@
                                 [other-args {}])]
            (concat-vec [form] params [(r/merge-props default-props props)])))
 
-       (s/defn create-dispatch [key :- s/Keyword]
-         #(f/dispatch (into [key] %&)))
+       (defn function? [x]
+         (or (= js/Function (type x))
+             (implements? cljs.core/IFn x)))
 
-       (s/defn create-calback
-         ([x] (create-calback x identity))
-         ([x callback]
-           (cond (keyword? x) (create-dispatch x)
-                 (= js/Function (type x)) x
-                 :else callback)))
        ]))
+
 
 (do
   #?@(:clj [(def is-dev? (env :is-dev?))
@@ -267,6 +262,9 @@
 (defn first-filter
   [f coll]
   (first (filter f coll)))
+
+(defn has-key? [m k]
+  (contains? (set (keys m)) k))
 
 (defn gen-str [n]
   (let [charseq (map char (concat

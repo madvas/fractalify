@@ -49,7 +49,6 @@
     <orderEntry type="library" name="Leiningen: figwheel:0.3.7" level="project" />
     <orderEntry type="library" name="Leiningen: fogus/ring-edn:0.3.0" level="project" />
     <orderEntry type="library" name="Leiningen: http-kit:2.1.19" level="project" />
-    <orderEntry type="library" name="Leiningen: instar:1.0.10" level="project" />
     <orderEntry type="library" name="Leiningen: io.aviso/pretty:0.1.18" level="project" />
     <orderEntry type="library" name="Leiningen: io.clojure/liberator-transit:0.3.0" level="project" />
     <orderEntry type="library" name="Leiningen: io.forward/sendgrid-clj:1.0" level="project" />
@@ -169,11 +168,6 @@
     <orderEntry type="library" name="Leiningen: org.clojure/tools.analyzer.jvm:0.1.0-beta12" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.analyzer:0.1.0-beta12" level="project" />
     <orderEntry type="library" name="Leiningen: org.ow2.asm/asm-all:4.1" level="project" />
-    <orderEntry type="library" name="Leiningen: com.keminglabs/cljx:0.4.0" level="project" />
-    <orderEntry type="library" name="Leiningen: org.clojars.trptcolin/sjacket:0.1.0.6" level="project" />
-    <orderEntry type="library" name="Leiningen: org.clojure/core.match:0.2.0" level="project" />
-    <orderEntry type="library" name="Leiningen: net.cgrand/parsley:0.9.1" level="project" />
-    <orderEntry type="library" name="Leiningen: net.cgrand/regex:1.1.0" level="project" />
     <orderEntry type="library" name="Leiningen: juxt.modular/ring:0.5.3" level="project" />
     <orderEntry type="library" name="Leiningen: hiccup:1.0.3" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/data.csv:0.1.2" level="project" />

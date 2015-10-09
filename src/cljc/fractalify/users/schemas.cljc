@@ -76,6 +76,7 @@
    :join            JoinForm
    :forgot-password ForgotPassForm
    :change-password ChangePassForm
+   :reset-password  ResetPassForm
    :edit-profile    EditProfileForm})
 
 (s/defschema UsersSchema

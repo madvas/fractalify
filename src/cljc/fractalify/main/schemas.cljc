@@ -26,7 +26,8 @@
    :params           {s/Keyword s/Any}
    :handler          s/Any
    :method           s/Keyword
-   :error-handler    s/Any})
+   :error-handler    s/Any
+   (o :error-undo?)  s/Bool})
 
 (defn list-response [item-type]
   {:items       [item-type]

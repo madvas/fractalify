@@ -4,7 +4,7 @@
   (:require [fractalify.tracer]
             [re-frame.core :as f]
             [fractalify.utils :as u]
-            [fractalify.db-utils :as d]
+            [fractalify.handler-utils :as d]
             [fractalify.router :as t]
             [schema.core :as s :include-macros true]
             [fractalify.fractals.schemas :as fch]))

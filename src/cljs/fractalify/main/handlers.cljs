@@ -13,21 +13,14 @@
             [fractalify.components.dialog :as dialog]
             [fractalify.api :as api]
             [re-frame.core :as f]
-            [fractalify.db-utils :as d]
+            [fractalify.handler-utils :as d]
             [schema.core :as s :include-macros true]
             [plumbing.core :as p]))
 
-(defn default-send-err-handler
-  ([err] (default-send-err-handler err true))
-  ([err undo?]
-   (when undo?
-     (f/dispatch [:undo]))
-   (f/dispatch [:show-snackbar "Oops, something went awfully wrong :("])))
-
 (defn api-send! [params]
   (-> params
-      (update :handler u/create-calback)
-      (update :error-handler (u/partial-right u/create-calback default-send-err-handler))
+      (update :handler d/create-handler)
+      (update :error-handler (partial d/create-send-error-handler (:error-undo? params)))
       api/send!))
 
 (trace-handlers
@@ -63,8 +56,8 @@
   (f/register-handler
     :set-form
     m/standard-middlewares
-    (fn [db [module form value]]
-      (assoc-in db [module :forms form] value)))
+    (fn [db [module form value merge?]]
+      (update-in db [module :forms form] #(if merge? (merge % value) value))))
 
   (f/register-handler
     :dissoc-form-item
@@ -117,8 +110,8 @@
                 (not= (d/path-query-params db path) query-params))
           (do (u/mwarn "fetching " path query-params)
               (api/fetch! api-route query-params route-param-names
-                          {:handler       (u/create-calback handler)
-                           :error-handler (u/create-calback error-handler)})
+                          {:handler       (d/create-handler handler)
+                           :error-handler (d/create-handler error-handler)})
               (d/assoc-query-loading db path true))
           db))))
 

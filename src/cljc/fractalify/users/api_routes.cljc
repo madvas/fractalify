@@ -1,7 +1,7 @@
 (ns fractalify.users.api-routes)
 
 (defn get-routes []
-  ["/api/" {"users" {["/" :username] [["/reset-pass" :reset-pass]
+  ["/api/" {"users" {["/" :username] [["/reset-pass" :reset-password]
                                       ["/change-pass" :change-password]
                                       ["/edit-profile" :edit-profile]
                                       ["" :user]]}

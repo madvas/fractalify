@@ -39,7 +39,7 @@
   (map->FractalsDb {}))
 
 (defn transform-rules-cmds [fractal f]
-  (i/transform fractal [:l-system #"rules|cmds"] f))
+  (i/transform fractal [:l-system #(contains? #{:rules :cmds} %)] f))
 
 (s/defn fractal-cljs->db [fractal]
   (transform-rules-cmds fractal u/indexed-map->vec))
@@ -56,7 +56,6 @@
   (when fractal
     (-> fractal
         (transform-rules-cmds u/vec->indexed-map)
-        (i/transform [:l-system :cmds * 1] keyword)
         (assoc :starred-by-me (starred-by-me? (:stars fractal)))
         (dissoc :stars)
         (a/db->cljs fch/PublishedFractal))))

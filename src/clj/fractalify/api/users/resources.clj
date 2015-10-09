@@ -165,7 +165,7 @@
     (frd/logout* res)))
 
 (def routes->resources
-  {:reset-pass      reset-pass
+  {:reset-password  reset-pass
    :change-password change-pass
    :edit-profile    edit-profile
    :user            user

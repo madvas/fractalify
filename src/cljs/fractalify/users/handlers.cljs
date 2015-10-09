@@ -2,7 +2,7 @@
   (:require-macros [fractalify.tracer-macros :refer [trace-handlers]])
   (:require [fractalify.middleware :as m]
             [re-frame.core :as r]
-            [fractalify.db-utils :as d]
+            [fractalify.handler-utils :as d]
             [re-frame.core :as f]
             [fractalify.router :as t]
             [fractalify.tracer]
@@ -24,7 +24,7 @@
          {:api-route     :login
           :params        (d/get-form-data db :users :login)
           :handler       :login-resp
-          :error-handler :login-err}])
+          :error-handler {403 "Sorry, these are wrong credentials"}}])
       db))
 
   (r/register-handler
@@ -32,15 +32,6 @@
     m/standard-middlewares
     (fn [db [user]]
       (login-user db user)))
-
-  (r/register-handler
-    :login-err
-    m/standard-middlewares
-    (fn [db [error]]
-      (p/letk [[status] error]
-        (if (= status 403)
-          (f/dispatch [:show-snackbar "Sorry, these are wrong credentials"]))
-        db)))
 
   (r/register-handler
     :join
@@ -51,16 +42,7 @@
          {:api-route     :join
           :params        (d/get-form-data db :users :join)
           :handler       :login-resp
-          :error-handler :join-err}])
-      db))
-
-  (r/register-handler
-    :join-err
-    m/standard-middlewares
-    (fn [db [err]]
-      (if (= 409 (:status err))
-        (f/dispatch [:show-snackbar "Sorry, this account already exists. Please choose other"])
-        (mh/default-send-err-handler err false))
+          :error-handler {409 "Sorry, this account already exists. Please choose other"}}])
       db))
 
   (r/register-handler
@@ -68,7 +50,8 @@
     [m/standard-middlewares (f/undoable "logout")]
     (fn [db _]
       (f/dispatch [:api-post
-                   {:api-route :logout}])
+                   {:api-route   :logout
+                    :error-undo? true}])
       (t/go! :home)
       (u/dissoc-in db [:users :logged-user])))
 
@@ -77,9 +60,10 @@
     [m/standard-middlewares (r/undoable "forgot-password")]
     (fn [db _]
       (f/dispatch [:api-post
-                   {:api-route :forgot-password
-                    :params    (d/get-form-data db :users :forgot-password)
-                    :handler   :forgot-password-resp}])
+                   {:api-route   :forgot-password
+                    :params      (d/get-form-data db :users :forgot-password)
+                    :handler     :forgot-password-resp
+                    :error-undo? true}])
       (assoc-in db [:users :forms :forgot-password :email] "")
       db))
 
@@ -100,7 +84,8 @@
                      {:api-route    :edit-profile
                       :route-params (u/select-key (d/logged-user db) :username)
                       :params       profile
-                      :handler      :edit-profile-resp}])
+                      :handler      :edit-profile-resp
+                      :error-undo?  true}])
         (update-in db [:users :logged-user] (u/partial-right merge profile)))))
 
   (r/register-handler
@@ -118,7 +103,7 @@
                    {:api-route    :change-password
                     :route-params (u/select-key (d/logged-user db) :username)
                     :params       (d/get-form-data db :users :change-password)
-                    :handler      :change-password-resp}])
+                    :handler      #(d/show-snackbar "Your password has been successfully changed.")}])
       db))
 
   (r/register-handler
@@ -126,4 +111,27 @@
     m/standard-middlewares
     (fn [db _]
       (f/dispatch [:show-snackbar "Your password has been successfully changed."])
+      db))
+
+  (r/register-handler
+    :reset-password
+    m/standard-middlewares
+    (fn [db _]
+      (let [form-data (d/get-form-data db :users :reset-password)]
+        (f/dispatch [:api-post
+                     {:api-route     :reset-password
+                      :params        form-data
+                      :route-params  (u/select-key form-data :username)
+                      :handler       :reset-password-resp
+                      :error-handler {401 "Sorry, your token is invalid or expired"}}]))
+      db))
+
+  (r/register-handler
+    :reset-password-resp
+    m/standard-middlewares
+    (fn [db _]
+      (f/dispatch [:show-snackbar "Your password has been reset. You can login now"])
+      (t/go! :home)
       db)))
+
+

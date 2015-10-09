@@ -11,7 +11,7 @@
             [schema.core :as s :include-macros true]
             [fractalify.fractals.schemas :as fch]
             [fractalify.router :as t]
-            [fractalify.db-utils :as d]
+            [fractalify.handler-utils :as d]
             [fractalify.components.dialog :as dialog]
             [plumbing.core :as p]
             [com.rpl.specter :as e]))
@@ -113,16 +113,15 @@
     [m/standard-middlewares (f/undoable "fractal-toggle-star")]
     (fn [db [id]]
       (if-not (d/logged-user db)
-        (do
-          (f/dispatch [:show-snackbar "You must be logged in to star a fractal"])
-          (t/go! :login)
-          db)
+        (do (d/snack-n-go! "Please log in first in order to star a fractal" :login)
+            db)
         (let [path [:fractals :fractal-detail]
               [f dispatch] (if (starred-by-me? db) [dec :api-delete]
                                                    [inc :api-post])]
           (f/dispatch [dispatch
                        {:api-route    :fractal-star
-                        :route-params {:id id}}])
+                        :route-params {:id id}
+                        :error-undo?  true}])
           (-> db
               (update-in (into path [:star-count]) f)
               (update-in (into path [:starred-by-me]) not)
@@ -145,7 +144,8 @@
     (fn [db [fractal-id comment-id]]
       (f/dispatch [:api-delete
                    {:api-route    :fractal-comment
-                    :route-params {:id fractal-id :comment-id comment-id}}])
+                    :route-params {:id fractal-id :comment-id comment-id}
+                    :error-undo?  true}])
       (u/remove-first-in db [:fractals :fractal-detail :comments :items] {:id comment-id})))
 
   (f/register-handler
@@ -168,8 +168,12 @@
     :fractal-fork
     m/standard-middlewares
     (s/fn [db [fractal :- fch/PublishedFractal]]
-      (t/go! :fractal-create)
-      (update-in db [:fractals :forms] #(merge % (select-keys fractal [:l-system :canvas])))))
+      (if-not (d/logged-user db)
+        (do (d/snack-n-go! "Please log in first in order to fork a fractal" :login)
+            db)
+        (do
+          (t/go! :fractal-create)
+          (update-in db [:fractals :forms] #(merge % (select-keys fractal [:l-system :canvas])))))))
 
   (f/register-handler
     :fractal-remove
@@ -179,7 +183,8 @@
         (dialog/hide-dialog!)
         (f/dispatch [:api-delete
                      {:api-route    :fractal
-                      :route-params id-entry}])
+                      :route-params id-entry
+                      :error-undo?  true}])
         (u/remove-first-in db [:fractals :fractals-user :items] id-entry))))
   )
 

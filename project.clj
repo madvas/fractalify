@@ -59,7 +59,8 @@
                  [io.clojure/liberator-transit "0.3.0"]
                  [ring-middleware-format "0.6.0"]
                  [com.cognitect/transit-clj "0.8.281"]
-                 [com.rpl/specter "0.7.1"]]
+                 [com.rpl/specter "0.7.1"]
+                 [instar "1.0.10"]]
 
   :plugins [[lein-cljsbuild "1.1.0"]
             [lein-environ "1.0.0"]

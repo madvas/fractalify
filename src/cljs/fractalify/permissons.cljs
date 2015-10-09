@@ -7,11 +7,10 @@
 (defmulti permission identity)
 
 (defmethod permission :login-required [_ db]
-  (when-not (:users :logged-user db)
+  (when-not (u/has-key? (:users db) :logged-user)
     [:login "You must be logged in to see this page"]))
 
-(s/defn validate-permissions :- (s/maybe {:redirect s/Keyword
-                                          :message  s/Str})
+(s/defn validate-permissions :- (s/maybe {:redirect s/Keyword :message s/Str})
   ([_] nil)
   ([db
     perms :- [s/Keyword]]

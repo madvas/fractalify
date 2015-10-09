@@ -48,7 +48,8 @@
 
              :last-modified
              (fn [ctx]
-               (.lastModified (::file ctx))))
+               (when-let [file (::file ctx)]
+                 (.lastModified file))))
 
 (defresource main-routes [_]
              :available-media-types ["text/html" "text/plain"]
