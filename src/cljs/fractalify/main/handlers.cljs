@@ -7,7 +7,6 @@
             [fractalify.components.snackbar :as snackbar]
             [fractalify.router :as t]
             [fractalify.main.components.sidenav :as sidenav]
-            [fractalify.permissons :as per]
             [fractalify.tracer :refer [tracer]]
             [clojure.set :as set]
             [fractalify.components.dialog :as dialog]
@@ -36,14 +35,10 @@
   (f/register-handler
     :set-active-panel
     m/standard-middlewares
-    (fn [db [active-panel permissions route-params]]
+    (fn [db [active-panel route-params]]
       (sidenav/close-sidenav!)
-      (if-let [error (per/validate-permissions db permissions)]
-        (do (f/dispatch [:show-snackbar (:message error)])
-            (t/go! (:redirect error))
-            db)
-        (assoc db :active-panel active-panel
-                  :route-params route-params))))
+      (assoc db :active-panel active-panel
+                :route-params route-params)))
 
   (f/register-handler
     :set-form-item

@@ -7,7 +7,7 @@
 (defn define-routes! []
   (t/add-routes! {"fractals"
                   {"/"
-                   {"create" (t/perm :fractal-create [:login-required])
+                   {"create" :fractal-create
                     [:id]    :fractal-detail}}})
 
   (defmethod t/panels :fractal-create [] [fractal-create/fractal-create])

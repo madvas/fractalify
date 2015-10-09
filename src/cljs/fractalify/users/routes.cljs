@@ -15,8 +15,8 @@
                   "logout"                                 :logout
                   "forgot-password"                        :forgot-password
                   ["reset-password/" :username "/" :token] :reset-password
-                  "change-password"                        (t/perm :change-password [:login-required])
-                  "edit-profile"                           (t/perm :edit-profile [:login-required])
+                  "change-password"                        :change-password
+                  "edit-profile"                           :edit-profile
                   ["users/" :username]                     :user-detail})
 
   (defmethod t/panels :login [] (login-join/login-join :login))
