@@ -15,6 +15,7 @@
 
 (def UserRoles [(s/enum :admin :user)])
 
+
 (def UserDb
   {:id                        s/Str
    :username                  Username
