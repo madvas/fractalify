@@ -84,6 +84,10 @@
    :padding-bottom   40
    })
 
+(defn share-btn-style [color]
+  {:font-size 36
+   :color color})
+
 (def pad-0 {:padding 0})
 (def pad-5 {:padding 5})
 (def pad-10 {:padding 10})

@@ -5,10 +5,14 @@
             [schema.core :as s :include-macros true]
             [fractalify.main.schemas :as ch]
             [fractalify.router :as t]
-            [re-frame.core :as f]))
+            [re-frame.core :as f]
+            [fractalify.ga :as ga]))
 
 (defn logged-user [db]
   (get-in db [:users :logged-user]))
+
+(defn logged-username [db]
+  (:username (logged-user db)))
 
 (defn get-form-data [db module form]
   (-> db
@@ -60,9 +64,11 @@
 (defn default-send-err-handler [undo? err]
   (when undo?
     (f/dispatch [:undo]))
-  (let [text (condp = (:status err)
+  (let [status (:status err)
+        text (condp = status
                401 "Seems like you're not authorized to do this. Maybe try to login"
                "Oops, something went awfully wrong :(")]
+    (ga/send-event :server-error :send (str err) status)
     (f/dispatch [:show-snackbar text])))
 
 (defn create-send-error-handler
@@ -70,7 +76,7 @@
    (if (map? x)
      (create-handler
        (p/fnk [status]
-         (if-let [snack-text (x status)]
-           (show-snackbar snack-text)
-           (default-send-err-handler undo? ""))))
+              (if-let [snack-text (x status)]
+                (show-snackbar snack-text)
+                (default-send-err-handler undo? ""))))
      (create-handler x (partial default-send-err-handler undo?)))))

@@ -63,7 +63,8 @@
                  [instar "1.0.10" :exclusions [org.clojure/clojure]]
                  [com.cloudinary/cloudinary-http44 "1.2.1"]
                  [figwheel-sidecar "0.3.7" :exclusions [org.codehaus.plexus/plexus-utils]]
-                 [ring.middleware.conditional "0.2.0"]]
+                 [ring.middleware.conditional "0.2.0"]
+                 [cljsjs/google-analytics "2015.04.13-0"]]
 
   :plugins [[lein-cljsbuild "1.1.0"]
             [lein-environ "1.0.0"]

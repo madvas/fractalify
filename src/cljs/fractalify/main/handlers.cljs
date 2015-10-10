@@ -8,13 +8,13 @@
             [fractalify.router :as t]
             [fractalify.main.components.sidenav :as sidenav]
             [fractalify.tracer :refer [tracer]]
-            [clojure.set :as set]
             [fractalify.components.dialog :as dialog]
             [fractalify.api :as api]
             [re-frame.core :as f]
             [fractalify.handler-utils :as d]
             [schema.core :as s :include-macros true]
-            [plumbing.core :as p]))
+            [plumbing.core :as p]
+            [fractalify.ga :as ga]))
 
 (defn api-send! [params]
   (-> params
@@ -36,6 +36,7 @@
   m/standard-middlewares
   (fn [db [active-panel route-params]]
     (sidenav/close-sidenav!)
+    (ga/send-page-view active-panel route-params)
     (assoc db :active-panel active-panel
               :route-params route-params)))
 
@@ -99,13 +100,13 @@
               {handler #(f/dispatch [:default-fetch-resp path query-params %])}
               {error-handler :default-fetch-resp-err}
               ] opts]
-      (if (or force-reload
-              (not= (d/path-query-params db path) query-params))
-        (do (api/fetch! api-route query-params route-param-names
-                        {:handler       (d/create-handler handler)
-                         :error-handler (d/create-handler error-handler)})
-            (d/assoc-query-loading db path true))
-        db))))
+            (if (or force-reload
+                    (not= (d/path-query-params db path) query-params))
+              (do (api/fetch! api-route query-params route-param-names
+                              {:handler       (d/create-handler handler)
+                               :error-handler (d/create-handler error-handler)})
+                  (d/assoc-query-loading db path true))
+              db))))
 
 (f/register-handler
   :default-fetch-resp
@@ -122,6 +123,7 @@
     (if (= 404 (:status err))
       (f/dispatch [:show-snackbar "Sorry, but this page was not found..."])
       (u/merror "Error while fetching " err))
+    (ga/send-event :server-error :fetch (str err) (:status err))
     db))
 
 (f/register-handler

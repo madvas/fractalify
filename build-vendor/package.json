@@ -19,6 +19,7 @@
     "mdi": "^1.2.65",
     "react": "^0.13.3",
     "react-colors-picker": "=2.0.1",
+    "react-social": "^0.1.8",
     "react-tap-event-plugin": "^0.1.7",
     "reactify": "^1.0.0",
     "uglify-js": "^2.4.16"

@@ -12,9 +12,12 @@
             [fractalify.fractals.handlers]
             [fractalify.fractals.subs]
             [fractalify.fractals.routes]
-            [schema.core :as s]))
+            [schema.core :as s]
+            [cljsjs.google-analytics]))
 
 (enable-console-print!)
+
+(js/ga "create" "UA-21191392-4" "auto")
 
 ;(set! (.-DEBUG js/goog) false)
 (s/set-fn-validation! goog.DEBUG)

@@ -13,8 +13,9 @@
             [fractalify.router :as t]
             [fractalify.handler-utils :as d]
             [fractalify.components.dialog :as dialog]
-            [plumbing.core :as p]
-            [com.rpl.specter :as e]))
+            [com.rpl.specter :as e]
+            [fractalify.ga :as ga]
+            [plumbing.core :as p]))
 
 
 (def turtle-worker (new js/Worker "/public/js/turtle-worker.js"))
@@ -105,8 +106,10 @@
   :fractal-publish-res
   m/standard-middlewares
   (fn [db [fractal]]
-    (t/go! :fractal-detail :id (:id fractal))
-    (assoc-fractal-detail db fractal)))
+    (let [id (:id fractal)]
+      (t/go! :fractal-detail :id id)
+      (ga/send-event :fractals :fractal-publish id)
+      (assoc-fractal-detail db fractal))))
 
 (f/register-handler
   :fractal-toggle-star
@@ -122,6 +125,7 @@
                      {:api-route    :fractal-star
                       :route-params {:id id}
                       :error-undo?  true}])
+        (ga/send-event :fractals :fractal-toggle-star id (f 0))
         (-> db
             (update-in (into path [:star-count]) f)
             (update-in (into path [:starred-by-me]) not)
@@ -136,6 +140,7 @@
                   :params       (d/get-form-data db :fractals :comment)
                   :route-params {:id id}
                   :handler      :fractal-comment-add-resp}])
+    (ga/send-event :fractals :fractal-comment-add id)
     (assoc-in db [:fractals :forms :comment :text] "")))
 
 (f/register-handler
@@ -152,6 +157,7 @@
                  {:api-route    :fractal-comment
                   :route-params {:id fractal-id :comment-id comment-id}
                   :error-undo?  true}])
+    (ga/send-event :fractals :fractal-comment-remove fractal-id)
     (u/remove-first-in db [:fractals :fractal-detail :comments :items] {:id comment-id})))
 
 (f/register-handler
@@ -173,6 +179,7 @@
           db)
       (do
         (t/go! :fractal-create)
+        (ga/send-event :fractals :fractal-fork (:id fractal))
         (update-in db [:fractals :forms] #(merge % (select-keys fractal [:l-system :canvas])))))))
 
 (f/register-handler
@@ -185,6 +192,7 @@
                    {:api-route    :fractal
                     :route-params id-entry
                     :error-undo?  true}])
+      (ga/send-event :fractals :fractal-remove fractal-id)
       (u/remove-first-in db [:fractals :fractals-user :items] id-entry))))
 
 

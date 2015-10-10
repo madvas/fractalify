@@ -9,7 +9,12 @@
     [fractalify.mailers.protocols :as mp]
     [fractalify.users.schemas :as uch]))
 
-(def templates-dir "mail-templates")
+(def tpl-dir "mail-templates/")
+
+(def tpl-files
+  (u/map-values (partial str tpl-dir)
+                {:forgot-password "forgot-password.html"
+                 :join            "join.html"}))
 
 (s/defschema MailerConfig
   {:default-from s/Str
@@ -18,14 +23,10 @@
 (defrecord Mailer [default-from site]
   c/Lifecycle
   (start [this]
-    this
-    #_ (let [files (-> templates-dir io/resource io/file file-seq)
-          templates
-          (into {} (for [f files
-                         :when (not (.isDirectory f))]
-                     {(keyword (u/without-ext (.getName f)))
-                      (slurp f)}))]
-      (assoc this :templates templates)))
+    (->> tpl-files
+         (u/map-values io/resource)
+         (u/map-values slurp)
+         (assoc this :templates)))
 
   (stop [this]
     (dissoc this :templates)))
@@ -48,7 +49,8 @@
    template :- s/Keyword
    template-vals :- {s/Keyword s/Any}
    email :- {s/Keyword s/Str}]
-  #_ (p/letk [[templates default-from site mail-sender] mailer
+  (p/letk [[templates :- {s/Keyword s/Str}
+            default-from site mail-sender] mailer
            body (-> templates
                     template
                     (sel/render (merge site template-vals)))]

@@ -6,7 +6,8 @@
             [re-frame.core :as f]
             [fractalify.router :as t]
             [fractalify.tracer]
-            [fractalify.utils :as u]))
+            [fractalify.utils :as u]
+            [fractalify.ga :as ga]))
 
 (defn login-user [db user]
   (t/go! :home)
@@ -29,6 +30,7 @@
   :login-resp
   m/standard-middlewares
   (fn [db [user]]
+    (ga/send-event :users :login (:username user))
     (login-user db user)))
 
 (r/register-handler
@@ -39,7 +41,9 @@
       [:api-put
        {:api-route     :join
         :params        (d/get-form-data db :users :join)
-        :handler       :login-resp
+        :handler       (fn [user]
+                         (ga/send-event :users :join (:username user))
+                         (f/dispatch [:login-resp user]))
         :error-handler {409 "Sorry, this account already exists. Please choose other"}}])
     db))
 
@@ -51,19 +55,21 @@
                  {:api-route   :logout
                   :error-undo? true}])
     (t/go! :home)
+    (ga/send-event :users :logout (d/logged-username db))
     (u/dissoc-in db [:users :logged-user])))
 
 (r/register-handler
   :forgot-password
   [m/standard-middlewares (r/undoable "forgot-password")]
   (fn [db _]
-    (f/dispatch [:api-post
-                 {:api-route   :forgot-password
-                  :params      (d/get-form-data db :users :forgot-password)
-                  :handler     #(d/snack-n-go! "Password was reset. Please check your email." :home)
-                  :error-undo? true}])
-    (assoc-in db [:users :forms :forgot-password :email] "")
-    db))
+    (let [form-data (d/get-form-data db :users :forgot-password)]
+      (f/dispatch [:api-post
+                   {:api-route   :forgot-password
+                    :params      form-data
+                    :handler     #(d/snack-n-go! "Password was reset. Please check your email." :home)
+                    :error-undo? true}])
+      (ga/send-event :users "forgot-password" (:email form-data))
+      (assoc-in db [:users :forms :forgot-password :email] ""))))
 
 (r/register-handler
   :edit-profile
@@ -76,6 +82,7 @@
                     :params       profile
                     :handler      #(d/show-snackbar "Your profile was successfully saved.")
                     :error-undo?  true}])
+      (ga/send-event :users :edit-profile (d/logged-username db))
       (update-in db [:users :logged-user] (u/partial-right merge profile)))))
 
 
@@ -88,6 +95,7 @@
                   :route-params (u/select-key (d/logged-user db) :username)
                   :params       (d/get-form-data db :users :change-password)
                   :handler      #(d/show-snackbar "Your password has been successfully changed.")}])
+    (ga/send-event :users :change-password (d/logged-username db))
     db))
 
 (r/register-handler
@@ -100,7 +108,8 @@
                     :params        form-data
                     :route-params  (u/select-key form-data :username)
                     :handler       #(d/snack-n-go! "Your password has been reset. You can login now" :login)
-                    :error-handler {401 "Sorry, your token is invalid or expired"}}]))
+                    :error-handler {401 "Sorry, your token is invalid or expired"}}])
+      (ga/send-event :users :reset-password (:username form-data)))
     db))
 
 

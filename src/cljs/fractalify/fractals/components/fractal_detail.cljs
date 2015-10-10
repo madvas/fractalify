@@ -11,19 +11,32 @@
             [fractalify.router :as t]
             [fractalify.fractals.components.comments :as comments]
             [fractalify.components.api-wrap :as api-wrap]
-            [fractalify.fractals.components.fractals-sidebar :as fractals-sidebar]))
+            [fractalify.fractals.components.fractals-sidebar :as fractals-sidebar]
+            [fractalify.components.social :as soc]))
 
 (s/set-fn-validation! true)
 
 (defn canvas-section [_]
   (p/fnk [src] :- ch/PublishedFractal
-    [:img {:src   src
-           :style (merge y/w-100
-                         {:min-height (:height y/canvas-size)})}]))
+         [:img {:src   src
+                :style (merge y/w-100
+                              {:min-height (:height y/canvas-size)})}]))
+
+(defn fractal-url [id]
+  (str "http://fractalify.com" (t/url :fractal-detail :id id)))
+
+(defn share-btn [& _]
+  (fn [btn id icon-class color props]
+    [btn
+     (merge
+       {:url        (fractal-url id)
+        :element    "span"
+        :style      (y/share-btn-style color)
+        :class-name (str "mdi " icon-class)} props)]))
 
 (defn btn-section [_]
   (p/fnk
-    [id title {desc ""} star-count starred-by-me created
+    [id title {desc ""} star-count starred-by-me created src
      [:author gravatar username]] :- ch/PublishedFractal
     [ui/paper {:style y/paper-block}
      [:div.row.between-xs.middle-xs
@@ -45,7 +58,14 @@
          [ui/floating-action-button
           {:icon-class-name  (str "mdi mdi-star" (when-not starred-by-me "-outline"))
            :background-color (ui/color :green400)
-           :on-touch-tap     #(f/dispatch [:fractal-toggle-star id])}]]]]]]))
+           :on-touch-tap     #(f/dispatch [:fractal-toggle-star id])}]]]]]
+     [:div.row.mar-lef-0
+      [share-btn soc/fb-button id "mdi-facebook-box" (ui/color :indigo500)
+       {:message title}]
+      [share-btn soc/twitter-button id "mdi-twitter-box" (ui/color :cyan500)
+       {:message title}]
+      [share-btn soc/pinterest-button id "mdi-pinterest-box" (ui/color :red500)
+       {:media src}]]]))
 
 (defn sidebar-section []
   (fn []
