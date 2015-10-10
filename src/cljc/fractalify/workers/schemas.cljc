@@ -8,7 +8,6 @@
   (spec [_] (s/spec schema))
   (explain [_] (cons 'default-coerce schema)))
 
-
 (defn with-coerce [schema default-value]
   (DefaultCoerceSchema. schema default-value))
 

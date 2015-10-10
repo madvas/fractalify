@@ -1,8 +1,7 @@
 (ns fractalify.users.schemas
   (:require [schema.core :as s]
             [fractalify.main.schemas :as mch]
-            [fractalify.utils :as u]
-            [schema.experimental.abstract-map :as am]))
+            [fractalify.utils :as u]))
 
 (def o s/optional-key)
 

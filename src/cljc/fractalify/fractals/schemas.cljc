@@ -6,7 +6,6 @@
             [fractalify.utils :as u]))
 
 (def o s/optional-key)
-
 (def hex-color? (partial re-matches #"^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"))
 (def FractalTitle s/Str)
 (def FractalDesc s/Str)
