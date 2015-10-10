@@ -20,6 +20,9 @@
    :-webkit-box-flex 1
    :flex             1})
 
+(def logo
+  {:margin-top 11})
+
 (def canvas-size
   {:width  600
    :height 600})

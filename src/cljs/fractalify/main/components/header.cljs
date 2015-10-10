@@ -34,10 +34,10 @@
                                         (t/url :user-detail :username (:username @user)))]]
                         (right-button "Login / Join"
                                       (t/url :login)))]
-        [ui/app-bar {
-                     :title                    (r/as-element
-                                                 [:h1 {:style y/page-title}
-                                                  [:a {:href (t/url :home) :class "no-dec"} "Fractalify"]])
+        [ui/app-bar {:title                    (r/as-element
+                                                 [:a {:href (t/url :home) :class "no-dec"}
+                                                  [:img {:src   "public/img/fractalify.svg"
+                                                         :style y/logo}]])
                      :iconElementRight         (r/as-element right-btn)
                      :showMenuIconButton       (not (empty? @user))
                      :onLeftIconButtonTouchTap #(sidenav/toggle-sidenav!)}]))))

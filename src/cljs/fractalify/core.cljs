@@ -17,7 +17,7 @@
 
 (enable-console-print!)
 
-(js/ga "create" "UA-21191392-4" "auto")
+(js/ga "create" (str "UA-21191392-" (if goog.DEBUG "4" "9")) "auto")
 
 ;(set! (.-DEBUG js/goog) false)
 (s/set-fn-validation! goog.DEBUG)
