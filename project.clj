@@ -30,7 +30,7 @@
                  [kibu/pushy "0.3.2"]
                  [rm-hull/monet "0.2.1"]
                  [bidi "1.21.0"]
-                 [prismatic/plumbing "0.4.4"]
+                 [prismatic/plumbing "0.5.0"]
                  [camel-snake-kebab "0.3.2"]
                  [org.clojure/test.check "0.8.1"]
                  [com.andrewmcveigh/cljs-time "0.3.13"]

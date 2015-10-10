@@ -48,7 +48,7 @@
    template :- s/Keyword
    template-vals :- {s/Keyword s/Any}
    email :- {s/Keyword s/Str}]
-  (p/letk [[templates default-from site mail-sender] mailer
+  #_ (p/letk [[templates default-from site mail-sender] mailer
            body (-> templates
                     template
                     (sel/render (merge site template-vals)))]

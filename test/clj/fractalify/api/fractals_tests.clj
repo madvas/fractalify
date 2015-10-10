@@ -123,8 +123,8 @@
         (get-fractals {:limit 5}) => (fractal-list? 5))
 
   (fact "gets list of fractals paginated"
-        (let [first-fracs (get-fractals {:limit 2 :page 1 :sort "recent"})
-              second-fracs (get-fractals {:limit 1 :page 2 :sort "recent"})]
+        (let [first-fracs (get-fractals {:limit 2 :page 1 :sort (name :created)})
+              second-fracs (get-fractals {:limit 1 :page 2 :sort (name :created)})]
           first-fracs => (fractal-list? 2)
           second-fracs => (fractal-list? 1)
           (= (-> (a/get-list-items first-fracs) second)
