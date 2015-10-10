@@ -4,7 +4,7 @@
             [goog.events.EventType :as t]))
 
 (defn evt-data [evt]
-  (js->clj (aget evt "event_" "data") :keywordize-keys true))
+  (js->clj (aget (.-event_ evt) "data") :keywordize-keys true))
 
 (defn on-message
   ([f] (on-message f js/self))

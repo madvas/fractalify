@@ -60,7 +60,10 @@
 (defn default-send-err-handler [undo? err]
   (when undo?
     (f/dispatch [:undo]))
-  (f/dispatch [:show-snackbar "Oops, something went awfully wrong :("]))
+  (let [text (condp = (:status err)
+               401 "Seems like you're not authorized to do this. Maybe try to login"
+               "Oops, something went awfully wrong :(")]
+    (f/dispatch [:show-snackbar text])))
 
 (defn create-send-error-handler
   ([undo? x]

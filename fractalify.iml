@@ -16,7 +16,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/cljs/workers" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test/cljs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test/clj" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/env/prod/clj" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/resources/public/js" />
       <excludeFolder url="file://$MODULE_DIR$/resources/public/vendor" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
@@ -75,6 +74,7 @@
     <orderEntry type="library" name="Leiningen: reagent:0.5.1" level="project" />
     <orderEntry type="library" name="Leiningen: ring-basic-authentication:1.0.5" level="project" />
     <orderEntry type="library" name="Leiningen: ring-middleware-format:0.6.0" level="project" />
+    <orderEntry type="library" name="Leiningen: ring.middleware.conditional:0.2.0" level="project" />
     <orderEntry type="library" name="Leiningen: ring/ring-defaults:0.1.5" level="project" />
     <orderEntry type="library" name="Leiningen: ring:1.4.0" level="project" />
     <orderEntry type="library" name="Leiningen: rm-hull/monet:0.2.1" level="project" />

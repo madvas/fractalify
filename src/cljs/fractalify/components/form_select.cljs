@@ -19,7 +19,6 @@
 (s/defn parse-val [evt menu-items :- MenuItems val-member]
   "Hack to retrieve value types other than string, because e.target.value
   always returns string (no keywords)"
-  (println "va" val-member)
   (let [val (u/e-val evt)]
     (-> menu-items
         (->> (e/select [e/ALL val-member]))
@@ -33,7 +32,7 @@
            [{display-member default-display-member}] props]
     [value-member display-member]))
 
-(def Value (s/maybe (s/cond-pre s/Str s/Keyword s/Num)))
+(def Value (s/maybe s/Any #_ (s/cond-pre s/Str s/Keyword s/Num)))
 
 (s/defn form-select
   ([_

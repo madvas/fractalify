@@ -18,7 +18,7 @@
                    ["#000" 0]))
 
 (s/defschema Base64Png (s/pred (partial re-matches
-                                (re-pattern (str "^" u/base64-png-prefix ".*")))))
+                                        (re-pattern (str "^" u/base64-png-prefix ".*")))))
 
 (s/defschema operation-type (s/enum :cmds :rules))
 
@@ -47,7 +47,7 @@
      :canvas   (dissoc Canvas (o :lines))
      :data-url Base64Png}))
 
-(s/defschema FractalOrderTypes (s/enum :best :recent))
+(s/defschema FractalOrderTypes (s/enum :star-count :created))
 
 (s/defschema FractalListForm
   {(o :page)     s/Int
@@ -94,8 +94,8 @@
    (o :fractal-detail)      PublishedFractal
    (o :fractals-sidebar)    PublishedFractalsList
    (o :fractals-user)       PublishedFractalsList
-   (o :fractals-home)       {(o :best)   PublishedFractalsList
-                             (o :recent) PublishedFractalsList}
+   (o :fractals-home)       {(o :star-count) PublishedFractalsList
+                             (o :created)    PublishedFractalsList}
    (o :l-system-generating) s/Bool})
 
 (def dragon-curve
@@ -121,7 +121,7 @@
   {:forms (merge
             (mch/coerce-forms-with-defaults FractalsForms)
             {:sidebar {:page     1
-                       :sort     :best
-                       :sort-dir 1
+                       :sort     :star-count
+                       :sort-dir -1
                        :limit    10}}
             dragon-curve)})

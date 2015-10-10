@@ -81,6 +81,7 @@
    :display          :block
    :position         :relative
    :min-height       "90%"
+   :padding-bottom   40
    })
 
 (def pad-0 {:padding 0})

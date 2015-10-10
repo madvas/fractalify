@@ -17,8 +17,8 @@
      :query-params-sub [:fractals-home-query-params type]
      :force-reload     true}))
 
-(def best-api-wrap (create-home-api :best))
-(def recent-api-wrap (create-home-api :recent))
+(def best-api-wrap (create-home-api :star-count))
+(def recent-api-wrap (create-home-api :created))
 
 (defn fractals-list [_]
   (fn [title fractals]

@@ -163,7 +163,9 @@
 (def select-values (comp vals select-keys))
 
 (defn ellipsis [s max-chars]
-  (str (subs s 0 max-chars) "..."))
+  (if (> (count s) max-chars)
+    (str (subs s 0 max-chars) "...")
+    s))
 
 (defn select-key [map k]
   (select-keys map [k]))

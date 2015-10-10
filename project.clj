@@ -80,12 +80,12 @@
                                                       :source-map    "resources/public/js/out.js.map"
                                                       :optimizations :none
                                                       :externs       ["src/externs.js"]
-                                                      :pretty-priœnt  true}}
+                                                      :pretty-priœnt true}}
                        :turtle-worker {:source-paths ["src/cljs/workers" "src/cljc/fractalify/workers"]
                                        :compiler     {:main          fractalify.workers.turtle
                                                       :output-to     "resources/public/js/turtle-worker.js"
                                                       :output-dir    "resources/public/js/turtle-worker"
-                                                      :optimizations :none
+                                                      :optimizations :simple
                                                       :pretty-print  true
                                                       :externs       ["src/externs.js"]}}}}
 

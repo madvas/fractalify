@@ -20,8 +20,8 @@
      :query-params-sub :fractals-sidebar-query-params}))
 
 (def sort-items
-  [{:payload :best :text "Top Rated"}
-   {:payload :recent :text "Most Recent"}])
+  [{:payload :star-count :text "Top Rated"}
+   {:payload :created :text "Most Recent"}])
 
 (defn list-order-select []
   [form/form :fractals :sidebar
