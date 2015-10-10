@@ -26,7 +26,7 @@
                  [day8/re-frame-tracer "0.1.0-SNAPSHOT" :exclusions [org.clojars.stumitchell/clairvoyant]]
                  [org.clojars.stumitchell/clairvoyant "0.1.0-SNAPSHOT"]
                  [binaryage/devtools "0.3.0"]
-                 [prismatic/schema "1.0.0"]
+                 [prismatic/schema "1.0.1"]
                  [kibu/pushy "0.3.2"]
                  [rm-hull/monet "0.2.1"]
                  [bidi "1.21.0"]
