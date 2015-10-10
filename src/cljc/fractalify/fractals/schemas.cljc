@@ -23,8 +23,8 @@
 (s/defschema operation-type (s/enum :cmds :rules))
 
 (do
-  #?@(:cljs [(s/defschema CanvasElement (s/pred (partial instance? js/HTMLCanvasElement)))
-             (s/defschema CanvasContext (s/pred (partial instance? js/CanvasRenderingContext2D)))]))
+  #?@(:cljs [(def CanvasElement (s/pred (partial instance? js/HTMLCanvasElement)))
+             (def CanvasContext (s/pred (partial instance? js/CanvasRenderingContext2D)))]))
 
 (s/defschema FractalIdField
   {:id s/Str})
