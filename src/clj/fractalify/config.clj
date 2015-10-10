@@ -8,7 +8,7 @@
                           :host    "127.0.0.1"
                           :db-name "fractalify-dev"
                           :port    27017}
-   :http-listener        {:port (System/getenv "PORT")}
+   :http-listener        {:port (u/s->int (or (System/getenv "PORT") 10555))}
    :figwheel             {}
    :mailer               {:default-from "fractalify.herokuapp.com"}
    :sendgrid-mail-sender {:auth {:api-user (System/getenv "MAILER_USER")
