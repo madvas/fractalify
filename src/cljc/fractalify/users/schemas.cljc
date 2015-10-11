@@ -81,8 +81,8 @@
 (s/defschema UsersSchema
   {(o :logged-user) (s/maybe UserMe)
    :forms           UserForms
-   (o :user-detail) (s/conditional (complement (partial s/check UserOther)) UserOther :else UserMe)})
-
+   (o :user-detail) (s/maybe
+                      (s/conditional (complement (partial s/check UserOther)) UserOther :else UserMe))})
 
 (def default-db
   {:forms (merge

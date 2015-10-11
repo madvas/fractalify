@@ -70,6 +70,11 @@
 (f/register-sub
   :fractals-user-query-params
   (s/fn [db]
-    (reaction (merge {:limit 1000 :sort :created :sort-dir -1} (u/select-key @db :username)))))
+    (let [route-params (f/subscribe [:route-params])]
+      (reaction (merge {:limit    1000
+                        :sort     :created
+                        :sort-dir -1
+                        :username (:username route-params)}
+                       (u/select-key @db :username))))))
 
 

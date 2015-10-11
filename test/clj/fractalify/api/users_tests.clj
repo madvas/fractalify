@@ -107,6 +107,9 @@
   (fact "it loads some user"
         (get-user ug/some-user) => (user-response? ug/some-user uch/UserOther))
 
+  (fact "it returns 404 for non existent user"
+        (get-user {:username "non-existent"}) => a/not-found)
+
   (fact "it disallows to edit profile to unauthenticated"
         (edit-profle ug/some-user) => a/unauthorized)
 

@@ -42,6 +42,7 @@
        {:api-route     :join
         :params        (d/get-form-data db :users :join)
         :handler       (fn [user]
+                         (d/show-snackbar "Welcome to fractalify, enjoy your stay here :)")
                          (ga/send-event :users :join (:username user))
                          (f/dispatch [:login-resp user]))
         :error-handler {409 "Sorry, this account already exists. Please choose other"}}])

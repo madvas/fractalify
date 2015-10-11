@@ -36,26 +36,28 @@
     (when-let [user (frd/current-authentication)]
       (u/eq-in-key? :username params user))))
 
-(defn get-user-fn [db params]
-  (let [me (or ((me? params)) (a/admin?))]
-    (s/fn get-user :- (s/maybe (s/conditional (constantly me)
-                                              uch/UserMe
-                                              :else uch/UserOther)) [_]
-      (let [schema (if me uch/UserMe uch/UserOther)]
-        (udb/get-user db (u/select-key params :username) schema)))))
+(s/defn get-user [db params]
+  (let [me (or ((me? params)) (a/admin?))
+        schema (if me uch/UserMe uch/UserOther)]
+    (udb/get-user db (u/select-key params :username) schema)))
 
 
 (defresource
   logged-user [{:keys [db params]}]
   a/base-resource
   :handle-ok
-  (when-let [user (frd/current-authentication)]
-    (get-user-fn db (u/select-key user :username))))
+  (fn [_]
+    (when-let [user (frd/current-authentication)]
+      (get-user db (u/select-key user :username)))))
 
 (defresource
   user [{:keys [db params]}]
   a/base-resource
-  :handle-ok (get-user-fn db params))
+  :exists?
+  (fn [_]
+    (when-let [user (get-user db params)]
+      {::user user}))
+  :handle-ok ::user)
 
 (defresource
   join [{:keys [db params]}]

@@ -67,7 +67,9 @@
   :malformed? (a/malformed-params? fch/FractalListForm params)
   :handle-ok
   (s/fn :- fch/PublishedFractalsList [_]
-    {:total-items (fdb/fractal-count db)
+    {:total-items (fdb/fractal-count
+                    db (when-let [username (:username params)]
+                         {:username username}))
      :items       (fdb/get-fractals db params)}))
 
 (defn star-fractal [db params unstar?]

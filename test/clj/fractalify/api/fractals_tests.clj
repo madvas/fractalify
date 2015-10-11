@@ -131,6 +131,10 @@
              (-> (a/get-list-items second-fracs) first))
           => true))
 
+  (fact "new user has 0 fractals created"
+        (ut/put-new-user)
+        (get-fractals (u/select-key ut/new-user :username)) => (fractal-list? 0 0))
+
   (fact "gets one fractal by id"
         (get-some-fractal-resp) => fractal?)
 

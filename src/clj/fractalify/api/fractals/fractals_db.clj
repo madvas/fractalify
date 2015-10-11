@@ -70,8 +70,8 @@
                        (p/fn->> (populate-author db)
                                 fractal-db->cljs)))
 
-(defn fractal-count [db]
-  (mc/count db coll))
+(defn fractal-count [db where]
+  (mc/count db coll where))
 
 (s/defn fractal-get-by-id [db fractal-id]
   (when (ObjectId/isValid fractal-id)

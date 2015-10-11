@@ -21,11 +21,11 @@
         [:div.col-xs-12
          [form-input/text username "Username or email" [:users :login :username]
           {:required true
-           :name     "username"}]]
+           :name     :username}]]
 
         [:div.col-xs-12
          [form-input/password password "Password" [:users :login :password]
-          {:name "password"}]]
+          {:name :password}]]
 
         [:div.row.col-xs-12.mar-top-20
          [:div.col-xs-6
@@ -49,13 +49,16 @@
         [:div.col-xs-12
          [form-input/text username "Username" [:users :join :username]
           {:required   true
-           :validators [(v/length 3)]}]]
+           :validators [(v/length 3)]
+           :name       :username}]]
 
         [:div.col-xs-12
-         [form-input/email email "Email" [:users :join :email]]]
+         [form-input/email email "Email" [:users :join :email]
+          {:name :email}]]
 
         [:div.col-xs-12
-         [form-input/password password "Password" [:users :join :password]]]
+         [form-input/password password "Password" [:users :join :password]
+          {:name :password}]]
 
         [:div.col-xs-12
          [form-input/password confirm-pass "Confirm Password" [:users :join :confirm-pass]
@@ -65,6 +68,7 @@
          [:div.col-xs-12.col-sm-6.col-sm-offset-6
           [ui/flat-button {:label      "Create Account"
                            :primary    true
+                           :type       :submit
                            :disabled   has-err?
                            :onTouchTap #(f/dispatch [:join])}]]]]))])
 
