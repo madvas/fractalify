@@ -13,8 +13,8 @@
 (def UsernameField
   {:username Username})
 
-(def UserRoles [(s/enum :admin :user)])
-
+#_ (def UserRoles [(s/enum :admin :user)])
+(def UserRoles [s/Keyword])
 
 (def UserDb
   {:id                        s/Str

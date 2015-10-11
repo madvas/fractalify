@@ -17,9 +17,12 @@
                    ["#000" 0]))
 
 (def Base64Png (s/pred (partial re-matches
-                                        (re-pattern (str "^" u/base64-png-prefix ".*")))))
+                                (re-pattern (str "^" u/base64-png-prefix ".*")))))
 
-(def operation-type (s/enum :cmds :rules))
+#_(def operation-type (s/enum :cmds :rules))
+
+;(def operation-type (s/pred #(contains? #{:cmds :rules} %)))
+(def operation-type s/Keyword)
 
 (do
   #?@(:cljs [(def CanvasElement (s/pred (partial instance? js/HTMLCanvasElement)))
@@ -46,7 +49,9 @@
      :canvas   (dissoc Canvas (o :lines))
      :data-url Base64Png}))
 
-(def FractalOrderTypes (s/enum :star-count :created))
+#_(def FractalOrderTypes (s/enum :star-count :created))
+#_(def FractalOrderTypes (s/pred #(contains? #{:star-count :created} %)))
+(def FractalOrderTypes s/Keyword)
 
 (def FractalListForm
   {(o :page)     s/Int
