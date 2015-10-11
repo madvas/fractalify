@@ -51,7 +51,6 @@
     {s/Str keyword->string
      s/Int keyword->int}))
 
-
 (defn l-system-coercion-matcher [schema]
   (or
     (+keyword-coercion+ schema)
