@@ -1,5 +1,5 @@
 # Fractalify
-##### Not just a clojure(script) example app
+##### Not just a clojure example app
 ##
 
 [fractalify.com] is a entertainment and educational webapp for creating & sharing fractal images made via so called [L-systems][1].
