@@ -11,10 +11,8 @@
     [cemerick.drawbridge :as drawbridge]
     [ring.middleware.keyword-params :as keyword-params]
     [ring.middleware.basic-authentication :refer [wrap-basic-authentication]]
-    [ring.middleware.edn :refer [wrap-edn-params]]
     [ring.middleware.format :refer [wrap-restful-format]]
     [fractalify.utils :as u]
-    [fractalify.api.users.resources :as ur]
     [liberator.dev :as ld]
     [cemerick.friend :as frd]
     [ring.middleware.conditional :as mc]))

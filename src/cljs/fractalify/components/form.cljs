@@ -11,4 +11,5 @@
   (let [form-vals (f/subscribe [:form-data module form-name])
         form-errs (f/subscribe [:form-errors module form-name])]
     (fn []
-      [contents @form-vals (not (empty? @form-errs))])))
+      [:form {:on-submit (constantly false)}
+       [contents @form-vals (not (empty? @form-errs))]])))

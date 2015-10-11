@@ -6,7 +6,6 @@
   "scripts": {
     "js:dev": "browserify -t browserify-css main.js > ../resources/public/vendor/vendor.js",
     "js:min": "NODE_ENV=production browserify -t browserify-css main.js | uglifyjs -cm -o ../resources/public/vendor/vendor.min.js",
-    "css": "lessc main.less | cleancss -o ../resources/public/material.css",
     "start": "npm run js:dev && npm run js:min"
   },
   "author": "",

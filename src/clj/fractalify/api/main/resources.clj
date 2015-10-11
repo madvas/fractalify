@@ -3,7 +3,6 @@
     [net.cgrand.enlive-html :refer [deftemplate]]
     [net.cgrand.enlive-html :refer [set-attr prepend append html]]
     [bidi.bidi :refer (path-for RouteProvider)]
-    [ring.util.mime-type :as mime]
     [liberator.core :as l :refer [defresource]]
     [fractalify.utils :as u]
     [clojure.string :as str]
@@ -11,7 +10,9 @@
     [fractalify.api.api :as a]
     [fractalify.main.api-routes :as mar]
     [io.clojure.liberator-transit]
-    [ring.middleware.resource :refer [wrap-resource]]))
+    [ring.middleware.resource :refer [wrap-resource]]
+    [ring.middleware.content-type :refer [wrap-content-type]]
+    [ring.middleware.not-modified :refer [wrap-not-modified]]))
 
 (def inject-devmode-html
   (comp
@@ -32,8 +33,10 @@
              :handle-ok page-html)
 
 (defn static [_]
-  (let [resr (wrap-resource {} "")]
-    resr))
+  (-> {}
+      (wrap-resource "")
+      (wrap-content-type)
+      (wrap-not-modified)))
 
 (def routes->resources
   {:static static

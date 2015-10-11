@@ -26,8 +26,7 @@
                          [:div.col-xs
                           (right-button "Create"
                                         (t/url :fractal-create)
-                                        {:primary true
-                                         }
+                                        {:primary true}
                                         ui/raised-button)]
                          [:div.col-xs
                           (right-button (:username @user)
@@ -36,7 +35,7 @@
                                       (t/url :login)))]
         [ui/app-bar {:title                    (r/as-element
                                                  [:a {:href (t/url :home) :class "no-dec"}
-                                                  [:img {:src   "public/img/fractalify.svg"
+                                                  [:img {:src   "/public/img/fractalify.svg"
                                                          :style y/logo}]])
                      :iconElementRight         (r/as-element right-btn)
                      :showMenuIconButton       (not (empty? @user))

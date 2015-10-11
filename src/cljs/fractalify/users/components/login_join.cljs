@@ -20,10 +20,12 @@
        [paper-content/paper-content
         [:div.col-xs-12
          [form-input/text username "Username or email" [:users :login :username]
-          {:required true}]]
+          {:required true
+           :name     "username"}]]
 
         [:div.col-xs-12
-         [form-input/password password "Password" [:users :login :password]]]
+         [form-input/password password "Password" [:users :login :password]
+          {:name "password"}]]
 
         [:div.row.col-xs-12.mar-top-20
          [:div.col-xs-6
@@ -35,6 +37,7 @@
          [:div.col-xs-6
           [ui/flat-button {:label      "Login"
                            :primary    true
+                           :type       :submit
                            :disabled   has-err?
                            :onTouchTap #(f/dispatch [:login])}]]]]))])
 

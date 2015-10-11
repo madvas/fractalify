@@ -56,4 +56,4 @@
 (defmacro export-material-ui-react-classes []
   `(do ~@(map material-ui-react-import material-tags)))
 
-(macroexpand '(export-material-ui-react-classes))
+(macroexpand '(export-material-ui-react-classes))           ; I paste result of this into material-ui.core in cljs

@@ -1,91 +1,53 @@
-# fractalify
+# Fractalify
+##### Not just a clojure(script) example app
+##
+
+Fractalify is a entertainment and educational webapp for creating & sharing fractal images made via so called [L-systems][1].
+
+Originally, I started this app as a little app for practicing lovely language [Clojure][2] & [Clojurescript][3], but over time it somehow became fully usable and nice webapp :)
+
+Main reason I share this code is that I spent fair amount of time finding out how various libraries work together, so every Clojure beginner can take a quick look into this code if he struggles using same libraries.
+
+##### List of notable libraries used in this project:
+#
+##### *Clojure:*
+*  [Ring](https://github.com/ring-clojure/ring)
+*  [Liberator](http://clojure-liberator.github.io/liberator/) - Awesome stuff for creating REST API
+*  [HTTP Kit](https://github.com/http-kit/http-kit) - Used as HTTP server
+*  [Component](https://github.com/stuartsierra/component) - Dependency Injection for Clojure, lovely!
+*  [Monger](http://clojuremongodb.info/) - Superb Clojure MongoDB client
+*  [Friend](https://github.com/cemerick/friend) -  Authentication library for Clojure/Ring
+*  [Midje](https://github.com/marick/Midje) - Perfect test framework, used for REST API tests
+*  [cloudinary_java](https://github.com/cloudinary/cloudinary_java) Java library used to upload images to [Cloudinary](http://cloudinary.com/)
+##### *Clojurescript*:
+* [re-frame](https://github.com/Day8/re-frame) - Reagent Framework for SPAs (so simple, yet so powerful!)
+* [Reagent](http://reagent-project.github.io/) - Minimalistic React interface
+* [material-ui](http://material-ui.com/#/) - Material Design components for React
+* [pushy](https://github.com/kibu-australia/pushy) - HTML5 pushState
+* [monet](https://github.com/rm-hull/monet) - JS Canvas interop
+* [Figwheel](https://github.com/bhauman/lein-figwheel) Hot loads for cljs
+* [cljs-ajax](https://github.com/JulianBirch/cljs-ajax)
+* WebWorkers - I haven't used any library for this, because none worked for me. It was quite challenging, you can see the code how I eventually managed to get it working.
 
 
-## Development
+##### *Both CLJ & CLJS:*
+* [Schema](https://github.com/Prismatic/schema) - Data validation (this is gold!)
+* [Plumbing](https://github.com/Prismatic/plumbing) - Utility functions (very useful)
+* [Specter](https://github.com/nathanmarz/specter) - Advanced manipulating lists & maps
+* [bidi](https://github.com/juxt/bidi) - Server & Client side routing
+* [Transit Format](https://github.com/cognitect/transit-format) - Format used between client & server
 
-Open a terminal and type `lein repl` to start a Clojure REPL
-(interactive prompt).
+Infinite thanks to creators or Clojure and all these amazing libraries!   
+Feel free to use code in any way or if you know how to improve it, please let me know.
 
-In the REPL, type
+Enjoy!  
+[@matuslestan](https://twitter.com/matuslestan)
 
-```clojure
-(run)
-(browser-repl)
-```
+[1]: https://en.wikipedia.org/wiki/L-system
+[2]: https://github.com/clojure/clojure
+[3]: https://github.com/clojure/clojurescript
 
-The call to `(run)` does two things, it starts the webserver at port
-10555, and also the Figwheel server which takes care of live reloading
-ClojureScript code and CSS. Give them some time to start.
 
-Running `(browser-repl)` starts the Weasel REPL server, and drops you
-into a ClojureScript REPL. Evaluating expressions here will only work
-once you've loaded the page, so the browser can connect to Weasel.
 
-When you see the line `Successfully compiled "resources/public/app.js"
-in 21.36 seconds.`, you're ready to go. Browse to
-`http://localhost:10555` and enjoy.
 
-**Attention: It is not longer needed to run `lein figwheel`
-  separately. This is now taken care of behind the scenes**
 
-## Trying it out
-
-If all is well you now have a browser window saying 'Hello Chestnut',
-and a REPL prompt that looks like `cljs.user=>`.
-
-Open `resources/public/css/style.css` and change some styling of the
-H1 element. Notice how it's updated instantly in the browser.
-
-Open `src/cljs/fractalify/core.cljs`, and change `dom/h1` to
-`dom/h2`. As soon as you save the file, your browser is updated.
-
-In the REPL, type
-
-```
-(ns fractalify.core)
-(swap! app-state assoc :text "Interactivity FTW")
-```
-
-Notice again how the browser updates.
-
-## Deploying to Heroku
-
-This assumes you have a
-[Heroku account](https://signup.heroku.com/dc), have installed the
-[Heroku toolbelt](https://toolbelt.heroku.com/), and have done a
-`heroku login` before.
-
-``` sh
-git init
-git add -A
-git commit
-heroku create
-git push heroku master:master
-heroku open
-```
-
-## Running with Foreman
-
-Heroku uses [Foreman](http://ddollar.github.io/foreman/) to run your
-app, which uses the `Procfile` in your repository to figure out which
-server command to run. Heroku also compiles and runs your code with a
-Leiningen "production" profile, instead of "dev". To locally simulate
-what Heroku does you can do:
-
-``` sh
-lein with-profile -dev,+production uberjar && foreman start
-```
-
-Now your app is running at
-[http://localhost:5000](http://localhost:5000) in production mode.
-
-## License
-
-Copyright © 2014 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
-
-## Chestnut
-
-Created with [Chestnut](http://plexus.github.io/chestnut/) 0.8.1 (90e701e0).
