@@ -8,7 +8,7 @@
 
   :test-paths ["test/clj"]
 
-  :dependencies [[org.clojure/clojure "1.8.0-alpha5"]
+  :dependencies [[org.clojure/clojure "1.7.0-alpha2"]
                  [org.clojure/clojurescript "1.7.48" :scope "provided"]
                  [ring "1.4.0" :exclusions [org.clojure/tools.namespace hiccup]]
                  [ring/ring-defaults "0.1.5" :exclusions [hiccup]]
