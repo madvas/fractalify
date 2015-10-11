@@ -2,14 +2,15 @@
   (:require [schema.core :as s :include-macros true]
             [schema.coerce :as coerce]))
 
-(s/defrecord DefaultCoerceSchema
+#_ (s/defrecord DefaultCoerceSchema
   [schema :- (s/protocol s/Schema) default-value]
   s/Schema
   (spec [_] (s/spec schema))
   (explain [_] (cons 'default-coerce schema)))
 
 (defn with-coerce [schema default-value]
-  (DefaultCoerceSchema. schema default-value))
+  schema
+  #_ (DefaultCoerceSchema. schema default-value))
 
 (def o s/optional-key)
 
