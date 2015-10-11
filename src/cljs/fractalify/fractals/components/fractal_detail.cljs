@@ -57,7 +57,7 @@
         [:div
          [ui/floating-action-button
           {:icon-class-name  (str "mdi mdi-star" (when-not starred-by-me "-outline"))
-           :background-color (ui/color :green400)
+           :background-color (ui/color :amber700)
            :on-touch-tap     #(f/dispatch [:fractal-toggle-star id])}]]]]]
      [:div.row.mar-lef-0
       [share-btn soc/fb-button id "mdi-facebook-box" (ui/color :indigo500)

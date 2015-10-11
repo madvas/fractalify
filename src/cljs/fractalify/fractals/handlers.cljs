@@ -195,7 +195,9 @@
                     :route-params id-entry
                     :error-undo?  true}])
       (ga/send-event :fractals :fractal-remove (:id fractal))
-      (u/remove-first-in db [:fractals :fractals-user :items] id-entry))))
+      (-> db
+          (u/remove-first-in [:fractals :fractals-user :items] id-entry)
+          (update-in [:fractals :fractals-user :total-items] dec)))))
 
 
 
