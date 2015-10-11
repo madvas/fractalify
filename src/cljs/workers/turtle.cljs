@@ -73,7 +73,6 @@
               (update-in [:position :y] (partial move-fn :y))
               (update-turtle-lines position))))
 
-
 (s/defmethod
   command :left :- ch/Turtle
   [_ turtle :- ch/Turtle
