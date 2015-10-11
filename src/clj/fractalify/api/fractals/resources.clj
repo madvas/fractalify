@@ -115,7 +115,6 @@
   (s/fn :- fch/Comment [ctx]
     (::comment ctx)))
 
-
 (defresource
   fractal-comment-delete [{:keys [db params]}]
   a/base-delete
