@@ -21,6 +21,11 @@
 (defn authenticated? [name pass]
   (= [name pass] [(System/getenv "AUTH_USER") (System/getenv "AUTH_PASS")]))
 
+(defn debug-handler [handler]
+  (fn [req]
+    (pprint req)
+    (handler req)))
+
 (def drawbridge-handler
   (-> (drawbridge/ring-handler)
       (keyword-params/wrap-keyword-params)
@@ -28,24 +33,28 @@
       (params/wrap-params)
       (session/wrap-session)))
 
-(defn debug-handler [handler]
-  (fn [req]
-    (pprint req)
-    (handler req)))
-
 (def ring-defaults (-> defaults/site-defaults
                        (u/dissoc-in [:security :anti-forgery])))
+
+(def repl-url "/repl")
+(def api-url "/api")
 
 (defn get-middlewares [handler]
   (-> handler
       (frd/authenticate nil)
       (p/?> u/is-dev? (ld/wrap-trace :header :ui))
       (p/?> u/is-dev? reload/wrap-reload)
-      (mc/if-url-starts-with "/api"
-                             #(wrap-restful-format % :formats [:transit-json]))
-      (mc/if-url-starts-with "/repl"
-                             #(wrap-basic-authentication % drawbridge-handler authenticated?))
-      (defaults/wrap-defaults ring-defaults)))
+      (mc/if-url-starts-with
+        api-url
+        #(wrap-restful-format % :formats [:transit-json]))
+
+      (mc/if-url-starts-with
+        repl-url
+        (constantly (wrap-basic-authentication drawbridge-handler authenticated?)))
+
+      (mc/if-url-doesnt-start-with
+        repl-url
+        #(defaults/wrap-defaults % ring-defaults))))
 
 (defrecord Middlewares []
   c/Lifecycle
