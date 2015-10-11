@@ -19,6 +19,7 @@ Main reason I share this code is that I spent fair amount of time finding out ho
 *  [Friend](https://github.com/cemerick/friend) -  Authentication library for Clojure/Ring
 *  [Midje](https://github.com/marick/Midje) - Perfect test framework, used for REST API tests
 *  [cloudinary_java](https://github.com/cloudinary/cloudinary_java) Java library used to upload images to [Cloudinary](http://cloudinary.com/)
+
 ##### *Clojurescript*:
 * [re-frame](https://github.com/Day8/re-frame) - Reagent Framework for SPAs (so simple, yet so powerful!)
 * [Reagent](http://reagent-project.github.io/) - Minimalistic React interface
