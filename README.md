@@ -50,5 +50,3 @@ Enjoy!
 [fractalify.com]: http://fractalify.com/
 
 
-
-
