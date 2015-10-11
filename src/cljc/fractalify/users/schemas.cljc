@@ -3,20 +3,19 @@
             [fractalify.main.schemas :as mch]
             [fractalify.utils :as u]))
 
-(def o s/optional-key)
+(s/defschema o s/optional-key)
 
-(def Email (s/pred (partial re-matches #"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")))
+(s/defschema Email (s/pred (partial re-matches #"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")))
 (def Username s/Str)
 (def Password s/Str)
 (def UserBio s/Str)
 
-(def UsernameField
+(s/defschema UsernameField
   {:username Username})
 
-#_ (def UserRoles [(s/enum :admin :user)])
-(def UserRoles [s/Keyword])
+(s/defschema UserRoles [(s/enum :admin :user)])
 
-(def UserDb
+(s/defschema UserDb
   {:id                        s/Str
    :username                  Username
    :roles                     UserRoles
@@ -29,49 +28,49 @@
    (o :reset-password-expire) (s/maybe mch/Date)
    (o :reset-password-token)  (s/maybe s/Str)})
 
-(def UserId (u/select-key UserDb :id))
+(s/defschema UserId (u/select-key UserDb :id))
 
-(def UserSession
+(s/defschema UserSession
   (select-keys UserDb [:id :username :roles]))
 
-(def UserMe
+(s/defschema UserMe
   (dissoc UserDb
           :salt
           :password
           (o :reset-password-expire)
           (o :reset-password-token)))
 
-(def UserOther (dissoc UserMe :email))
+(s/defschema UserOther (dissoc UserMe :email))
 
-(def LoginForm
+(s/defschema LoginForm
   {:username Username
    :password Password})
 
-(def JoinForm
+(s/defschema JoinForm
   {:username     Username
    :email        s/Str
    :password     Password
    :confirm-pass Password
    :bio          UserBio})
 
-(def ForgotPassForm
+(s/defschema ForgotPassForm
   {:email s/Str})
 
-(def ResetPassForm
+(s/defschema ResetPassForm
   {:username Username
    :token    s/Str
    :new-pass Password})
 
-(def ChangePassForm
+(s/defschema ChangePassForm
   {:current-pass     Password
    :new-pass         Password
    :confirm-new-pass Password})
 
-(def EditProfileForm
+(s/defschema EditProfileForm
   {:email s/Str
    :bio   UserBio})
 
-(def UserForms
+(s/defschema UserForms
   {:login           LoginForm
    :join            JoinForm
    :forgot-password ForgotPassForm
@@ -79,7 +78,7 @@
    :reset-password  ResetPassForm
    :edit-profile    EditProfileForm})
 
-(def UsersSchema
+(s/defschema UsersSchema
   {(o :logged-user) (s/maybe UserMe)
    :forms           UserForms
    (o :user-detail) (s/conditional (complement (partial s/check UserOther)) UserOther :else UserMe)})

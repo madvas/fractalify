@@ -9,14 +9,14 @@
 
 (def o s/optional-key)
 
-(def DbPath [(s/cond-pre s/Keyword s/Int)])
+(s/defschema DbPath [(s/cond-pre s/Keyword s/Int)])
 
-(def QueryParams {s/Keyword s/Any})
+(s/defschema QueryParams {s/Keyword s/Any})
 
-(def FormErros
+(s/defschema FormErros
   {(o :errors) {s/Keyword s/Any}})
 
-(def Date #?(:clj  (s/pred #(or (satisfies? m/DateTimeProtocol %)
+(s/defschema Date #?(:clj  (s/pred #(or (satisfies? m/DateTimeProtocol %)
                                 (instance? java.util.Date %)))
              :cljs (s/pred #(instance? js/Date %))))
 
