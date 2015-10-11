@@ -38,7 +38,7 @@ Main reason I share this code is that I spent fair amount of time finding out ho
 * [bidi](https://github.com/juxt/bidi) - Server & Client side routing
 * [Transit Format](https://github.com/cognitect/transit-format) - Format used between client & server
 
-Infinite thanks to creators or Clojure and all these amazing libraries!   
+Infinite thanks to creators or Clojure and creators of all these amazing libraries!   
 Feel free to use code in any way or if you know how to improve it, please let me know.
 
 Enjoy!  
