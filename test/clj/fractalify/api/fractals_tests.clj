@@ -96,11 +96,11 @@
   (ut/login login)
   (get-some-fractal))
 
-(defn login-and-put-fractal [login fractal]
+(defn login-and-add-fractal [login fractal]
   (ut/login login)
   (add-fractal fractal))
 
-(def login-and-put-fractal-get (comp :body login-and-put-fractal))
+(def login-and-put-fractal-get (comp :body login-and-add-fractal))
 
 (defn add-star [fractal]
   (a/post (path-for-fractal :fractal-star fractal) {}))
@@ -132,18 +132,23 @@
           => true))
 
   (fact "new user has 0 fractals created"
-        (ut/put-new-user)
+        (ut/put-new-user ut/new-user)
         (get-fractals (u/select-key ut/new-user :username)) => (fractal-list? 0 0))
 
   (fact "gets one fractal by id"
         (get-some-fractal-resp) => fractal?)
 
   (fact "puts new fractal"
-        (login-and-put-fractal ut/some-user-login some-fractal)
+        (login-and-add-fractal ut/some-user-login some-fractal)
         => (new-fractal? some-fractal))
 
+  (fact "new user has 1 fractal after adding 1 fractal"
+        (ut/put-new-user ut/new-user)
+        (login-and-add-fractal ut/new-user some-fractal)
+        (get-fractals (u/select-key ut/new-user :username)) => (fractal-list? 1 1))
+
   (fact "dissallows to put invalid fractal"
-        (login-and-put-fractal ut/some-user-login
+        (login-and-add-fractal ut/some-user-login
                                (dissoc some-fractal :data-url))
         => a/bad-request)
 

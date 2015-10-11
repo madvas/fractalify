@@ -5,7 +5,7 @@
     [fractalify.utils :as u]
     [fractalify.img-cloud.protocols :as icp])
   (:import
-    (com.cloudinary Cloudinary)))
+    (com.cloudinary Cloudinary Transformation)))
 
 (s/defschema CloudinaryConfig
   {:url s/Str})
@@ -23,7 +23,11 @@
     (.. (:cloudinary img-cloud) (uploader) (upload src (hash-map "public_id" filename))))
 
   (delete [img-cloud filename]
-    (.. (:cloudinary img-cloud) (uploader) (destroy filename (hash-map)))))
+    (.. (:cloudinary img-cloud) (uploader) (destroy filename (hash-map))))
+
+  (thumb-url [img-cloud filename width height]
+    (let [trans (.. (Transformation.) (width width) (height height) (crop "scale"))]
+      (.. (:cloudinary img-cloud) (url) (transformation trans) (generate filename)))))
 
 (defn new-cloudinary [config]
   (->> config

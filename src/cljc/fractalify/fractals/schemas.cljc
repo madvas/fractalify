@@ -3,7 +3,8 @@
             [fractalify.workers.schemas :as wch]
             [fractalify.users.schemas :as uch]
             [fractalify.main.schemas :as mch]
-            [fractalify.utils :as u]))
+            [fractalify.utils :as u]
+            [clojure.set :as set]))
 
 (def o s/optional-key)
 (s/defschema hex-color? (partial re-matches #"^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"))
@@ -38,6 +39,11 @@
    :line-width s/Num
    :size       s/Num
    (o :lines)  wch/Lines})
+
+(s/defschema RenderableCanvas
+  (-> Canvas
+      (set/rename-keys {(o :lines) :lines})
+      (merge mch/FormErros)))
 
 (s/defschema PutFractalForm
   (merge
@@ -104,7 +110,7 @@
               :start       "FX"
               :iterations  12
               :line-length 6
-              :origin      {:x 300 :y 300}
+              :origin      {:x 500 :y 400}
               :start-angle 90
               :cmds        {1 ["F" :forward]
                             2 ["+" :left]
@@ -112,9 +118,9 @@
                             4 ["[" :push]
                             5 ["]" :pop]}}
    :canvas   {:bg-color   ["#FFF" 100]
-              :size       600
-              :color      ["#000" 100]
-              :line-width 1}})
+              :size       700
+              :color      ["#00bcd4" 100]
+              :line-width 3}})
 
 (def default-db
   {:forms (merge

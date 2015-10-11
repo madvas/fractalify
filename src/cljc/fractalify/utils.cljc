@@ -211,7 +211,9 @@
   ((and-fn #(identity 5) #(identity 1)))
   => 1
   ((and-fn #(identity false) #(identity 1)))
-  => nil"
+  => nil
+  ((u/and-fn #(identity (or % false)) #(identity (or % 1))) 2)
+  => 2"
   (let [fns (apply juxt fs)]
     (fn [& args]
       (let [results (apply fns args)]

@@ -16,6 +16,9 @@
     {"url" filename})
 
   (delete [_ filename]
-    {"status" "ok"}))
+    {"status" "ok"})
+
+  (thumb-url [_ filename width height]
+    (str "thumb_" filename)))
 
 (def new-mock-img-cloud ->MockImgCloud)

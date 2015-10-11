@@ -3,7 +3,8 @@
             [material-ui.core :as ui]
             [schema.core :as s :include-macros true]
             [fractalify.fractals.schemas :as ch]
-            [fractalify.utils :as u]))
+            [fractalify.utils :as u]
+            [fractalify.fractals.components.fractal-hints :as hints]))
 
 (s/defn operations [items component]
   [:div.row.col-xs-12
@@ -20,6 +21,7 @@
    component
    props]
   [ui/tab props
+   [hints/chars-hint]
    [operations items component]
    [:div.row.center-xs
     [ui/icon-button

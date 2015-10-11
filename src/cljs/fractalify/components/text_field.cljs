@@ -33,10 +33,23 @@
 (defn- set-dirty! [this value]
   (r/set-state this {:dirty? value}))
 
+(defn- get-error [this]
+  (:error (r/state this)))
+
+(defn- set-error! [this value err-path]
+  (f/dispatch (conj err-path value))
+  (r/set-state this {:error value}))
+
 (defn on-change [dispatch val]
   (f/dispatch (conj dispatch val)))
 
-(def Value (s/maybe (s/cond-pre s/Str s/Num)))
+(s/defschema Value (s/maybe (s/cond-pre s/Str s/Num)))
+
+(defn validate [val props]
+  (let [validators (u/concat-vec (when (:required props) [v/required])
+                                 (:validators props))
+        validator (apply u/or-fn validators)]
+    (validator val)))
 
 (s/defn text-field
   ([value floating-label-text props]
@@ -48,23 +61,21 @@
     props :- {s/Keyword s/Any}]
     (let [debounced-change (u/debounce #(on-change path %) (:debounce props))]
       (s/fn [value :- Value _ _ _ props]
-        (let [this (r/current-component)
-              validators (u/concat-vec (when (:required props) [v/required])
-                                       (:validators props))
-              error-text (u/validate-until-error value validators)]
-          (when err-path
-            (f/dispatch (conj err-path error-text)))
+        (let [this (r/current-component)]
           [ui/text-field
            (merge
              {:default-value       value
               :floating-label-text floating-label-text
-              :errorText           (when (dirty? this) error-text)
+              :errorText           (when (dirty? this) (get-error this))
               :style               style
               :underline-style     underline-style
               :error-style         error-style}
              (when path
                {:on-change (fn [evt]
-                             (let [val (parse-val evt (:type props))]
+                             (let [val (parse-val evt (:type props))
+                                   error (validate val props)]
                                (set-dirty! this true)
-                               (debounced-change val)))})
+                               (set-error! this error err-path)
+                               (when-not (and (:stop-dispatch-on-error props) error)
+                                 (debounced-change val))))})
              props)])))))

@@ -1,5 +1,6 @@
 (ns fractalify.validators
-  (:require [fractalify.utils :as u]))
+  (:require [fractalify.utils :as u]
+            [schema.core :as s :include-macros true]))
 
 (defn required [val]
   (when (empty? val) "This field is required"))
@@ -26,5 +27,12 @@
                  (< max c)) (if (= min 0)
                               (str "Please enter string up to " max " characters")
                               (str "Please enter string between " min " and " max " characters")))))))
+
+(s/defn less-eq
+  ([m] (less-eq m (str "Maximum is " m)))
+  ([max-val text]
+    (fn [val]
+      (when (< max-val val)
+        text))))
 
 (def password (length 6))

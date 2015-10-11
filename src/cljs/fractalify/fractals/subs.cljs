@@ -74,7 +74,7 @@
       (reaction (merge {:limit    1000
                         :sort     :created
                         :sort-dir -1
-                        :username (:username route-params)}
+                        :username (:username @route-params)}
                        (u/select-key @db :username))))))
 
 

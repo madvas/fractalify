@@ -40,7 +40,7 @@
 
 (s/defn render!
   [canvas-dom :- ch/CanvasElement
-   canvas :- ch/Canvas]
+   canvas :- ch/RenderableCanvas]
   (when (or (nil? @*ctx*) (not= canvas-dom (aget @*ctx* "canvas")))
     (init! canvas-dom))
   (let [[stroke-color stroke-alpha] (:color canvas)]

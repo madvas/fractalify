@@ -2,4 +2,5 @@
 
 (defprotocol ImgCloud
   (upload [_ filename src])
-  (delete [_ filename]))
+  (delete [_ filename])
+  (thumb-url [_ filename width height]))

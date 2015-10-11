@@ -12,7 +12,8 @@
             [fractalify.fractals.schemas :as fch]
             [fractalify.fractals.components.l-system-operations.rule :as rule]
             [fractalify.fractals.components.l-system-operations.cmd :as cmd]
-            [fractalify.fractals.components.fractal-hint :as fractal-hint]))
+            [fractalify.fractals.components.fractal-hints :as hints]
+            [fractalify.validators :as v]))
 
 (defn preview-shield [fractal]
   [:div
@@ -32,25 +33,32 @@
      :trigger-props {:tooltip         tooltip
                      :icon-class-name (str "mdi mdi-" icon)}}]])
 
+(def max-canvas-size 1000)
+
 (s/defn canvas-controls [fractal-sub preview?]
   (let [fractal (f/subscribe fractal-sub)]
     (fn []
       (when @fractal
-        (p/letk [[l-system canvas] @fractal
-                 [[:origin x y] start start-angle iterations angle line-length rules cmds] l-system
-                 [size line-width color bg-color] canvas]
+        (p/letk
+          [[l-system canvas] @fractal
+           [[:origin x y] start start-angle iterations angle line-length rules cmds] l-system
+           [size line-width color bg-color] canvas]
 
           [ui/paper
            [:div.row.mar-0.pos-rel.pad-ver-10
             (when preview? [preview-shield @fractal])
-            [fractal-hint/fractal-hint]
+            [hints/what-is-this-hint]
 
             [:div.col-xs-6.col-sm-6.col-md-4
              [control-text/control-number x "Start X" [:l-system :origin :x]]]
             [:div.col-xs-6.col-sm-6.col-md-4
              [control-text/control-number y "Start Y" [:l-system :origin :y]]]
-            [:div.col-xs-6.col-sm-6.col-md-4
-             [control-text/control-number size "Canvas Size" [:canvas :size]]]
+            #_ [:div.col-xs-6.col-sm-6.col-md-4
+             [control-text/control-number size "Canvas Size" [:canvas :size]
+              {:validators             [(v/less-eq max-canvas-size
+                                                   (str "Maximum canvas size is " max-canvas-size
+                                                        ". Try smaller line length"))]
+               :stop-dispatch-on-error true}]]
             [:div.col-xs-6.col-sm-6.col-md-4
              [control-text/control-number start-angle "Start Angle" [:l-system :start-angle]]]
             [:div.col-xs-6.col-sm-6.col-md-4
