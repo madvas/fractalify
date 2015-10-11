@@ -91,14 +91,16 @@
           l-system (d/get-form-data db :fractals :l-system)
           canvas (-> (d/get-form-data db :fractals :canvas)
                      (dissoc :lines))]
-      (f/dispatch [:api-put
-                   {:api-route :fractals
-                    :params    (merge
-                                 info
-                                 {:l-system l-system
-                                  :canvas   canvas
-                                  :data-url data-url})
-                    :handler   :fractal-publish-res}])
+      (if (< (count data-url) 7000000)
+        (f/dispatch [:api-put
+                     {:api-route :fractals
+                      :params    (merge
+                                   info
+                                   {:l-system l-system
+                                    :canvas   canvas
+                                    :data-url data-url})
+                      :handler   :fractal-publish-res}])
+        (d/show-snackbar "Sorry, resulting image is too big, please try something simpler or contact the admin"))
       (dialog/hide-dialog!)
       db)))
 
@@ -192,7 +194,7 @@
                    {:api-route    :fractal
                     :route-params id-entry
                     :error-undo?  true}])
-      (ga/send-event :fractals :fractal-remove fractal-id)
+      (ga/send-event :fractals :fractal-remove (:id fractal))
       (u/remove-first-in db [:fractals :fractals-user :items] id-entry))))
 
 

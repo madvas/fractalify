@@ -84,6 +84,7 @@
                                        :compiler     {:main          fractalify.workers.turtle
                                                       :output-to     "resources/public/js/turtle-worker.js"
                                                       :output-dir    "resources/public/js/turtle-worker"
+                                                      :source-map    "resources/public/js/turtle-worker.js.map"
                                                       :optimizations :simple
                                                       :pretty-print  true
                                                       :externs       ["src/externs.js"]}}}}

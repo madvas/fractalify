@@ -52,7 +52,7 @@
                    :lines    []}
            cmd-map (into {} (vals (:cmds l-system)))
            exec-fn (partial exec-cmd l-system cmd-map)]
-    (:lines (reduce exec-fn turtle result-cmds))))
+          (:lines (reduce exec-fn turtle result-cmds))))
 
 
 (s/defn update-turtle-lines :- ch/Turtle
@@ -61,43 +61,50 @@
   (update turtle :lines
           #(conj % [old-pos (:position turtle)])))
 
-(s/defn move-forward :- ch/Turtle
-  [turtle :- ch/Turtle
+(s/defmethod
+  command :forward :- ch/Turtle
+  [_ turtle :- ch/Turtle
    l-system :- ch/LSystem]
   (p/letk [[angle position] turtle
            [line-length] l-system
            move-fn (partial move-coord angle line-length)]
-    (-> turtle
-        (update-in [:position :x] (partial move-fn :x))
-        (update-in [:position :y] (partial move-fn :y))
-        (update-turtle-lines position))))
+          (-> turtle
+              (update-in [:position :x] (partial move-fn :x))
+              (update-in [:position :y] (partial move-fn :y))
+              (update-turtle-lines position))))
 
-(s/defn move-left :- ch/Turtle
-  [turtle :- ch/Turtle
+
+(s/defmethod
+  command :left :- ch/Turtle
+  [_ turtle :- ch/Turtle
    l-system :- ch/LSystem]
   (turn turtle (:angle l-system) +))
 
-(s/defn move-right :- ch/Turtle
-  [turtle :- ch/Turtle
+(s/defmethod
+  command :right :- ch/Turtle
+  [_ turtle :- ch/Turtle
    l-system :- ch/LSystem]
   (turn turtle (:angle l-system) -))
 
-(s/defn push-position :- ch/Turtle
-  [turtle :- ch/Turtle _]
+(s/defmethod
+  command :push :- ch/Turtle
+  [_ turtle :- ch/Turtle
+   l-system :- ch/LSystem]
   (update turtle :stack #(cons (select-keys turtle [:position :angle]) %)))
 
-(s/defn pop-position :- ch/Turtle
-  [turtle :- ch/Turtle _]
+(s/defmethod
+  command :pop :- ch/Turtle
+  [_ turtle :- ch/Turtle
+   l-system :- ch/LSystem]
   (-> turtle
       (merge turtle (first (:stack turtle)))
       (update :stack rest)))
 
-(defmethod command :forward [_ & args] (apply move-forward args))
-(defmethod command :left [_ & args] (apply move-left args))
-(defmethod command :right [_ & args] (apply move-right args))
-(defmethod command :push [_ & args] (apply push-position args))
-(defmethod command :pop [_ & args] (apply pop-position args))
-(defmethod command :default [_ & args] (apply identity args))
+(s/defmethod
+  command :default :- ch/Turtle
+  [_ turtle :- ch/Turtle
+   l-system :- ch/LSystem]
+  turtle)
 
 (def l-system-coercer (coerce/coercer ch/LSystem ch/l-system-coercion-matcher))
 

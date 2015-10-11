@@ -26,3 +26,7 @@
   ([data] (post-message data js/self))
   ([data worker] (.postMessage worker (clj->js data))))
 
+(defn p [& args]
+  "Like print, but returns last arg. For debugging purposes"
+  (apply println args)
+  (last args))
