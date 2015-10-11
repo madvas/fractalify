@@ -2,7 +2,7 @@
 ##### Not just a clojure(script) example app
 ##
 
-Fractalify is a entertainment and educational webapp for creating & sharing fractal images made via so called [L-systems][1].
+[fractalify.com] is a entertainment and educational webapp for creating & sharing fractal images made via so called [L-systems][1].
 
 Originally, I started this app as a little app for practicing lovely language [Clojure][2] & [Clojurescript][3], but over time it somehow became fully usable and nice webapp :)
 
@@ -47,7 +47,7 @@ Enjoy!
 [1]: https://en.wikipedia.org/wiki/L-system
 [2]: https://github.com/clojure/clojure
 [3]: https://github.com/clojure/clojurescript
-
+[fractalify.com]: http://fractalify.com/
 
 
 
