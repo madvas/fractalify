@@ -124,7 +124,9 @@
     (let [id (:id fractal)]
       (t/go! :fractal-detail :id id)
       (ga/send-event :fractals :fractal-publish id)
-      (assoc-fractal-detail db fractal))))
+      (-> db
+          (assoc-fractal-detail fractal)
+          (d/clear-text-form :fractals :info)))))
 
 (f/register-handler
   :fractal-toggle-star
