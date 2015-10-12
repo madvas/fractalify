@@ -123,12 +123,3 @@
               :size       700
               :color      ["#00bcd4" 100]
               :line-width 3}})
-
-(def default-db
-  {:forms (merge
-            (mch/coerce-forms-with-defaults FractalsForms)
-            {:sidebar {:page     1
-                       :sort     :star-count
-                       :sort-dir -1
-                       :limit    10}}
-            dragon-curve)})

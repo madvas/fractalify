@@ -364,4 +364,30 @@
             int
             (#(str % " " (:name unit) (when (> % 1) "s") " ago")))))))
 
+(s/defn coerce-schema-required-keys
+  [schema :- {s/Any s/Any}]
+  ((coerce/coercer
+     schema
+     (fn [schema]
+       (when (array-map? schema)
+         (fn [_]
+           (->> schema
+                (filter
+                  #(and (keyword? (key %))))
+                (map-values
+                  #(cond
+                    (= s/Str %) ""
+                    (= s/Num %) 0
+                    (= s/Int %) 0
+                    (:default-value %) (:default-value %)
+                    :else (println "error coerce:" (type %) %)))))))) {}))
+
+
+(s/defn coerce-forms-with-defaults :- {s/Keyword s/Any}
+  [forms-schemas]
+  (apply merge
+         (for [[k v] forms-schemas
+               :let [form-name (if (instance? schema.core.OptionalKey k) (:k k) k)]]
+           {form-name (coerce-schema-required-keys v)})))
+
 

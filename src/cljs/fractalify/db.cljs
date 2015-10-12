@@ -1,10 +1,12 @@
 (ns fractalify.db
   (:require [schema.core :as s :include-macros true]
-            [fractalify.utils :as u]
-            [fractalify.fractals.schemas :as fch]
-            [fractalify.users.schemas :as uch]
+            [fractalify.main.db :as mdb]
+            [fractalify.users.db :as udb]
+            [fractalify.fractals.db :as fdb]
+            [com.rpl.specter :as e]
             [fractalify.main.schemas :as mch]
-            [com.rpl.specter :as e]))
+            [fractalify.users.schemas :as uch]
+            [fractalify.fractals.schemas :as fch]))
 
 (enable-console-print!)
 (def o s/optional-key)
@@ -38,6 +40,6 @@
   (s/validate db-schema db))
 
 (def default-db
-  {:main     mch/default-db
-   :users    uch/default-db
-   :fractals fch/default-db})
+  {:main     mdb/default-db
+   :users    udb/default-db
+   :fractals fdb/default-db})
