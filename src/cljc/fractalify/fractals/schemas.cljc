@@ -104,6 +104,8 @@
    (o :l-system-generating) s/Bool
    (o :turtle-worker)       #?(:cljs (s/maybe (s/pred (partial instance? js/Worker)))
                                :clj  s/Any)})
+(s/defschema OriginChange
+  {:origin {s/Keyword s/Num}})
 
 (def dragon-curve
   {:l-system {:rules       {1 ["X" "X+YF"]

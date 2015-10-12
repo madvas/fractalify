@@ -13,7 +13,8 @@
             [fractalify.utils :as u]
             [fractalify.config :as cnf]
             [modular.bidi :as mb]
-            [schema.core :as s]))
+            [schema.core :as s]
+            [com.rpl.specter :as e]))
 
 (defn browser-repl []
   (let [repl-env (weasel/repl-env :ip "0.0.0.0" :port 9001)]

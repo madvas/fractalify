@@ -15,10 +15,9 @@
             [fractalify.components.dialog :as dialog]
             [com.rpl.specter :as e]
             [fractalify.ga :as ga]
-            [plumbing.core :as p]))
+            [plumbing.core :as p]
+            [clojure.data :as cd]))
 
-
-#_(def turtle-worker (new js/Worker "/public/js/turtle-worker.js"))
 
 (def fractal-detail (u/partial-right get-in [:fractals :fractal-detail]))
 (def starred-by-me? (u/partial-right get-in [:fractals :fractal-detail :starred-by-me]))
@@ -35,12 +34,22 @@
 (defn assoc-generating [db val]
   (assoc-in db [:fractals :l-system-generating] val))
 
+(defn l-system-form [db]
+  (d/get-form-data db :fractals :l-system))
+
 (f/register-handler
   :l-system-change
   m/standard-middlewares
-  (fn [db [l-system]]
-    (f/dispatch [:generate-cmds l-system])
-    (assoc-generating db true)))
+  (fn [db [l-system-new l-system-old]]
+    (let [[new-diff old-diff] (cd/diff l-system-new l-system-old)]
+      (if-not (s/check fch/OriginChange new-diff)
+        (let [new-origin (:origin new-diff)
+              old-origin (:origin old-diff)]
+          (f/dispatch [:origin-change [(u/first-key new-origin)
+                                       (- (u/first-val new-origin)
+                                          (u/first-val old-origin))]]))
+        (f/dispatch [:generate-cmds l-system-new]))
+      (assoc-generating db true))))
 
 (f/register-handler
   :generate-cmds
@@ -69,6 +78,16 @@
     (-> db
         (assoc-in [:fractals :forms :canvas :lines] lines)
         (assoc-generating false))))
+
+(f/register-handler
+  :origin-change
+  m/standard-middlewares
+  (fn [db [[coord-key diff-val]]]
+    (let [f (partial + diff-val)
+          update-fn #(update % coord-key f)]
+      (-> db
+          (->> (e/transform [:fractals :forms :canvas :lines e/ALL e/ALL] update-fn))
+          (assoc-generating false)))))
 
 (f/register-handler
   :canvas-change

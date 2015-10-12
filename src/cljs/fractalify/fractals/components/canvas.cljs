@@ -1,12 +1,7 @@
 (ns fractalify.fractals.components.canvas
   (:require [re-frame.core :as f]
             [reagent.core :as r]
-            [fractalify.styles :as y]
-            [fractalify.utils :as u]))
-
-(defn dispatch [this type & args]
-  (println "dispatchng: " type)
-  (f/dispatch (u/concat-vec [type (r/dom-node this)] args)))
+            [fractalify.styles :as y]))
 
 (defn canvas-el []
   (let [canvas (f/subscribe [:canvas])]
@@ -21,15 +16,20 @@
            :height (:size @canvas)
            :style  y/canvas-style}])})))
 
+(defn- dispatch-l-system [this l-system-new]
+  (let [l-system-old (:l-system (r/state this))]
+    (f/dispatch [:l-system-change l-system-new l-system-old])
+    (r/set-state this {:l-system l-system-new})))
+
 (defn l-system []
   (let [l-system (f/subscribe [:l-system-new])]
     (r/create-class
       {:component-did-mount
-       (fn []
-         (f/dispatch [:l-system-change @l-system]))
+       (fn [this]
+         (dispatch-l-system this @l-system))
        :component-will-update
-       (fn []
-         (f/dispatch [:l-system-change @l-system]))
+       (fn [this]
+         (dispatch-l-system this @l-system))
        :reagent-render
        (fn []
          @l-system

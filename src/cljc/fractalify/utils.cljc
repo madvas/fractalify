@@ -270,6 +270,12 @@
 (defn has-key? [m k]
   (contains? (set (keys m)) k))
 
+(defn first-key [m]
+  (first (keys m)))
+
+(defn first-val [m]
+  (first (vals m)))
+
 (defn gen-str [n]
   (let [charseq (map char (concat
                             (range 48 58)                   ; 0-9
