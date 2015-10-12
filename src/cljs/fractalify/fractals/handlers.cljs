@@ -213,3 +213,4 @@
       (-> db
           (u/remove-first-in [:fractals :fractals-user :items] id-entry)
           (update-in [:fractals :fractals-user :total-items] dec)))))
+
