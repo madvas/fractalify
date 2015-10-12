@@ -23,13 +23,13 @@
     (fn []
       (let [right-btn (if @user
                         [:div.row.middle-xs.pad-top-5
-                         [:div.col-xs
+                         [:div.col-xs.text-center
                           (right-button "Create"
                                         (t/url :fractal-create)
                                         {:primary true}
                                         ui/raised-button)]
                          [:div.col-xs
-                          (right-button (:username @user)
+                          (right-button (u/ellipsis (:username @user) 10)
                                         (t/url :user-detail :username (:username @user)))]]
                         (right-button "Login / Join"
                                       (t/url :login)))]
