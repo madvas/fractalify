@@ -13,7 +13,7 @@
 
 (defrecord SendgridMailSender [auth]
   mp/MailSender
-  (send-email!
+  (send-email
     [this email]
     (p/letk [[auth] this]
       (sg/send-email (u/map-keys csk/->snake_case auth) email)

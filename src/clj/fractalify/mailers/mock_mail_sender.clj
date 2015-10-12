@@ -4,7 +4,7 @@
 
 (defrecord MockMailSender []
   mp/MailSender
-  (send-email! [_ email]
+  (send-email [_ email]
     email))
 
 (def new-mock-mail-sender ->MockMailSender)

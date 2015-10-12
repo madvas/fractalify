@@ -12,7 +12,9 @@
     [io.clojure.liberator-transit]
     [ring.middleware.resource :refer [wrap-resource]]
     [ring.middleware.content-type :refer [wrap-content-type]]
-    [ring.middleware.not-modified :refer [wrap-not-modified]]))
+    [ring.middleware.not-modified :refer [wrap-not-modified]]
+    [fractalify.main.schemas :as mch]
+    [fractalify.mailers.mailer :as mm]))
 
 (def inject-devmode-html
   (comp
@@ -22,15 +24,30 @@
 
 (def static-dir "resources")
 
-(deftemplate page (io/resource "index.html") []
-             [:body] (if u/is-dev? inject-devmode-html identity))
+(deftemplate
+  page (io/resource "index.html") []
+  [:body] (if u/is-dev? inject-devmode-html identity))
 
 (def page-html
   (str/join "" (page)))
 
-(defresource main-routes [_]
-             :available-media-types ["text/html" "text/plain"]
-             :handle-ok page-html)
+(defresource
+  main [_]
+  :available-media-types ["text/html" "text/plain"]
+  :handle-ok page-html)
+
+(defresource
+  contact [{:keys [params mailer site]}]
+  a/base-post
+  :malformed? (a/malformed-params? mch/ContactForm params)
+  :post-redirect? false
+  :post!
+  (fn [_]
+    (mm/send-email
+      mailer
+      {:subject (:subject params)
+       :text    (str "From: " (:email params) "\n" (:text params))
+       :to      (:contact-email site)})))
 
 (defn static [_]
   (-> {}
@@ -39,8 +56,9 @@
       (wrap-not-modified)))
 
 (def routes->resources
-  {:static static
-   :main   main-routes})
+  {:static  static
+   :contact contact
+   :main    main})
 
 (defrecord MainRoutes []
   RouteProvider

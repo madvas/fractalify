@@ -14,6 +14,7 @@
 (defn footer []
   [:footer.row.middle-xs.center-xs.relative
    [:a {:href (t/url :about)} "About"]
+   [:a.mar-lef-10 {:href (t/url :contact)} "Contact"]
    [:a.mar-lef-10 {:href "http://disapainted.com" :target "_blank"} "disapainted.com"]
    [:div {:style social-btn-style}
     [:a {:class "twitter-share-button"

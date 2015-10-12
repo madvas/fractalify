@@ -3,7 +3,8 @@
 
 (defn config []
   {:site                 {:domain   "fractalify.com"
-                          :protocol "http://"}
+                          :protocol "http://"
+                          :contact-email (System/getenv "CONTACT_EMAIL")}
    :db-server            {:uri     (System/getenv "MONGOLAB_URI")
                           :host    "127.0.0.1"
                           :db-name "fractalify-dev"

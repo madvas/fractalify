@@ -24,17 +24,13 @@
     [fractalify.img-cloud.cloudinary :as cloudinary]))
 
 
-(defn make [f config & ks]
-  (apply f (map #(u/eval-map (get-in config (u/ensure-seq %)))
-                ks)))
-
 (defn http-listener-components
   [system config]
-  (assoc system :http-listener (make mh/map->Webserver config :http-listener)))
+  (assoc system :http-listener (mh/map->Webserver (:http-listener config))))
 
 (defn router-components
   [system config]
-  (assoc system :router (t/new-router)
+  (assoc system :router (t/new-router (:site config))
                 :main-routes (mr/new-main-routes)
                 :user-routes (ur/new-user-routes)
                 :fractal-routes (fr/new-fractal-routes)
@@ -42,19 +38,19 @@
 
 
 (defn fig-component [system config]
-  (assoc system :figwheel (make fig/new-figwheel config :figwheel)))
+  (assoc system :figwheel (fig/new-figwheel (:figwheel config))))
 
 (defn mailer-components [system config]
   (-> system
-      (assoc :mailer (make mm/new-mailer config :mailer :site))
-      (assoc :mail-sender (make sgm/new-sendgrid-mail-sender config :sendgrid-mail-sender))))
+      (assoc :mailer (mm/new-mailer (:mailer config) (:site config)))
+      (assoc :mail-sender (sgm/new-sendgrid-mail-sender (:sendgrid-mail-sender config)))))
 
 (defn less-component [system config]
   (assoc system :less-watcher (lw/new-less-watcher)))
 
 (defn db-components [system config]
   (-> system
-      (assoc :db-server (make mongo/new-mongodb config :db-server))
+      (assoc :db-server (mongo/new-mongodb (:db-server config)))
       (assoc :users-db (udb/new-users-db))
       (assoc :fractals-db (fdb/new-fractals-db))))
 
@@ -64,7 +60,7 @@
       (assoc :fractals-generator (fg/new-fractals-generator))))
 
 (defn img-cloud-component [system config]
-  (assoc system :img-cloud (make cloudinary/new-cloudinary config :cloudinary)))
+  (assoc system :img-cloud (cloudinary/new-cloudinary (:cloudinary config))))
 
 (defn new-system-map
   [config]

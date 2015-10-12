@@ -21,9 +21,11 @@
     {:status "loading"
      :left   0
      :top    0
-     :style  (merge
-               y/canvas-refresh-indicator
-               {:opacity (if visible 1 0)})}]])
+     :style  (y/canvas-refresh-indicator visible)}]
+   [ui/raised-button
+    {:label        "Cancel"
+     :style        (y/canvas-refresh-cancel-btn visible)
+     :on-touch-tap #(f/dispatch [:cancel-turtle-worker])}]])
 
 
 (defn publish-confirm-btn []

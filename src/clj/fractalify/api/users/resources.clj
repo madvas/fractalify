@@ -107,7 +107,7 @@
   (fn [ctx]
     (p/letk [[id username email] (::user ctx)
              token (udb/create-reset-token db id)]
-      (mm/send-email! mailer :forgot-password
+      (mm/send-email-template mailer :forgot-password
                       {:token    token
                        :username username}
                       {:to      email

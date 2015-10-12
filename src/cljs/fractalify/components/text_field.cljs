@@ -59,23 +59,24 @@
     path :- (s/maybe ch/DbPath)
     err-path :- (s/maybe ch/DbPath)
     props :- {s/Keyword s/Any}]
-    (let [debounced-change (u/debounce #(on-change path %) (:debounce props))]
+    (let [debounced-change (u/debounce #(on-change path %) (:debounce props))
+          this (r/current-component)]
+      (set-error! this (validate value props) err-path)
       (s/fn [value :- Value _ _ _ props]
-        (let [this (r/current-component)]
-          [ui/text-field
-           (merge
-             {:default-value       value
-              :floating-label-text floating-label-text
-              :errorText           (when (dirty? this) (get-error this))
-              :style               style
-              :underline-style     underline-style
-              :error-style         error-style}
-             (when path
-               {:on-change (fn [evt]
-                             (let [val (parse-val evt (:type props))
-                                   error (validate val props)]
-                               (set-dirty! this true)
-                               (set-error! this error err-path)
-                               (when-not (and (:stop-dispatch-on-error props) error)
-                                 (debounced-change val))))})
-             props)])))))
+        [ui/text-field
+         (merge
+           {:default-value       value
+            :floating-label-text floating-label-text
+            :errorText           (when (dirty? this) (get-error this))
+            :style               style
+            :underline-style     underline-style
+            :error-style         error-style}
+           (when path
+             {:on-change (fn [evt]
+                           (let [val (parse-val evt (:type props))
+                                 error (validate val props)]
+                             (set-dirty! this true)
+                             (set-error! this error err-path)
+                             (when-not (and (:stop-dispatch-on-error props) error)
+                               (debounced-change val))))})
+           props)]))))

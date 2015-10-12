@@ -101,7 +101,9 @@
    (o :fractals-user)       PublishedFractalsList
    (o :fractals-home)       {(o :star-count) PublishedFractalsList
                              (o :created)    PublishedFractalsList}
-   (o :l-system-generating) s/Bool})
+   (o :l-system-generating) s/Bool
+   (o :turtle-worker)       #?(:cljs (s/maybe (s/pred (partial instance? js/Worker)))
+                               :clj  s/Any)})
 
 (def dragon-curve
   {:l-system {:rules       {1 ["X" "X+YF"]

@@ -147,4 +147,22 @@
     (api-send! (merge {:method :delete :params {}} opts))
     db))
 
+(f/register-handler
+  :contact
+  m/standard-middlewares
+  (fn [db _]
+    (let [form-data (d/get-form-data db :main :contact)]
+      (f/dispatch [:api-post
+                   {:api-route :contact
+                    :params    form-data
+                    :handler   :contact-resp}])
+      (ga/send-event :main :contact (:email form-data))
+      db)))
+
+(f/register-handler
+  :contact-resp
+  m/standard-middlewares
+  (fn [db _]
+    (d/snack-n-go! "You message has been sent. Thank you for contacting us." :home)
+    (d/clear-text-form db :main :contact)))
 

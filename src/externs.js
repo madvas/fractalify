@@ -38,3 +38,7 @@ var React = {
     object : {}
   }
 }
+
+var Worker = {
+  terminate : function() {}
+}

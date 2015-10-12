@@ -6,7 +6,8 @@
             [fractalify.main.schemas :as ch]
             [fractalify.router :as t]
             [re-frame.core :as f]
-            [fractalify.ga :as ga]))
+            [fractalify.ga :as ga]
+            [com.rpl.specter :as e]))
 
 (defn logged-user [db]
   (get-in db [:users :logged-user]))
@@ -18,6 +19,9 @@
   (-> db
       (get-in [module :forms form])
       (dissoc :errors)))
+
+(defn clear-text-form [db module form]
+  (e/transform [module :forms form e/ALL e/LAST] (constantly "") db))
 
 (s/defn path-query-params :- (s/maybe ch/QueryParams)
   [db path :- ch/DbPath]

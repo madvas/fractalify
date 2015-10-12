@@ -12,6 +12,7 @@
 (def db-schema-base
   {(o :active-panel)   s/Keyword
 
+   :main               mch/MainSchema
    :users              uch/UsersSchema
    :fractals           fch/FractalsSchema
 
@@ -27,7 +28,7 @@
 
 (defn assoc-form-errors [db-schema]
   (reduce #(e/transform [%2 :forms e/ALL e/LAST]
-                        (partial merge mch/FormErros) %1) db-schema [:users :fractals]))
+                        (partial merge mch/FormErros) %1) db-schema [:main :users :fractals]))
 
 (def db-schema
   (-> db-schema-base
@@ -37,5 +38,6 @@
   (s/validate db-schema db))
 
 (def default-db
-  {:users    uch/default-db
+  {:main     mch/default-db
+   :users    uch/default-db
    :fractals fch/default-db})

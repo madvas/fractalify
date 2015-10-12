@@ -17,7 +17,8 @@
     {:api-route        :fractals
      :path             [:fractals :fractals-sidebar]
      :value-sub        :fractals-sidebar
-     :query-params-sub :fractals-sidebar-query-params}))
+     :query-params-sub :fractals-sidebar-query-params
+     :force-reload     true}))
 
 (def sort-items
   [{:payload :star-count :text "Top Rated"}
@@ -39,7 +40,8 @@
         :else
         (doall
           (for [fractal (:items fractals)]
-            (p/letk [[id title desc star-count src] fractal]
+            (p/letk
+              [[id title desc star-count src] fractal]
               ^{:key id}
               [:div
                [ui/list-item

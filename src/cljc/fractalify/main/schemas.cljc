@@ -17,8 +17,8 @@
   {(o :errors) {s/Keyword s/Any}})
 
 (s/defschema Date #?(:clj  (s/pred #(or (satisfies? m/DateTimeProtocol %)
-                                (instance? java.util.Date %)))
-             :cljs (s/pred #(instance? js/Date %))))
+                                        (instance? java.util.Date %)))
+                     :cljs (s/pred #(instance? js/Date %))))
 
 (s/defschema ApiSendOpts
   {:api-route        s/Keyword
@@ -28,6 +28,18 @@
    :method           s/Keyword
    :error-handler    s/Any
    (o :error-undo?)  s/Bool})
+
+
+(s/defschema ContactForm
+  {:email   s/Str
+   :text    s/Str
+   :subject s/Str})
+
+(s/defschema MainForms
+  {:contact ContactForm})
+
+(s/defschema MainSchema
+  {:forms MainForms})
 
 (defn list-response [item-type]
   {:items       [item-type]
@@ -58,3 +70,7 @@
          (for [[k v] forms-schemas
                :let [form-name (if (instance? schema.core.OptionalKey k) (:k k) k)]]
            {form-name (coerce-required-keys v)})))
+
+
+(def default-db
+  {:forms (coerce-forms-with-defaults MainForms)})

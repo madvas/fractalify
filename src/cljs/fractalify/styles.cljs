@@ -49,9 +49,20 @@
    :width        40
    :height       40})
 
-(def canvas-refresh-indicator
+(defn canvas-refresh-base [visible]
   (merge
-    (transition "opacity" "0.5s" "ease-in-out")))
+    (transition "opacity" "0.5s" "ease-in-out")
+    {:opacity (if visible 1 0)}))
+
+(defn canvas-refresh-indicator [visible]
+  (canvas-refresh-base visible))
+
+(defn canvas-refresh-cancel-btn [visible]
+  (merge
+    (canvas-refresh-base visible)
+    {:position    :absolute
+     :left        -24
+     :top         60}))
 
 (def canvas-paper-wrap
   {:position      :relative
@@ -89,7 +100,7 @@
 
 (defn share-btn-style [color]
   {:font-size 36
-   :color color})
+   :color     color})
 
 (def pad-0 {:padding 0})
 (def pad-5 {:padding 5})

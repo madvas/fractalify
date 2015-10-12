@@ -1,4 +1,4 @@
 (ns fractalify.mailers.protocols)
 
 (defprotocol MailSender
-  (send-email! [_ email]))
+  (send-email [_ email]))

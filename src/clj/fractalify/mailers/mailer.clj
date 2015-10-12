@@ -38,13 +38,13 @@
        map->Mailer))
 
 (s/defschema EmailMessage
-  {:to       uch/Email
-   :from     s/Str
-   :subject  s/Str
-   :html     s/Str
-   s/Keyword s/Str})
+  {:to                    uch/Email
+   :from                  s/Str
+   :subject               s/Str
+   (s/optional-key :html) s/Str
+   s/Keyword              s/Str})
 
-(s/defn send-email!
+(s/defn send-email-template
   [mailer
    template :- s/Keyword
    template-vals :- {s/Keyword s/Any}
@@ -58,5 +58,16 @@
     (->> email
          (merge {:from default-from :html body})
          (s/validate EmailMessage)
-         (mp/send-email! mail-sender))))
+         (mp/send-email mail-sender))))
+
+
+(s/defn send-email
+  [mailer
+   email :- {s/Keyword s/Str}]
+  (p/letk [[default-from mail-sender] mailer]
+    (s/validate (s/protocol mp/MailSender) mail-sender)
+    (->> email
+         (merge {:from default-from})
+         (s/validate EmailMessage)
+         (mp/send-email mail-sender))))
 

@@ -28,13 +28,14 @@
        (filter satisfies-route?)))
 
 (s/defn dispatch-route
-  [router db mailer img-cloud matched-route :- s/Keyword]
+  [router db mailer img-cloud site matched-route :- s/Keyword]
   (let [resource (match-route->resource matched-route (get-route-providers router))]
     (fn [res]
-      ((resource {:db         db
-                  :params     (:params res)
-                  :mailer     mailer
-                  :img-cloud img-cloud}) res))))
+      ((resource {:db        db
+                  :params    (:params res)
+                  :mailer    mailer
+                  :img-cloud img-cloud
+                  :site      site}) res))))
 
 (s/defn as-request-handler
   "Convert a RouteProvider component into Ring handler."
@@ -45,7 +46,7 @@
         (satisfies? b/RouteProvider service)
         (b/routes service)) handler-fn)))
 
-(defrecord Router []
+(defrecord Router [site]
   c/Lifecycle
   (start [this]
     (assoc this
@@ -64,7 +65,7 @@
     (p/letk [[db] (:db-server this)
              [mailer img-cloud] this
              [middlewares] (:middlewares this)]
-      (middlewares (as-request-handler this (partial dispatch-route this db mailer img-cloud))))))
+      (middlewares (as-request-handler this (partial dispatch-route this db mailer img-cloud site))))))
 
-(defn new-router []
-  (map->Router {}))
+(defn new-router [site]
+  (Router. site))

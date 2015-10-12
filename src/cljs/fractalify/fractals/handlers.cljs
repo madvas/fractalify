@@ -18,7 +18,7 @@
             [plumbing.core :as p]))
 
 
-(def turtle-worker (new js/Worker "/public/js/turtle-worker.js"))
+#_(def turtle-worker (new js/Worker "/public/js/turtle-worker.js"))
 
 (def fractal-detail (u/partial-right get-in [:fractals :fractal-detail]))
 (def starred-by-me? (u/partial-right get-in [:fractals :fractal-detail :starred-by-me]))
@@ -32,22 +32,35 @@
                (constantly fractal) db))
 
 
+(defn assoc-generating [db val]
+  (assoc-in db [:fractals :l-system-generating] val))
+
 (f/register-handler
   :l-system-change
   m/standard-middlewares
   (fn [db [l-system]]
-    (let [db (assoc-in db [:fractals :l-system-generating] true)]
-      (f/dispatch [:generate-cmds l-system])
-      db)))
+    (f/dispatch [:generate-cmds l-system])
+    (assoc-generating db true)))
 
 (f/register-handler
   :generate-cmds
   m/standard-middlewares
   (fn [db [l-system]]
-    (let [result-cmds (l/l-system l-system)]
+    (let [result-cmds (l/l-system l-system)
+          turtle-worker (new js/Worker "/public/js/turtle-worker.js")]
       (w/on-message-once #(f/dispatch [:lines-generated %]) turtle-worker)
-      (w/post-message [l-system result-cmds] turtle-worker))
-    db))
+      (w/post-message [l-system result-cmds] turtle-worker)
+      (assoc-in db [:fractals :turtle-worker] turtle-worker))))
+
+(f/register-handler
+  :cancel-turtle-worker
+  m/standard-middlewares
+  (fn [db _]
+    (when-let [turtle-worker (get-in db [:fractals :turtle-worker])]
+      (.terminate turtle-worker))
+    (-> db
+        (assoc-in [:fractals :turtle-worker] nil)
+        (assoc-generating false))))
 
 (f/register-handler
   :lines-generated
@@ -55,7 +68,7 @@
   (fn [db [lines]]
     (-> db
         (assoc-in [:fractals :forms :canvas :lines] lines)
-        (assoc-in [:fractals :l-system-generating] false))))
+        (assoc-generating false))))
 
 (f/register-handler
   :canvas-change
@@ -143,7 +156,7 @@
                   :route-params {:id id}
                   :handler      :fractal-comment-add-resp}])
     (ga/send-event :fractals :fractal-comment-add id)
-    (assoc-in db [:fractals :forms :comment :text] "")))
+    (d/clear-text-form db :fractals :comment)))
 
 (f/register-handler
   :fractal-comment-add-resp
