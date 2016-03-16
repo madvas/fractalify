@@ -1,6 +1,5 @@
 (ns fractalify.api.fractals.fractals-generator
-  (:require [fractalify.db-generator :only [Generator]]
-            [com.stuartsierra.component :as c]
+  (:require [com.stuartsierra.component :as c]
             [fractalify.utils :as u]
             [plumbing.core :as p]
             [monger.collection :as mc]

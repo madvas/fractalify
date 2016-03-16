@@ -1,6 +1,5 @@
 (ns fractalify.api.users.users-generator
-  (:require [fractalify.db-generator :only [Generator]]
-            [com.stuartsierra.component :as c]
+  (:require [com.stuartsierra.component :as c]
             [fractalify.utils :as u]
             [clojure.test.check.generators :as gen]
             [plumbing.core :as p]
