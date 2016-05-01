@@ -23,7 +23,7 @@ Main reason I share this code is that I spent fair amount of time finding out ho
 ##### *Clojurescript*:
 * [re-frame](https://github.com/Day8/re-frame) - Reagent Framework for SPAs (so simple, yet so powerful!)
 * [Reagent](http://reagent-project.github.io/) - Minimalistic React interface
-* [material-ui](http://material-ui.com/#/) - Material Design components for React
+* [material-ui](http://material-ui.com/#/) - Material Design components for React. See my [library](https://github.com/madvas/cljs-react-material-ui) for simpler adding material-ui your project. Not used here.
 * [pushy](https://github.com/kibu-australia/pushy) - HTML5 pushState
 * [monet](https://github.com/rm-hull/monet) - JS Canvas interop
 * [Figwheel](https://github.com/bhauman/lein-figwheel) Hot loads for cljs
